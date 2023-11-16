@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EcoPulse</string>
+    <string name="google_map_api_key">AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw</string>
 </resources>
