@@ -6,13 +6,81 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+
+    <FrameLayout
+        android:id="@+id/main_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="horizontal"
+        android:background="@color/darkerResedaGreen"
+        android:gravity="center"
+        >
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/guidance_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/guidance"
+            android:includeFontPadding="false"
+            android:text="Guidance"
+            android:textColor="@color/ashGray"
+            android:textSize="10dp"
+            />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/bottom_navbar_location"
+            android:id="@+id/location_nav"
+            android:text="Location"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/community_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/community_icon"
+            android:text="Community"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/profile_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/profile_icon"
+            android:text="Profile"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

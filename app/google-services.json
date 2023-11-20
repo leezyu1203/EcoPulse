@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68620742325",
+    "project_id": "pmxmad",
+    "storage_bucket": "pmxmad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68620742325:android:9877bd551c8e8a6b0218fc",
+        "android_client_info": {
+          "package_name": "com.example.ecopulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

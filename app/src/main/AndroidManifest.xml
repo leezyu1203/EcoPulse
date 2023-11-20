@@ -25,9 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NearbyRecyclingCenter">
-            <!-- Intent filters if needed -->
-        </activity>
+
         <activity android:name=".SchedulePickUp">
             <!-- Intent filters if needed -->
         </activity>

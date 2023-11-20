@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +25,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -31,7 +33,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
+
+public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
     private GoogleMap mGoogleMap = null;
     private Marker myLocationMarker = null;
     private TextView recycleCenterName = null;
@@ -44,15 +47,16 @@ public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapRea
 
 
     private LatLng myLocation = null;
+    protected View locationFragmentView;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.nearby_recycling_center_layout);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        locationFragmentView =  inflater.inflate(R.layout.fragment_location, container, false);
+        final SupportMapFragment mapFragment =(SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this::onMapReady);
 
-
-        final SupportMapFragment mapFragment =(SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
-
+        return locationFragmentView;
     }
 
     @Override
@@ -61,7 +65,7 @@ public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapRea
 
         // Enable the "My Location" layer
         if (mGoogleMap != null) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mGoogleMap.setMyLocationEnabled(true);
 
                 // Add markers here
@@ -71,7 +75,7 @@ public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapRea
                 mGoogleMap.setOnMyLocationChangeListener(this);
                 mGoogleMap.setOnMarkerClickListener(this);
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                ActivityCompat.requestPermissions(this.getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         }
     }
@@ -105,12 +109,12 @@ public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapRea
     }
 
     private void showDialog(Marker marker) {
-        final FrameLayout overlay = new FrameLayout(this);
+        final FrameLayout overlay = new FrameLayout(this.getContext());
         overlay.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         overlay.setBackgroundColor(Color.parseColor("#80000000"));
-        getWindow().addContentView(overlay, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        this.getActivity().getWindow().addContentView(overlay, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        final Dialog dialog = new Dialog(this);
+        final Dialog dialog = new Dialog(this.getContext());
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottom_drawer_layout);
@@ -157,7 +161,7 @@ public class NearbyRecyclingCenter extends AppCompatActivity implements OnMapRea
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(NearbyRecyclingCenter.this, SchedulePickUp.class);
+                        Intent intent = new Intent(getActivity(), SchedulePickUp.class);
                         intent.putExtra("name", name);
                         intent.putExtra("address", address);
                         intent.putExtra("contact", contact);
