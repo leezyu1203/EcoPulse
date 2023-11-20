@@ -33,6 +33,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 
 public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
     private GoogleMap mGoogleMap = null;
@@ -44,7 +46,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private TextView recycleCenterDistance = null;
     private AppCompatButton schedulePickUpButton = null;
 
-
+    private TextView title = null;
 
     private LatLng myLocation = null;
     protected View locationFragmentView;
@@ -53,6 +55,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         locationFragmentView =  inflater.inflate(R.layout.fragment_location, container, false);
+        title = (TextView) getActivity().findViewById(R.id.current_title);
+        if (title != null) {
+            title.setText("Recycling Center Location");
+        }
+
         final SupportMapFragment mapFragment =(SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this::onMapReady);
 
