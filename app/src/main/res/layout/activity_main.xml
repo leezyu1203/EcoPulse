@@ -4,50 +4,120 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DFE6DA"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="257dp"
-        android:layout_height="549dp"
-        android:src="@drawable/tree"
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        app:layout_constraintBaseline_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingHorizontal="20dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/darkerResedaGreen"
+        android:layout_height="58dp">
+        <ImageButton
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/back_icon"
+            />
+        <TextView
+            android:id="@+id/current_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text=""
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:textColor="@color/ashGray"
+            />
+        <ImageButton
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/reminder_icon"
+            />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/main_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="-73dp" />
+        />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@tools:sample/avatars"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="386dp"
-        tools:srcCompat="@drawable/bottom_white" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome\nto EcoPulse"
-        android:textColor="#000000"
-        android:textSize="35sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-
-        tools:layout_editor_absoluteX="30dp" />
-
-    <TextView
-        android:id="@+id/button1"
-        android:layout_width="198dp"
-        android:layout_height="87dp"
-        android:background="@drawable/background_button_intro"
-        android:gravity="center"
-        android:text="Get Started"
-        android:textColor="#ffffff"
-        android:textSize="25sp"
-        android:textStyle="bold"
+    <LinearLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="horizontal"
+        android:background="@color/darkerResedaGreen"
+        android:gravity="center"
+        >
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/guidance_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/guidance"
+            android:includeFontPadding="false"
+            android:text="Guidance"
+            android:textColor="@color/ashGray"
+            android:textSize="10dp"
+            />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/bottom_navbar_location"
+            android:id="@+id/location_nav"
+            android:text="Location"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/community_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/community_icon"
+            android:text="Community"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/profile_nav"
+            android:paddingVertical="10dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/profile_icon"
+            android:text="Profile"
+            android:textSize="10dp"
+            android:textColor="@color/ashGray"
+            />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
