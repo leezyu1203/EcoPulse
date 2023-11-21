@@ -83,7 +83,15 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
 
         ArrayAdapter<searchItem> adapter = new SearchAdapter(getContext(), SEARCH);
+
         searchET = (AutoCompleteTextView) locationFragmentView.findViewById(R.id.search_ET);
+
+        searchET.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchET.showDropDown();
+            }
+        });
         searchET.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -94,6 +102,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
             }
         });
         searchET.setAdapter(adapter);
+
 
         if (title != null) {
             title.setText("Recycling Center Location");

@@ -3,14 +3,14 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/alabaster"
+    android:background="@android:color/transparent"
     android:padding="5dp"
     >
     <TextView
         android:id="@+id/spinnerItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
+        android:padding="10dp"
         android:textSize="15sp" >
     </TextView>
 </RelativeLayout>

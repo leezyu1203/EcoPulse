@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:text="Recycling Center A"
+            android:text=""
             android:textAlignment="textStart"
             android:textColor="@color/black"
             android:textSize="18dp"
@@ -40,7 +40,8 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="27dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="23dp"
                 android:src="@drawable/location" />
 
             <TextView
@@ -49,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="15dp"
                 android:textAlignment="textStart"
-                android:text="Blk 59-03-03, Taman Ungku Tun Aminah, 81300 Skudai Johor."
+                android:text=""
                 />
         </LinearLayout>
 
@@ -72,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="textStart"
                 android:textSize="15dp"
-                android:text="011-7021 6015"
+                android:text=""
                 />
         </LinearLayout>
 
@@ -100,7 +101,9 @@
             android:id="@+id/timeslot"
             android:layout_gravity="start"
             android:layout_marginTop="5dp"
-            android:background="@drawable/schedule_pick_up_button"
+            android:padding="4dp"
+            android:background="@drawable/autocomplete_dropdown_background"
+            android:popupBackground="@drawable/autocomplete_dropdown_background"
             android:spinnerMode="dropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
