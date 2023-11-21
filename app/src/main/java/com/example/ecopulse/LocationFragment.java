@@ -3,6 +3,7 @@ package com.example.ecopulse;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -38,6 +39,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +49,7 @@ import android.widget.Toast;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,20 +68,79 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
     private TextView title = null;
 
+    private AppCompatImageButton searchButton = null;
+    private AutoCompleteTextView searchET = null;
+
     private LatLng myLocation = null;
     protected View locationFragmentView;
+    private static final ArrayList<searchItem> SEARCH = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         locationFragmentView =  inflater.inflate(R.layout.fragment_location, container, false);
         title = (TextView) getActivity().findViewById(R.id.current_title);
+
+
+        ArrayAdapter<searchItem> adapter = new SearchAdapter(getContext(), SEARCH);
+        searchET = (AutoCompleteTextView) locationFragmentView.findViewById(R.id.search_ET);
+        searchET.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                searchItem selectedItem = (searchItem) parent.getItemAtPosition(position);
+                if (selectedItem != null) {
+                    searchET.setText(selectedItem.getTitle());
+                }
+            }
+        });
+        searchET.setAdapter(adapter);
+
         if (title != null) {
             title.setText("Recycling Center Location");
         }
 
         final SupportMapFragment mapFragment =(SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this::onMapReady);
+
+        searchButton = locationFragmentView.findViewById(R.id.search_btn);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String search_text = searchET.getText().toString().toLowerCase();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("SEARCH TAG", task.getResult().getDocuments().toString());
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> recyclingCenterData = document.getData();
+                                String name = (recyclingCenterData.get("name") + "").toLowerCase();
+                                String address = (recyclingCenterData.get("address") + "").toLowerCase();
+                                if (name.contains(search_text) || address.contains(search_text)) {
+                                    Double lat = Double.parseDouble(recyclingCenterData.get("lat") + "");
+                                    Double lng = Double.parseDouble(recyclingCenterData.get("lng") + "");
+                                    LatLng position = new LatLng(lat, lng);
+                                    moveCamera(position);
+                                    break;
+                                }
+                            }
+//                            if (!task.getResult().getDocuments().isEmpty()) {
+//                                DocumentSnapshot recyclingCenterData = task.getResult().getDocuments().get(0);
+//                               Double lat = Double.parseDouble(recyclingCenterData.get("lat") + "");
+//                               Double lng = Double.parseDouble(recyclingCenterData.get("lng") + "");
+//                               LatLng position = new LatLng(lat, lng);
+//                               moveCamera(position);
+//                            }
+
+                        } else {
+                            Log.d("TAG", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+            }
+        });
 
         return locationFragmentView;
     }
@@ -85,14 +149,10 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mGoogleMap = googleMap;
 
-        // Enable the "My Location" layer
         if (mGoogleMap != null) {
             if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mGoogleMap.setMyLocationEnabled(true);
 
-                // Add markers here
-                LatLng latLngTesing = new LatLng(3.129503, 101.649423);
-                addRecyclingCenterMarker(latLngTesing);
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -100,10 +160,19 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                addRecyclingCenterMarker(latLng);
+                            if (SEARCH.isEmpty()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
+                                    LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                    addRecyclingCenterMarker(latLng);
+                                }
+                            } else {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                    addRecyclingCenterMarker(latLng);
+                                }
                             }
+
 
                         } else {
                             Log.d("TAG", "Error getting documents: ", task.getException());
