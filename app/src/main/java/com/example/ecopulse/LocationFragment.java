@@ -15,6 +15,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -24,6 +32,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +42,11 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
@@ -44,6 +57,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private TextView recycleCenterContact = null;
     private TextView recycleCenterRecyclingType = null;
     private TextView recycleCenterDistance = null;
+
+    private TextView recycleCenterOpening = null;
     private AppCompatButton schedulePickUpButton = null;
 
     private TextView title = null;
@@ -76,8 +91,25 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                 mGoogleMap.setMyLocationEnabled(true);
 
                 // Add markers here
-                LatLng latLng = new LatLng(3.129503, 101.649423);
-                addRecyclingCenterMarker(latLng);
+                LatLng latLngTesing = new LatLng(3.129503, 101.649423);
+                addRecyclingCenterMarker(latLngTesing);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                addRecyclingCenterMarker(latLng);
+                            }
+
+                        } else {
+                            Log.d("TAG", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
                 mGoogleMap.setOnMyLocationChangeListener(this);
                 mGoogleMap.setOnMarkerClickListener(this);
@@ -141,40 +173,64 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     }
 
     public void setRecyclingCenterDetails(Dialog dialog, Marker marker) {
-        String name = "RECYCLE ABC";
-        String address = "BLK 99-01-01, Taman Ungku Tun Aminah, 81300 Skudai, Johor";
-        String contact = "012-34567890";
-        String type = "Plastic, Paper, Aluminium, Electronics Materials";
+        String[] info = new String[5];
         recycleCenterName = dialog.findViewById(R.id.recycling_center_name);
-        recycleCenterName.setText(name);
         recycleCenterAddress = dialog.findViewById(R.id.recycling_center_address);
-        recycleCenterAddress.setText(address);
         recycleCenterContact = dialog.findViewById(R.id.recycling_center_contact_number);
-        recycleCenterContact.setText(contact);
         recycleCenterRecyclingType = dialog.findViewById(R.id.recycling_type);
-        recycleCenterRecyclingType.setText(type);
+        recycleCenterOpening = dialog.findViewById(R.id.recycling_center_opening);
         recycleCenterDistance = dialog.findViewById(R.id.distance);
 
-        if (myLocation != null) {
-            float[] result = new float[1];
-            Location.distanceBetween(myLocation.latitude, myLocation.longitude, marker.getPosition().latitude, marker.getPosition().longitude,result);
-            recycleCenterDistance.setText(result[0] + "m");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("recycling_center_information").where(Filter.and(Filter.equalTo("lat", marker.getPosition().latitude), Filter.equalTo("lng", marker.getPosition().longitude))).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (!task.getResult().getDocuments().isEmpty()) {
+                        DocumentSnapshot recyclingCenterData = task.getResult().getDocuments().get(0);
+                        info[0] = recyclingCenterData.get("name") + "";
+                        info[1] = recyclingCenterData.get("address") + "";
+                        info[2] = recyclingCenterData.get("contact") + "";
+                        info[3] = recyclingCenterData.get("type") + "";
+                        info[4] = recyclingCenterData.get("opening") + "";
+                        recycleCenterName.setText(recyclingCenterData.get("name") + "");
+                        recycleCenterAddress.setText(recyclingCenterData.get("address") + "");
+                        recycleCenterContact.setText(recyclingCenterData.get("contact") + "");
+                        recycleCenterRecyclingType.setText(recyclingCenterData.get("type") + "");
+                        recycleCenterOpening.setText(recyclingCenterData.get("opening") + "");
+                    }
+
+                } else {
+                    Log.d("TAG", "Error getting documents: ", task.getException());
+                }
+            }
+        });
+
+
+            if (myLocation != null) {
+                float[] result = new float[1];
+                Location.distanceBetween(myLocation.latitude, myLocation.longitude, marker.getPosition().latitude, marker.getPosition().longitude,result);
+
+                recycleCenterDistance.setText(result[0] >= 1000 ? String.format("%.2f", result[0]/1000)  + " km" : String.format("%.2f", result[0]) + " m");
+            }
+
+            schedulePickUpButton = dialog.findViewById(R.id.schedule_button);
+
+
+            schedulePickUpButton.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getActivity(), SchedulePickUp.class);
+                            Log.d("Log out info", info[0]);
+                            intent.putExtra("name", info[0]);
+                            intent.putExtra("address", info[1]);
+                            intent.putExtra("contact", info[2]);
+                            startActivity(intent);
+                        }
+                    }
+            );
         }
 
-        schedulePickUpButton = dialog.findViewById(R.id.schedule_button);
 
-
-        schedulePickUpButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(getActivity(), SchedulePickUp.class);
-                        intent.putExtra("name", name);
-                        intent.putExtra("address", address);
-                        intent.putExtra("contact", contact);
-                        startActivity(intent);
-                    }
-                }
-        );
-    }
 }
