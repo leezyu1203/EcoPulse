@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".CollaboratorUploadFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <EditText
+            android:id="@+id/ETInputEventName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:paddingVertical="10dp"
+            android:layout_marginBottom="8dp"
+            android:ems="10"
+            android:background="@drawable/edittext_background"
+            android:gravity="start|center"
+            android:hint="Event Name"
+            android:textColorHint="#819171"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/ETInputEventDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:paddingVertical="10dp"
+            android:layout_marginBottom="8dp"
+            android:layout_below="@+id/ETInputEventName"
+            android:ems="10"
+            android:background="@drawable/edittext_background"
+            android:gravity="start|center"
+            android:hint="Description"
+            android:textColorHint="#819171"
+            android:textSize="16sp"
+            android:inputType="textMultiLine"/>
+
+        <EditText
+            android:id="@+id/ETInputEventVenue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:paddingVertical="10dp"
+            android:layout_marginBottom="8dp"
+            android:layout_below="@+id/ETInputEventDesc"
+            android:ems="10"
+            android:background="@drawable/edittext_background"
+            android:gravity="start|center"
+            android:hint="Venue"
+            android:textColorHint="#819171"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/IBtnEventDateSelector"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_below="@id/ETInputEventVenue"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/calendar_icon"
+            android:background="@drawable/edittext_background"
+            android:contentDescription="Event Date Selector" />
+
+        <TextView
+            android:id="@+id/TVSelectedEventDate"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_toRightOf="@+id/IBtnEventDateSelector"
+            android:layout_alignTop="@+id/IBtnEventDateSelector"
+            android:ems="10"
+            android:gravity="start|center"
+            android:hint="Date"
+            android:textColorHint="#819171"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/IBtnStartTimeSelector"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_below="@id/IBtnEventDateSelector"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/clock_icon"
+            android:background="@drawable/edittext_background"
+            android:contentDescription="Start Time Selector" />
+
+        <TextView
+            android:id="@+id/TVSelectedStartTime"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_alignTop="@id/IBtnStartTimeSelector"
+            android:layout_toRightOf="@id/IBtnStartTimeSelector"
+            android:layout_marginRight="8dp"
+            android:ems="6"
+            android:gravity="start|center"
+            android:hint="Start Time"
+            android:textColorHint="#819171"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/IBtnEndTimeSelector"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_toRightOf="@id/TVSelectedStartTime"
+            android:layout_alignTop="@id/IBtnStartTimeSelector"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/clock_icon"
+            android:background="@drawable/edittext_background"
+            android:contentDescription="End Time Selector" />
+
+        <TextView
+            android:id="@+id/TVSelectedEndTime"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_alignTop="@id/IBtnStartTimeSelector"
+            android:layout_toRightOf="@id/IBtnEndTimeSelector"
+            android:ems="6"
+            android:gravity="start|center"
+            android:hint="End Time"
+            android:textColorHint="#819171"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/BtnAddImage"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_below="@id/IBtnStartTimeSelector"
+            android:paddingHorizontal="10dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_frame_background"
+            android:drawableStart="@drawable/add_icon"
+            android:drawablePadding="8dp"
+            android:text="Add Image"
+            android:textColor="#758467"
+            android:textSize="16sp"
+            android:textAllCaps="false"/>
+
+        <ImageView
+            android:id="@+id/IVUploadedImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@id/BtnAddImage"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/BtnUpload"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_below="@id/IVUploadedImage"
+            android:layout_centerHorizontal="true"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_background"
+            android:text="Upload"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16dp" />
+
+    </RelativeLayout>
+
+</androidx.core.widget.NestedScrollView>
