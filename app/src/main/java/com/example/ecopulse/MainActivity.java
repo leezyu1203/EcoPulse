@@ -1,17 +1,17 @@
 package com.example.ecopulse;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+        import androidx.appcompat.app.AppCompatActivity;
+        import androidx.appcompat.widget.AppCompatButton;
+        import androidx.core.content.ContextCompat;
+        import androidx.fragment.app.Fragment;
+        import androidx.fragment.app.FragmentManager;
+        import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+        import android.content.Intent;
+        import android.graphics.Color;
+        import android.os.Bundle;
+        import android.view.View;
+        import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 locationNav.setBackgroundColor(transparent);
                 guidanceNav.setBackgroundColor(transparent);
                 profileNav.setBackgroundColor(transparent);
-                replaceFragment(new LocationFragment());
+                replaceFragment(new CommunityFragment());
             }
         });
 

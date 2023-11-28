@@ -39,7 +39,7 @@ public class CollaboratorUploadFragment extends Fragment {
     private EditText ETInputEventDesc;
     private EditText ETInputEventVenue;
     private ImageButton IBtnEventDateSelector;
-    private TextView TVSelectedDate;
+    private TextView TVSelectedEventDate;
     private ImageButton IBtnStartTimeSelector;
     private TextView TVSelectedStartTime;
     private ImageButton IBtnEndTimeSelector;
@@ -71,18 +71,18 @@ public class CollaboratorUploadFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ETInputEventName = view.findViewById(ETInputEventName);
-        ETInputEventDesc = view.findViewById(ETInputEventDesc);
-        ETInputEventVenue = view.findViewById(ETInputEventVenue);
-        IBtnEventDateSelector = view.findViewById(IBtnEventDateSelector);
-        TVSelectedDate = view.findViewById(TVSelectedDate);
-        IBtnStartTimeSelector = view.findViewById(IBtnStartTimeSelector);
-        TVSelectedStartTime = view.findViewById(TVSelectedStartTime);
-        IBtnEndTimeSelector = view.findViewById(IBtnEndTimeSelector);
-        TVSelectedEndTime = view.findViewById(TVSelectedEndTime)
-        BtnAddImage = view.findViewById(BtnAddImage);
-        IVUploadedImage = view.findViewById(IVUploadedImage);
-        BtnUpload = view.findViewById(BtnUpload);
+        ETInputEventName = view.findViewById(R.id.ETInputEventName);
+        ETInputEventDesc = view.findViewById(R.id.ETInputEventDesc);
+        ETInputEventVenue = view.findViewById(R.id.ETInputEventVenue);
+        IBtnEventDateSelector = view.findViewById(R.id.IBtnEventDateSelector);
+        TVSelectedEventDate = view.findViewById(R.id.TVSelectedEventDate);
+        IBtnStartTimeSelector = view.findViewById(R.id.IBtnStartTimeSelector);
+        TVSelectedStartTime = view.findViewById(R.id.TVSelectedStartTime);
+        IBtnEndTimeSelector = view.findViewById(R.id.IBtnEndTimeSelector);
+        TVSelectedEndTime = view.findViewById(R.id.TVSelectedEndTime);
+        BtnAddImage = view.findViewById(R.id.BtnAddImage);
+        IVUploadedImage = view.findViewById(R.id.IVUploadedImage);
+        BtnUpload = view.findViewById(R.id.BtnUpload);
 
         storageRef = FirebaseStorage.getInstance().getReference("events");
         databaseRef = FirebaseDatabase.getInstance().getReference("events");
@@ -94,7 +94,7 @@ public class CollaboratorUploadFragment extends Fragment {
                 DatePickerDialog dialog = new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        TVSelectedDate.setText(String.valueOf(dayOfMonth) + "/" +
+                        TVSelectedEventDate.setText(String.valueOf(dayOfMonth) + "/" +
                                 String.valueOf(month+1) + "/" + String.valueOf(year));
                     }
                 }, currentDate.getYear(), currentDate.getMonthValue() - 1, currentDate.getDayOfMonth());
@@ -127,7 +127,7 @@ public class CollaboratorUploadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(isETEmpty(ETInputEventName) || isETEmpty(ETInputEventDesc) || isETEmpty(ETInputEventVenue)
-                        || isTVEmpty(TVSelectedDate) || isTVEmpty(TVSelectedStartTime) || isTVEmpty(TVSelectedStartTime)) {
+                        || isTVEmpty(TVSelectedEventDate) || isTVEmpty(TVSelectedStartTime) || isTVEmpty(TVSelectedStartTime)) {
                     Toast.makeText(requireContext(), "Complete the details", Toast.LENGTH_SHORT).show();
                 } else if(uploadTask != null && uploadTask.isInProgress()) {
                     Toast.makeText(requireContext(), "Upload in progress", Toast.LENGTH_SHORT).show();
@@ -192,7 +192,7 @@ public class CollaboratorUploadFragment extends Fragment {
                                             ETInputEventName.getText().toString().trim(),
                                             ETInputEventDesc.getText().toString().trim(),
                                             ETInputEventVenue.getText().toString().trim(),
-                                            TVSelectedDate.getText().toString().trim(),
+                                            TVSelectedEventDate.getText().toString().trim(),
                                             TVSelectedStartTime.getText().toString().trim(),
                                             TVSelectedEndTime.getText().toString().trim(),
                                             imageUrl);
