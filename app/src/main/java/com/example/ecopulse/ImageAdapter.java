@@ -1,6 +1,7 @@
 package com.example.ecopulse;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -41,14 +45,24 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 .centerCrop()
                 .into(holder.postPoster);
 
-        /* navigate to the post
+        // to be tested
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FragmentManager manager = ((AppCompatActivity)context).getSupportFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
 
+                EventPostFragment eventPostFragment = new EventPostFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("eventID", uploadCurrent.getKey());
+                eventPostFragment.setArguments(bundle);
+
+                transaction.replace(R.id.CommunityFragment, eventPostFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
-         */
     }
 
     @Override

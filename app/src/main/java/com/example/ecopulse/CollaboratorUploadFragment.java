@@ -133,7 +133,7 @@ public class CollaboratorUploadFragment extends Fragment {
                     Toast.makeText(requireContext(), "Upload in progress", Toast.LENGTH_SHORT).show();
                 } else {
                     uploadFile();
-                    // navigate to community
+                    // navigate to community (collaborator ver.)
                 }
             }
         });
@@ -195,7 +195,7 @@ public class CollaboratorUploadFragment extends Fragment {
                                             TVSelectedEventDate.getText().toString().trim(),
                                             TVSelectedStartTime.getText().toString().trim(),
                                             TVSelectedEndTime.getText().toString().trim(),
-                                            imageUrl);
+                                            imageUrl, String.valueOf(System.currentTimeMillis()));
                                     String eventID =databaseRef.push().getKey();
                                     databaseRef.child(eventID).setValue(uploadEvent);
 

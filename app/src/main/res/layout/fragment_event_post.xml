@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".EventPostFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/IVEventPostPoster"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/TVEventPostTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/IVEventPostPoster"
+            android:layout_marginBottom="8dp"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+        
+        <TextView
+            android:id="@+id/TVPostedOn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVEventPostTitle"
+            android:layout_marginBottom="8dp"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/TVPostDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVPostedOn"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/TVEventVenue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVPostDesc"
+            android:layout_marginLeft="12dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/TVEventDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVEventVenue"
+            android:layout_marginLeft="12dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/TVEventTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVEventDate"
+            android:layout_marginLeft="12dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/TVComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVEventTime"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="Comment"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/TVNoCommentMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TVComment"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:text="No Comment"
+            android:textSize="16sp"
+            android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/RVComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:layout_below="@id/TVComment"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/ETInputComment"
+            android:layout_width="310dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_below="@id/RVComments"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="20dp"
+            android:paddingVertical="10dp"
+            android:ems="10"
+            android:background="@drawable/edittext_background"
+            android:gravity="start|center"
+            android:hint="Add a comment"
+            android:textColorHint="#819171"
+            android:textSize="16sp"
+            android:inputType="textMultiLine" />
+
+        <ImageButton
+            android:id="@+id/IBtnSend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignTop="@id/ETInputComment"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/ETInputComment"
+            android:contentDescription="Send"
+            android:src="@android:drawable/ic_menu_send"
+            android:background="" />
+
+        <ProgressBar
+            android:id="@+id/PBLoadPost"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <ProgressBar
+            android:id="@+id/PBLoadComments"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/RVComments"
+            android:layout_marginTop="12dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/BtnShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ETInputComment"
+            android:layout_toLeftOf="@id/BtnAddReminder"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/rounded_frame_background"
+            android:drawableStart="@drawable/share_icon"
+            android:drawablePadding="4dp"
+            android:paddingHorizontal="16dp"
+            android:text="Share"
+            android:textAllCaps="false"
+            android:textColor="#758467"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/BtnAddReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ETInputComment"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/rounded_frame_background"
+            android:drawableStart="@drawable/reminder_icon"
+            android:drawablePadding="4dp"
+            android:drawableTint="#758467"
+            android:paddingHorizontal="16dp"
+            android:text="Add Reminder"
+            android:textAllCaps="false"
+            android:textColor="#758467"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+</androidx.core.widget.NestedScrollView>
