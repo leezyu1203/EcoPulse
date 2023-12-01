@@ -6,6 +6,7 @@
     </style>
 
     <style name="Theme.EcoPulse" parent="Base.Theme.EcoPulse" />
+
     <style name="drawerAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_in_bottom</item>
         <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>

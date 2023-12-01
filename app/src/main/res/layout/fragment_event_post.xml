@@ -128,7 +128,7 @@
             android:layout_toRightOf="@id/ETInputComment"
             android:contentDescription="Send"
             android:src="@android:drawable/ic_menu_send"
-            android:background="" />
+             />
 
         <ProgressBar
             android:id="@+id/PBLoadPost"

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:context=".Register">
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/SignUpImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/sign_up_top_bg"
@@ -14,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/CREATEACCOUNT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
@@ -33,12 +34,12 @@
         android:paddingHorizontal="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView3"
+        app:layout_constraintTop_toBottomOf="@id/SignUpImage"
         app:layout_constraintVertical_bias="0.0">
 
 
         <TextView
-            android:id="@+id/textView7"
+            android:id="@+id/Name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Name"
@@ -48,7 +49,7 @@
             android:layout_marginTop="20dp"/>
 
         <EditText
-            android:id="@+id/editTextTextEmailAddress3"
+            android:id="@+id/editTextTextName"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
@@ -61,7 +62,7 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/Email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Email"
@@ -71,7 +72,7 @@
             android:layout_marginTop="20dp"/>
 
         <EditText
-            android:id="@+id/editTextTextEmailAddress2"
+            android:id="@+id/editTextTextEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
@@ -84,7 +85,7 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/Password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -94,7 +95,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/editTextTextEmailAddress"
+            android:id="@+id/editTextTextPassword"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
@@ -107,7 +108,7 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/RePassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -117,7 +118,7 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/editTextTextPassword"
+            android:id="@+id/editTextTextRePassword"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="12dp"
@@ -138,17 +139,18 @@
             android:textAlignment="center" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button2"
+            android:id="@+id/SignUp_btn"
             style="@android:style/Widget.Button"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/button_background"
-            android:text="Login"
+            android:text="Sign Up"
             android:textColor="@color/white"
             android:textSize="20sp" />
 
 
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
