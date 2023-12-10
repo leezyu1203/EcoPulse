@@ -5,11 +5,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile_Collaborator">
+    tools:context=".Profile_Collaborator"
+    android:id="@+id/fragment_container_collaborator_profile">
 
     <!-- Profile LinearLayout -->
     <LinearLayout
-        android:id="@+id/profileLinearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"

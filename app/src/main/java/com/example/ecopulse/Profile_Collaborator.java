@@ -33,7 +33,7 @@ public class Profile_Collaborator extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         BtnManagePosts = view.findViewById(R.id.BtnManagePosts);
-        /*  navigate to ManagePostsFragment
+        /* navigate to ManagePostsFragment
         BtnManagePosts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -41,7 +41,7 @@ public class Profile_Collaborator extends Fragment {
                 FragmentManager manager = getFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
 
-                transaction.replace(R.id.profileLinearLayout,ManagePostsFragment);
+                transaction.replace(R.id.fragment_container_collaborator_profile,ManagePostsFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
