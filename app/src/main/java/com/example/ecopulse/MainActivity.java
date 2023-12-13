@@ -32,20 +32,20 @@ public class MainActivity extends AppCompatActivity {
         locationNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(MainActivity.this, R.color.olivine);
+                int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                 int transparent = Color.argb(0, 0, 0, 0);
                 locationNav.setBackgroundColor(color);
                 guidanceNav.setBackgroundColor(transparent);
                 communityNav.setBackgroundColor(transparent);
                 profileNav.setBackgroundColor(transparent);
-                replaceFragment(new LocationFragment());
+                replaceFragment(new CollaboratorLocationFragment());
             }
         });
 
         guidanceNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(MainActivity.this, R.color.olivine);
+                int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                 int transparent = Color.argb(0, 0, 0, 0);
                 guidanceNav.setBackgroundColor(color);
                 locationNav.setBackgroundColor(transparent);
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         communityNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(MainActivity.this, R.color.olivine);
+                int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                 int transparent = Color.argb(0, 0, 0, 0);
                 communityNav.setBackgroundColor(color);
                 locationNav.setBackgroundColor(transparent);
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         profileNav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(MainActivity.this, R.color.olivine);
+                int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                 int transparent = Color.argb(0, 0, 0, 0);
                 profileNav.setBackgroundColor(color);
                 locationNav.setBackgroundColor(transparent);

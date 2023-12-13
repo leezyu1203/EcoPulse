@@ -7,8 +7,9 @@ import android.content.Context;
         import android.view.ViewGroup;
         import android.widget.ArrayAdapter;
         import android.widget.TextView;
+import android.widget.Toast;
 
-        import androidx.annotation.NonNull;
+import androidx.annotation.NonNull;
         import androidx.annotation.Nullable;
 
         import java.util.List;
@@ -44,6 +45,7 @@ public class SearchAdapter extends ArrayAdapter<searchItem> {
             titleTextView.setText(item.getTitle());
             descriptionTextView.setText(item.getAddress());
         }
+
 
         return convertView;
     }

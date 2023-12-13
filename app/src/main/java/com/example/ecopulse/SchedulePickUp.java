@@ -46,14 +46,17 @@ public class SchedulePickUp extends AppCompatActivity {
         centerContact.setText(contact);
 
         Spinner timeslotSpinner = (Spinner) findViewById(R.id.timeslot);
+        Spinner daySpinner = (Spinner) findViewById(R.id.day);
 
         String[] items = new String[] { "9:00 am", "10:00 am", "11:00 am", "12:00 am" };
-
+        String[] days = new String[] {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 R.layout.spinner_item, R.id.spinnerItem, items);
+        ArrayAdapter<String> adapterDay = new ArrayAdapter<String>(this,
+                R.layout.spinner_item, R.id.spinnerItem, days);
 
         timeslotSpinner.setAdapter(adapter);
-
+        daySpinner.setAdapter(adapterDay);
         timeslotSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {

@@ -2,12 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="darkerResedaGreen">#758467</color>
-    <color name="resedaGreen">#819171</color>
-    <color name="olivine">#9CAF88</color>
-    <color name="ashGray">#CBD5C0</color>
-    <color name="alabaster">#DFE6DA</color>
+    <color name="primary_dark_green">#3D4F35</color>
     <color name="green">#758467</color>
     <color name="dark_green">#819171</color>
-
+    <color name="light_green">#C8DABB</color>
 </resources>

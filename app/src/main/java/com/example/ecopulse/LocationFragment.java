@@ -236,8 +236,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.bottom_drawer_layout);
         setRecyclingCenterDetails(dialog, marker);
-
-
         dialog.show();
 
         dialog.setOnDismissListener(dialogInterface -> {

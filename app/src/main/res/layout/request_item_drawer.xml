@@ -9,11 +9,10 @@
 
 
     <TextView
-        android:id="@+id/recycling_center_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text=""
+        android:text="Details"
         android:textAlignment="textStart"
         android:textColor="@color/black"
         android:textSize="18dp"
@@ -36,7 +35,7 @@
             android:src="@drawable/location" />
 
         <TextView
-            android:id="@+id/recycling_center_address"
+            android:id="@+id/address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -62,7 +61,7 @@
             android:src="@drawable/phone" />
 
         <TextView
-            android:id="@+id/recycling_center_contact_number"
+            android:id="@+id/contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="textStart"
@@ -86,7 +85,7 @@
             android:src="@drawable/opening" />
 
         <TextView
-            android:id="@+id/recycling_center_opening"
+            android:id="@+id/datetime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -95,45 +94,19 @@
             />
     </LinearLayout>
 
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-
-        >
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingRight="20dp"
-            android:src="@drawable/distance" />
-
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="textStart"
-            android:textSize="15dp"
-            android:text=""
-            />
-    </LinearLayout>
     <TextView
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Recycling Type"
+        android:text="Note"
         android:textAlignment="textStart"
         android:textColor="@color/black"
         android:textSize="18dp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/recycling_type"
+        android:id="@+id/note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=""
@@ -142,22 +115,33 @@
         android:layout_marginTop="15dp"
         />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/schedule_button"
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:background="@drawable/schedule_pick_up_button"
-        android:translationZ="10dp"
-        android:layout_marginTop="20dp"
-        android:paddingHorizontal="20dp"
-        android:stateListAnimator="@null"
-        android:textColor="@color/white"
-        android:text="Schedule Pick Up"
-        android:textSize="13dp"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp"
+        >
 
-        />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/acceptBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/accept_button"
+            android:translationZ="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Accept" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/rejectBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/reject_button"
+            android:translationZ="10dp"
+            android:text="Reject" />
+    </LinearLayout>
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="40dp" />
+        android:layout_height="20dp" />
 </LinearLayout>

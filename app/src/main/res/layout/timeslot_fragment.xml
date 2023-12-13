@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TimeslotFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TimePicker
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:timePickerMode="spinner"
+
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="match_parent"
+                android:background="@color/primary_dark_green"
+                android:textColor="@color/white"
+                android:layout_height="64dp"
+                android:textSize="20sp"
+                android:text="Add"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:background="@color/light_green"
+                android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:layout_width="64dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/left_arrow" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Friday"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    />
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:layout_width="64dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/right_arrow" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="81dp"
+                android:text="9:00 AM"
+                android:gravity="center_vertical"
+                android:paddingLeft="30dp"
+                android:textSize="24sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="81dp"
+                android:text="10:00 AM"
+                android:gravity="center_vertical"
+                android:paddingLeft="30dp"
+                android:textSize="24sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="81dp"
+                android:text="11:00 AM"
+                android:gravity="center_vertical"
+                android:paddingLeft="30dp"
+                android:textSize="24sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="81dp"
+                android:text="12:00 PM"
+                android:gravity="center_vertical"
+                android:paddingLeft="30dp"
+                android:textSize="24sp" />
+<!--            <ListView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content" />-->
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
