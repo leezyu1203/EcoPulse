@@ -50,7 +50,7 @@ public class uploadTask extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_task);
-        createNotificationChannel();
+       // createNotificationChannel();
 
         uploadTitle=findViewById(R.id.addTaskTitle);
         uploadDesc=findViewById(R.id.addTaskDescription);
