@@ -6,6 +6,7 @@
     tools:context=".TimeslotFragment">
 
     <ScrollView
+        android:fillViewport="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -59,37 +60,13 @@
                     android:background="@android:color/transparent"
                     android:src="@drawable/right_arrow" />
             </LinearLayout>
-            <TextView
+
+            <ListView
                 android:layout_width="match_parent"
-                android:layout_height="81dp"
-                android:text="9:00 AM"
-                android:gravity="center_vertical"
-                android:paddingLeft="30dp"
-                android:textSize="24sp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="81dp"
-                android:text="10:00 AM"
-                android:gravity="center_vertical"
-                android:paddingLeft="30dp"
-                android:textSize="24sp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="81dp"
-                android:text="11:00 AM"
-                android:gravity="center_vertical"
-                android:paddingLeft="30dp"
-                android:textSize="24sp" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="81dp"
-                android:text="12:00 PM"
-                android:gravity="center_vertical"
-                android:paddingLeft="30dp"
-                android:textSize="24sp" />
-<!--            <ListView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content" />-->
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/timeslot_list"
+                />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -29,6 +31,7 @@ public class TimeslotFragment extends Fragment {
     private TimePicker timePicker = null;
     private AppCompatButton addTimeslot = null;
     private TextView day = null;
+    private ListView timeslotlist = null;
     final private List<String> dayList = Arrays.asList("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
     final private Map<String, ArrayList<String>> dayTimeSlot = new HashMap<String, ArrayList<String>>(){{
         put("Sunday", new ArrayList<>());
@@ -51,12 +54,17 @@ public class TimeslotFragment extends Fragment {
 
 
         timeslotLocation = inflater.inflate(R.layout.timeslot_fragment, container, false);
+        timeslotlist = timeslotLocation.findViewById(R.id.timeslot_list);
+
+
         timePicker = timeslotLocation.findViewById(R.id.time_picker);
         addTimeslot = timeslotLocation.findViewById(R.id.add_timeslot);
         nextDay = timeslotLocation.findViewById(R.id.nextDay);
         previousDay = timeslotLocation.findViewById(R.id.previousDay);
         day = timeslotLocation.findViewById(R.id.day);
         day.setText(currentDay);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(currentDay));
+        timeslotlist.setAdapter(adapter);
 
         nextDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +76,8 @@ public class TimeslotFragment extends Fragment {
                     selectedDayIndex = 0;
                     day.setText(dayList.get(selectedDayIndex));
                 }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                timeslotlist.setAdapter(adapter);
             }
         });
 
@@ -81,6 +91,9 @@ public class TimeslotFragment extends Fragment {
                     selectedDayIndex = 6;
                     day.setText(dayList.get(selectedDayIndex));
                 }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                timeslotlist.setAdapter(adapter);
             }
         });
 
@@ -89,8 +102,9 @@ public class TimeslotFragment extends Fragment {
             public void onClick(View view) {
                 String selectedDay = dayList.get(selectedDayIndex);
                 int hour = timePicker.getHour();
-                int minute = timePicker.getMinute();
+                String minute = timePicker.getMinute() >= 10 ? timePicker.getMinute() + "" : "0" + timePicker.getMinute();
                 String meridiem = "";
+
                 if (hour >= 12) {
                     meridiem = "PM";
                     if (hour > 12) {
@@ -99,11 +113,17 @@ public class TimeslotFragment extends Fragment {
                 } else {
                     meridiem = "AM";
                 }
-                String timeslot = selectedDay + ", " + hour + ":" + minute + " " + meridiem;
+
+
+                String timeslot = hour + ":" + minute + " " + meridiem;
                 dayTimeSlot.get(selectedDay).add(timeslot);
-                Log.d("Display", dayTimeSlot.get(selectedDay).toString());
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(selectedDay));
+                timeslotlist.setAdapter(adapter);
+                Log.d("display", dayTimeSlot.get(selectedDay).toString());
             }
         });
+
+
         return timeslotLocation;
     }
 }
