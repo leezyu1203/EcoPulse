@@ -13,7 +13,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecopulse.Model.Task;
-import com.example.reminder3.R;
+import com.example.ecopulse.R;
 import com.example.ecopulse.updateActivity;
 
 import java.text.SimpleDateFormat;
