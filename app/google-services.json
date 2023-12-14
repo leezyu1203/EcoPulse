@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "68620742325",
+    "firebase_url": "https://pmxmad-default-rtdb.firebaseio.com",
+    "project_id": "pmxmad",
+    "storage_bucket": "pmxmad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68620742325:android:9877bd551c8e8a6b0218fc",
+        "android_client_info": {
+          "package_name": "com.example.ecopulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw"
+        },
+        {
+          "current_key": "AIzaSyC5VmHIUXYC2E7bKB2mhznE5X_x5F0DClI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68620742325:android:fe774de9de39e46b0218fc",
+        "android_client_info": {
+          "package_name": "com.example.reminder2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw"
+        },
+        {
+          "current_key": "AIzaSyC5VmHIUXYC2E7bKB2mhznE5X_x5F0DClI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68620742325:android:284a18d4fc5941c70218fc",
+        "android_client_info": {
+          "package_name": "com.example.reminder3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw"
+        },
+        {
+          "current_key": "AIzaSyC5VmHIUXYC2E7bKB2mhznE5X_x5F0DClI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,23 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Reminder3" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+    <style name="DatePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize the colors as per your requirement -->
+        <item name="colorAccent">@color/darkGreen</item> <!-- Color of the selection controls -->
+        <item name="android:textColorPrimary">@color/black</item> <!-- Text color -->
+        <item name="android:buttonBarButtonStyle">@style/CustomButtonBarButton</item>
+        <!-- Other customizations -->
+    </style>
+    <style name="CustomButtonBarButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <!-- Customize the button colors -->
+        <item name="android:textColor">@color/black</item> <!-- Text color -->
+        <item name="android:background">@color/darkGreen</item> <!-- Button background -->
+        <!-- Other customizations -->
+    </style>
+
+    <style name="Theme.Reminder3" parent="Base.Theme.Reminder3"></style>
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+</resources>
