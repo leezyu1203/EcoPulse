@@ -3,6 +3,7 @@ package com.example.ecopulse;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,7 @@ import android.widget.TimePicker;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,7 +65,7 @@ public class TimeslotFragment extends Fragment {
         previousDay = timeslotLocation.findViewById(R.id.previousDay);
         day = timeslotLocation.findViewById(R.id.day);
         day.setText(currentDay);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(currentDay));
+        ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(currentDay), timeslotLocation);
         timeslotlist.setAdapter(adapter);
 
         nextDay.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +78,7 @@ public class TimeslotFragment extends Fragment {
                     selectedDayIndex = 0;
                     day.setText(dayList.get(selectedDayIndex));
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(dayList.get(selectedDayIndex)), timeslotLocation);
                 timeslotlist.setAdapter(adapter);
             }
         });
@@ -91,8 +93,7 @@ public class TimeslotFragment extends Fragment {
                     selectedDayIndex = 6;
                     day.setText(dayList.get(selectedDayIndex));
                 }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(),dayTimeSlot.get(dayList.get(selectedDayIndex)), timeslotLocation);
                 timeslotlist.setAdapter(adapter);
             }
         });
@@ -117,11 +118,12 @@ public class TimeslotFragment extends Fragment {
 
                 String timeslot = hour + ":" + minute + " " + meridiem;
                 dayTimeSlot.get(selectedDay).add(timeslot);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.timeslot_list_item, R.id.timeslot_item,dayTimeSlot.get(selectedDay));
+                ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(),dayTimeSlot.get(selectedDay),timeslotLocation);
                 timeslotlist.setAdapter(adapter);
                 Log.d("display", dayTimeSlot.get(selectedDay).toString());
             }
         });
+
 
 
         return timeslotLocation;
