@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -29,8 +30,10 @@ public class guidanceMainFragment extends Fragment {
     WasteGuidanceAdapter wasteGuidanceAdapter;
     List<String> wasteList;
 
+    TextView title;
 
-    ImageButton recyclableWasteBtn, householdFoodWasteBtn, hazardousWasteBtn,residualWasteBtn;
+
+    ImageButton recyclableWasteBtn, householdFoodWasteBtn, hazardousWasteBtn,residualWasteBtn, backButton;
 
 
 
@@ -48,6 +51,10 @@ public class guidanceMainFragment extends Fragment {
         hazardousWasteBtn.setOnClickListener(view -> navigateToIntroduction(1));
         householdFoodWasteBtn.setOnClickListener(view -> navigateToIntroduction(2));
         residualWasteBtn.setOnClickListener(view -> navigateToIntroduction(3));
+        title = (TextView) getActivity().findViewById(R.id.current_title);
+        title.setText("Recycling Guidance");
+        backButton = getActivity().findViewById(R.id.backButton);
+        backButton.setVisibility(View.INVISIBLE);
 
 
         //search
@@ -168,6 +175,8 @@ public class guidanceMainFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         transaction.replace(R.id.main_fragment,fragment);
+        backButton = getActivity().findViewById(R.id.backButton);
+        backButton.setVisibility(View.VISIBLE);
         transaction.addToBackStack(null);
         transaction.commit();
     }

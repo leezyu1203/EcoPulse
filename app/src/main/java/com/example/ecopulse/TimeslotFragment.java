@@ -90,104 +90,99 @@ public class TimeslotFragment extends Fragment {
 
                 if (task.isSuccessful()) {
                     QueryDocumentSnapshot document1 = task.getResult().iterator().next();
-                        String userID = document1.getId();
-                        db.collection("recycling_center_information").where(Filter.equalTo("userID", userID)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    QueryDocumentSnapshot document2 = task.getResult().iterator().next();
-                                    String documentID = document2.getId();
-                                    ArrayList<String> timeslotList = (ArrayList<String>) document2.getData().get("timeslot");
-                                    timeslotList.stream().forEach((slot)-> {
-                                        String[] day_time_slot = slot.split(", ");
-                                        dayTimeSlot.get(day_time_slot[0]).add(day_time_slot[1]);
-                                    });
-                                    timeslot.clear();
-                                    timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
-                                    adapter.notifyDataSetChanged();
+                    String userID = document1.getId();
+                    db.collection("recycling_center_information").where(Filter.equalTo("userID", userID)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                QueryDocumentSnapshot document2 = task.getResult().iterator().next();
+                                String documentID = document2.getId();
+                                ArrayList<String> timeslotList = (ArrayList<String>) document2.getData().get("timeslot");
+                                timeslotList.stream().forEach((slot)-> {
+                                    String[] day_time_slot = slot.split(", ");
+                                    dayTimeSlot.get(day_time_slot[0]).add(day_time_slot[1]);
+                                });
+                                timeslot.clear();
+                                timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                                adapter.notifyDataSetChanged();
 
-                                    nextDay.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            if (selectedDayIndex < 6) {
-                                                selectedDayIndex += 1;
-                                                day.setText(dayList.get(selectedDayIndex));
-                                            } else {
-                                                selectedDayIndex = 0;
-                                                day.setText(dayList.get(selectedDayIndex));
-                                            }
+                                nextDay.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (selectedDayIndex < 6) {
+                                            selectedDayIndex += 1;
+                                            day.setText(dayList.get(selectedDayIndex));
+                                        } else {
+                                            selectedDayIndex = 0;
+                                            day.setText(dayList.get(selectedDayIndex));
+                                        }
 
+                                        timeslot.clear();
+                                        timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                                        selectedDay = dayList.get(selectedDayIndex);
+                                        ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(selectedDay), selectedDay);
+                                        timeslotlist.setAdapter(adapter);
+                                    }
+                                });
+
+                                previousDay.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (selectedDayIndex > 0) {
+                                            selectedDayIndex -= 1;
+                                            day.setText(dayList.get(selectedDayIndex));
+                                        } else {
+                                            selectedDayIndex = 6;
+                                            day.setText(dayList.get(selectedDayIndex));
+                                        }
+                                        timeslot.clear();
+                                        timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
+                                        selectedDay = dayList.get(selectedDayIndex);
+                                        ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(selectedDay), selectedDay);
+                                        timeslotlist.setAdapter(adapter);
+                                    }
+                                });
+
+                                addTimeslot.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        selectedDay = dayList.get(selectedDayIndex);
+                                        String timeslotString = getTimeslot();
+                                        if (dayTimeSlot.get(selectedDay).contains(timeslotString)) {
+                                            Toast.makeText(getContext(),"Timeslot already exist!", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            db.collection("recycling_center_information").document(documentID).update("timeslot", FieldValue.arrayUnion(selectedDay + ", " + timeslotString));
+                                            dayTimeSlot.get(selectedDay).add(timeslotString);
                                             timeslot.clear();
                                             timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
-                                            selectedDay = dayList.get(selectedDayIndex);
-                                            ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(selectedDay), selectedDay);
+                                            ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), timeslot, selectedDay);
                                             timeslotlist.setAdapter(adapter);
                                         }
-                                    });
-
-                                    previousDay.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            if (selectedDayIndex > 0) {
-                                                selectedDayIndex -= 1;
-                                                day.setText(dayList.get(selectedDayIndex));
-                                            } else {
-                                                selectedDayIndex = 6;
-                                                day.setText(dayList.get(selectedDayIndex));
-                                            }
-                                            timeslot.clear();
-                                            timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
-                                            selectedDay = dayList.get(selectedDayIndex);
-                                            ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), dayTimeSlot.get(selectedDay), selectedDay);
-                                            timeslotlist.setAdapter(adapter);
-                                        }
-                                    });
-
-                                    addTimeslot.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            String selectedDay = dayList.get(selectedDayIndex);
-                                            int hour = timePicker.getHour();
-                                            String minute = timePicker.getMinute() >= 10 ? timePicker.getMinute() + "" : "0" + timePicker.getMinute();
-                                            String meridiem = "";
-
-                                            if (hour >= 12) {
-                                                meridiem = "PM";
-                                                if (hour > 12) {
-                                                    hour -= 12;
-                                                }
-                                            } else {
-                                                meridiem = "AM";
-                                            }
-
-                                            String timeslotString = hour + ":" + minute + " " + meridiem;
-                                            if (dayTimeSlot.get(selectedDay).contains(timeslotString)) {
-                                                Toast.makeText(getContext(),"Timeslot already exist!", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                db.collection("recycling_center_information").document(documentID).update("timeslot", FieldValue.arrayUnion(selectedDay + ", " + timeslotString));
-                                                dayTimeSlot.get(selectedDay).add(timeslotString);
-                                                timeslot.clear();
-                                                timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
-                                                ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), timeslot, selectedDay);
-                                                timeslotlist.setAdapter(adapter);
-                                            }
-                                        }
-                                    });
-                                }
+                                    }
+                                });
                             }
-                        });
+                        }
+                    });
                 }
             }
         });
-
-
-
-
-
-
-
-
-
         return timeslotLocation;
+    }
+
+    private String getTimeslot() {
+        int hour = timePicker.getHour();
+        String minute = timePicker.getMinute() >= 10 ? timePicker.getMinute() + "" : "0" + timePicker.getMinute();
+        String meridiem = "";
+
+        if (hour >= 12) {
+            meridiem = "PM";
+            if (hour > 12) {
+                hour -= 12;
+            }
+        } else {
+            meridiem = "AM";
+        }
+
+        return hour + ":" + minute + " " + meridiem;
     }
 }

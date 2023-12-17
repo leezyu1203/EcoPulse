@@ -10,6 +10,8 @@ import androidx.fragment.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,16 +26,28 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatButton guidanceNav;
     private AppCompatButton communityNav;
     private AppCompatButton profileNav;
+    private ImageButton backButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        backButton = findViewById(R.id.backButton);
         locationNav = findViewById(R.id.location_nav);
         guidanceNav = findViewById(R.id.guidance_nav);
         communityNav = findViewById(R.id.community_nav);
         profileNav = findViewById(R.id.profile_nav);
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+                if (currentFragment instanceof guidanceMainFragment == false && currentFragment instanceof LocationFragment == false && currentFragment instanceof CollaboratorLocationFragment == false && currentFragment instanceof CommunityFragment == false) {
+                    MainActivity.this.getOnBackPressedDispatcher().onBackPressed();
+                }
+
+
+            }
+        });
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";
         if (user != null) {
@@ -108,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        replaceFragment(new guidanceMainFragment());
     }
 
     private void replaceFragment(Fragment fragment) {

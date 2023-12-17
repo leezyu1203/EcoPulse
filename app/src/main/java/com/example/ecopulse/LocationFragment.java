@@ -43,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -71,6 +72,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private AutoCompleteTextView searchET = null;
 
     private LatLng myLocation = null;
+    private ImageButton backButton = null;
     protected View locationFragmentView;
     private static final ArrayList<searchItem> SEARCH = new ArrayList<>();
     @Override
@@ -79,6 +81,9 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
         locationFragmentView =  inflater.inflate(R.layout.fragment_location, container, false);
         title = (TextView) getActivity().findViewById(R.id.current_title);
+
+        backButton = getActivity().findViewById(R.id.backButton);
+        backButton.setVisibility(View.INVISIBLE);
 
 
         ArrayAdapter<searchItem> adapter = new SearchAdapter(getContext(), SEARCH);
@@ -167,7 +172,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
                                     try {
                                         if (document.getData().get("lat").equals("")) {
-
                                             List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
                                             updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
                                             LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
@@ -199,8 +203,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
                                 }
                             }
-
-
                         } else {
                             Log.d("TAG", "Error getting documents: ", task.getException());
                         }
@@ -319,7 +321,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent(getActivity(), SchedulePickUp.class);
-                            Log.d("Log out info", info[0]);
                             intent.putExtra("name", info[0]);
                             intent.putExtra("address", info[1]);
                             intent.putExtra("contact", info[2]);
@@ -333,31 +334,8 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
         public void updateLatLng(String id, Double lat, Double lng) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             DocumentReference ref = db.collection("recycling_center_information").document(id);
-            ref.update("lat", lat).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("SUCCESS UPDATE LAT", "LAT Updated!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("FAILED UPDATE LAT", "Error updating LAT", e);
-                        }
-                    });
-
-            ref.update("lng", lng).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("SUCCESS UPDATE LNG", "LNG Updated!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("FAILED UPDATE LNG", "Error updating LNG", e);
-                        }
-                    });;
+            ref.update("lat", lat);
+            ref.update("lng", lng);
         }
 
 }
