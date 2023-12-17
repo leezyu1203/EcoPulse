@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
                 locationNav.setBackgroundColor(transparent);
                 communityNav.setBackgroundColor(transparent);
                 profileNav.setBackgroundColor(transparent);
-                replaceFragment(new LocationFragment());
+                //replaceFragment(new LocationFragment());
+                replaceFragment(new guidanceMainFragment());
             }
         });
 

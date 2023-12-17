@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/welcomingMessageImage"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/welcoming_message"
+        android:layout_marginTop="10dp"
+        android:contentDescription=""/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/guidanceSearch_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcomingMessageImage"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp">
+
+        <androidx.appcompat.widget.SearchView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/guidanceSearch"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            app:iconifiedByDefault="false"
+            app:searchHintIcon="@null"
+            app:queryHint="Search......"
+            android:focusable="false"
+            app:closeIcon="@drawable/baseline_clear_24"
+            app:searchIcon="@drawable/baseline_search_24"
+            android:layout_below="@+id/welcomingMessageImage"
+            android:background="@drawable/rounded_search_view" />
+
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/guidanceRecyclerView"
+        android:scrollbars="vertical"
+        android:layout_below="@+id/guidanceSearch_section"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="50dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:id="@+id/firstRowBtn"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/guidanceRecyclerView">
+
+        <ImageButton
+            android:id="@+id/recyclableWaste_btn"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_below="@+id/guidanceSearch"
+            android:background="@android:color/transparent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/recyclable_waste_0" />
+
+        <ImageButton
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:id="@+id/hazardousWaste_btn"
+            android:src="@drawable/hazardous_waste_1"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:layout_toRightOf="@+id/recyclableWaste_btn"
+            android:layout_below="@+id/guidanceSearch"/>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/secondRowBtn"
+        android:layout_below="@+id/firstRowBtn">
+
+
+        <ImageButton
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:id="@+id/householdFoodWaste_btn"
+            android:src="@drawable/household_food_waste_2"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_below="@+id/recyclableWaste_btn"/>
+
+        <ImageButton
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:id="@+id/residualWaste_btn"
+            android:src="@drawable/residual_waste_3"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:layout_marginTop="5dp"
+            android:layout_below="@+id/hazardousWaste_btn"
+            android:layout_toRightOf="@+id/householdFoodWaste_btn"
+            />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
