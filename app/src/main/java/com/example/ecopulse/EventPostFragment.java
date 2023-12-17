@@ -63,6 +63,10 @@ public class EventPostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        // if navigate from ManagePostsFragment
+        // -> gone comment...
+        // -> change BtnShare into BtnEdit
+        // -> change BtnAddReminder into BtnDelete
         return inflater.inflate(R.layout.fragment_event_post, container, false);
     }
 

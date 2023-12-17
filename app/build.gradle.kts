@@ -43,7 +43,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation("com.squareup.picasso:picasso:2.71828")      //Picasso dependency
     implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("com.google.firebase:firebase-auth:22.3.0")    //circle image frame dependency
+    implementation("com.google.firebase:firebase-auth:22.3.0")
+    implementation("androidx.room:room-common:2.6.1")    //circle image frame dependency
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

@@ -64,6 +64,8 @@ public class CollaboratorUploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        // If navigate from EventPost the details are filled in
+        // BtnSubmit change into BtnUpload
         return inflater.inflate(R.layout.fragment_collaborator_upload, container, false);
     }
 
