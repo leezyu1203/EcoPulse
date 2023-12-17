@@ -161,6 +161,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                 mGoogleMap.setMyLocationEnabled(true);
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
+
                 db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -220,7 +221,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private void addRecyclingCenterMarker(LatLng position) {
         if (mGoogleMap != null) {
             mGoogleMap.addMarker(new MarkerOptions().position(position));
-
         }
     }
 
@@ -243,7 +243,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     @Override
     public boolean onMarkerClick(Marker marker) {
         showDialog(marker);
-
         return true;
     }
 
@@ -321,6 +320,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent(getActivity(), SchedulePickUp.class);
+                            Log.d("Log out info", info[0]);
                             intent.putExtra("name", info[0]);
                             intent.putExtra("address", info[1]);
                             intent.putExtra("contact", info[2]);
