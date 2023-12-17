@@ -1,42 +1,31 @@
 package com.example.ecopulse;
-
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
-
-import com.google.android.gms.maps.model.Marker;
-
-import org.w3c.dom.Text;
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import java.util.List;
 
 public class TimeslotAdapter extends ArrayAdapter<String> {
     private List<String> items;
-    private View fragment;
+    private String selectedDay;
 
-    public TimeslotAdapter( Context context, List<String> items, View fragment) {
+    public TimeslotAdapter( Context context, List<String> items, String selectedDay) {
         super(context, 0, items);
         this.items = items;
-        this.fragment = fragment;
+        this.selectedDay = selectedDay;
     }
 
     @NonNull
@@ -58,22 +47,50 @@ public class TimeslotAdapter extends ArrayAdapter<String> {
         TextView slot = convertView.findViewById(R.id.timeslot_item);
         AppCompatImageButton delete = convertView.findViewById(R.id.delete_btn);
 
-        String item = getItem(position);
-
-        if (item != null) {
-            slot.setText(item);
-            Log.d("debug1", items.toString());
-            Log.d("debug2", item + " debug " + items.toString());
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("debug1", items.toString());
-                    items.remove(item);
-                    notifyDataSetChanged();
-                    Log.d("debug2", item + " debug " + items.toString());
-                }
-            });
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userEmail = "";
+        if (user != null) {
+            userEmail = user.getEmail();
         }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                if (task.isSuccessful()) {
+                    QueryDocumentSnapshot document1 = task.getResult().iterator().next();
+
+                    String userID = document1.getId();
+
+                    db.collection("recycling_center_information").whereEqualTo("userID", userID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                QueryDocumentSnapshot document2 = task.getResult().iterator().next();
+                                String documentID = document2.getId();
+                                String item = getItem(position);
+
+                                if (item != null) {
+                                    slot.setText(item);
+                                    delete.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+
+                                            items.remove(item);
+                                            db.collection("recycling_center_information").document(documentID).update("timeslot", FieldValue.arrayRemove(selectedDay + ", " + item));
+                                            notifyDataSetChanged();
+
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+
 
 
 

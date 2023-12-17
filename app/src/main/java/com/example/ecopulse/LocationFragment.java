@@ -1,7 +1,6 @@
 package com.example.ecopulse;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
@@ -10,27 +9,28 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,13 +44,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Text;
-
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -122,11 +121,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("SEARCH TAG", task.getResult().getDocuments().toString());
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> recyclingCenterData = document.getData();
                                 String name = (recyclingCenterData.get("name") + "").toLowerCase();
                                 String address = (recyclingCenterData.get("address") + "").toLowerCase();
+
+
                                 if (name.contains(search_text) || address.contains(search_text)) {
                                     Double lat = Double.parseDouble(recyclingCenterData.get("lat") + "");
                                     Double lng = Double.parseDouble(recyclingCenterData.get("lng") + "");
@@ -135,13 +135,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                                     break;
                                 }
                             }
-//                            if (!task.getResult().getDocuments().isEmpty()) {
-//                                DocumentSnapshot recyclingCenterData = task.getResult().getDocuments().get(0);
-//                               Double lat = Double.parseDouble(recyclingCenterData.get("lat") + "");
-//                               Double lng = Double.parseDouble(recyclingCenterData.get("lng") + "");
-//                               LatLng position = new LatLng(lat, lng);
-//                               moveCamera(position);
-//                            }
 
                         } else {
                             Log.d("TAG", "Error getting documents: ", task.getException());
@@ -163,22 +156,47 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                 mGoogleMap.setMyLocationEnabled(true);
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-
                 db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-
+                            Geocoder gcd = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
                             if (SEARCH.isEmpty()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
-                                    LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                    addRecyclingCenterMarker(latLng);
+
+                                    try {
+                                        if (document.getData().get("lat").equals("")) {
+
+                                            List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
+                                            updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                            LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                            addRecyclingCenterMarker(latLng);
+                                        } else {
+                                            LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                            addRecyclingCenterMarker(latLng);
+                                        }
+                                    } catch (IOException e) {
+                                        Log.e("GET LOCATION ERROR", "Fail to get location latitude and longitude");
+                                    }
+//
                                 }
                             } else {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                    addRecyclingCenterMarker(latLng);
+                                    try {
+                                        if (document.getData().get("lat").equals("")) {
+                                            List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
+                                            updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                            LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                            addRecyclingCenterMarker(latLng);
+                                        } else {
+                                            LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                            addRecyclingCenterMarker(latLng);
+                                        }
+                                    } catch (IOException e) {
+                                        Log.e("GETLOCATIONERROR", "Fail to get location latitude and longitude");
+                                    }
+
                                 }
                             }
 
@@ -200,6 +218,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private void addRecyclingCenterMarker(LatLng position) {
         if (mGoogleMap != null) {
             mGoogleMap.addMarker(new MarkerOptions().position(position));
+
         }
     }
 
@@ -222,6 +241,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     @Override
     public boolean onMarkerClick(Marker marker) {
         showDialog(marker);
+
         return true;
     }
 
@@ -249,7 +269,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     }
 
     public void setRecyclingCenterDetails(Dialog dialog, Marker marker) {
-        String[] info = new String[5];
+        String[] info = new String[6];
         recycleCenterName = dialog.findViewById(R.id.recycling_center_name);
         recycleCenterAddress = dialog.findViewById(R.id.recycling_center_address);
         recycleCenterContact = dialog.findViewById(R.id.recycling_center_contact_number);
@@ -269,6 +289,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                         info[2] = recyclingCenterData.get("contact") + "";
                         info[3] = recyclingCenterData.get("type") + "";
                         info[4] = recyclingCenterData.get("opening") + "";
+                        info[5] = recyclingCenterData.getId();
                         recycleCenterName.setText(recyclingCenterData.get("name") + "");
                         recycleCenterAddress.setText(recyclingCenterData.get("address") + "");
                         recycleCenterContact.setText(recyclingCenterData.get("contact") + "");
@@ -302,11 +323,41 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                             intent.putExtra("name", info[0]);
                             intent.putExtra("address", info[1]);
                             intent.putExtra("contact", info[2]);
+                            intent.putExtra("id", info[5]);
                             startActivity(intent);
                         }
                     }
             );
         }
 
+        public void updateLatLng(String id, Double lat, Double lng) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference ref = db.collection("recycling_center_information").document(id);
+            ref.update("lat", lat).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("SUCCESS UPDATE LAT", "LAT Updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("FAILED UPDATE LAT", "Error updating LAT", e);
+                        }
+                    });
+
+            ref.update("lng", lng).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("SUCCESS UPDATE LNG", "LNG Updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("FAILED UPDATE LNG", "Error updating LNG", e);
+                        }
+                    });;
+        }
 
 }
