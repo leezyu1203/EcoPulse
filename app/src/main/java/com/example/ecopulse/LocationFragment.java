@@ -45,6 +45,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -121,6 +122,11 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
             @Override
             public void onClick(View view) {
                 String search_text = searchET.getText().toString().toLowerCase();
+                if (search_text.equals("")) {
+                    Toast.makeText(getContext(), "Please enter a search term.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

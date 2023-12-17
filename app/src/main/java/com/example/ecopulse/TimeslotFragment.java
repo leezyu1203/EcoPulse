@@ -1,12 +1,11 @@
 package com.example.ecopulse;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -86,10 +85,11 @@ public class TimeslotFragment extends Fragment {
             userEmail = user.getEmail();
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        showLoadingBar(true);
         db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
+                showLoadingBar(false);
                 if (task.isSuccessful()) {
                     QueryDocumentSnapshot document1 = task.getResult().iterator().next();
                     String userID = document1.getId();
@@ -186,5 +186,17 @@ public class TimeslotFragment extends Fragment {
         }
 
         return hour + ":" + minute + " " + meridiem;
+    }
+
+    private void showLoadingBar(boolean show) {
+        LinearLayout loading = timeslotLocation.findViewById(R.id.loading);
+        if (show) {
+            timeslotlist.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
+            loading.setVisibility(View.VISIBLE);
+        } else {
+            loading.setVisibility(View.GONE);
+            timeslotlist.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+            loading.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
+        }
     }
 }
