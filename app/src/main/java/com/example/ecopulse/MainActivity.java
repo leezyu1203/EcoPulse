@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                             locationNav.setBackgroundColor(transparent);
                             communityNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);
-                            replaceFragment(new LocationFragment());
+                            replaceFragment(new Profile_Collaborator());    // for collaborator testing purpose
                         }
                     });
 

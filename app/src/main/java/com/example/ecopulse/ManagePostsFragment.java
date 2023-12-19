@@ -39,11 +39,10 @@ public class ManagePostsFragment extends Fragment {
         BtnAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment collaboratorUploadFragment = new CollaboratorUploadFragment();
-                FragmentManager manager = getFragmentManager();
+                FragmentManager manager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
 
-                transaction.replace(R.id.fragment_container_manage_posts, collaboratorUploadFragment);
+                transaction.replace(R.id.main_fragment, new CollaboratorUploadFragment());
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
