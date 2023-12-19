@@ -16,18 +16,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Register extends AppCompatActivity {
 
     private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword;
     private AppCompatButton buttonReg;
 
+    DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReferenceFromUrl("https://pmxmad-default-rtdb.firebaseio.com/");
+
     FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        mAuth = FirebaseAuth.getInstance();
         editTextName = findViewById(R.id.editTextTextName);
         editTextEmail = findViewById(R.id.editTextTextEmailAddress);
         editTextPassword = findViewById(R.id.editTextTextPassword);
@@ -42,35 +48,54 @@ public class Register extends AppCompatActivity {
     }
 
     private void register(){
-        String email, password;
+        String name,email, password, rePassword;
+        name = String.valueOf(editTextName.getText());
         email = String.valueOf(editTextEmail.getText());
         password = String.valueOf(editTextPassword.getText());
+        rePassword = String.valueOf(editTextRepassword.getText());
 
-        if (TextUtils.isEmpty(email)){
-            Toast.makeText(Register.this,"Enter email",Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(name)||TextUtils.isEmpty(email)||TextUtils.isEmpty(password)||TextUtils.isEmpty(rePassword))
+        {
+            Toast.makeText(Register.this,"Please fill all fields",Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(password)){
-            Toast.makeText(Register.this,"Enter password",Toast.LENGTH_SHORT).show();
+        else if (!password.equals(rePassword)){
+            Toast.makeText(Register.this,"Password are not matching",Toast.LENGTH_SHORT).show();
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(Register.this, "Account created.",
-                                    Toast.LENGTH_SHORT).show();
+        else {
 
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(Register.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+            databaseReference.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    // check if phone is not registered before
+
+                    if (snapshot.hasChild()){
+                        Toast.makeText(Register.this,"Phone is already registered",Toast.LENGTH_SHORT).show();
                     }
-                });
+
+                    else{
+                        // sending data to realtime database
+                        //
+                        databaseReference.child("users").child().child("fullname").setValue(name);
+                        databaseReference.child("users").child().child("email").setValue(email);
+                        databaseReference.child("user").child().child("password").setValue(password);
+                        Toast.makeText(Register.this,"User registered successful", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+        }
+
     }
 
 
