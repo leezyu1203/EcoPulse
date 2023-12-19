@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".ManagePostsFragment"
+    android:id="@+id/fragment_container_manage_posts">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RVManagePosts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <Button
+        android:id="@+id/BtnAddPost"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_alignBottom="@id/RVManagePosts"
+        android:layout_centerInParent="true"
+        android:background="@drawable/edittext_background"
+        android:backgroundTint="#758467"
+        android:gravity="center"
+        android:text="+"
+        android:textSize="24dp"
+        android:textColor="@color/white"
+        android:padding="4dp"/>
+
+
+</RelativeLayout>

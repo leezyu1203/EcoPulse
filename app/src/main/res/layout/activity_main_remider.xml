@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+
+    tools:context="com.example.ecopulse.MainActivityReminder">
+    <include layout="@layout/toolbar"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:orientation="vertical">
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="To Do"
+       android:layout_marginTop="20dp"
+       android:textColor="@color/darkGreen"
+       android:textSize="18sp"/>
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="All tasks"
+       fontPath="fonts/nunito_extra_bold.ttf"
+       android:textStyle="bold"
+       android:textColor="@color/darkGreen"
+       android:textSize="28sp"
+       tools:ignore="MissingPrefix" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/taskRecycler"
+                android:layout_width="match_parent"
+                android:scrollbars="vertical"
+                android:layout_height="510dp" />
+
+            <ImageButton
+                android:id="@+id/BtnAddTask"
+                android:layout_width="60sp"
+                android:layout_height="60sp"
+                android:layout_marginLeft="320dp"
+                android:layout_marginTop="510dp"
+                android:background="@drawable/baseline_add_24"
+                android:backgroundTint="@color/darkGreen"
+                android:elevation="16dp"
+                 />
+
+        </FrameLayout>
+
+
+
+    </LinearLayout>
+
+</LinearLayout>

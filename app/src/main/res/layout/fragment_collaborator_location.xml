@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CollaboratorLocationFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:elevation="10dp"
+            >
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/timeslot_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Slots"
+                android:textColor="@color/black"
+                android:background="@color/light_green"
+                />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/request_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Requests"
+                android:textColor="@color/white"
+                android:background="@color/primary_dark_green"
+                />
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/collaborator_location_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
+
+</FrameLayout>

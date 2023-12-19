@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/wasteTypeIntro">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/wasteTypeDetails"
+        android:layout_marginBottom="80dp">
+
+
+        <TextView
+            android:id="@+id/introTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Waste Type"
+            android:textAlignment="center"
+            android:textColor="@color/dark_green"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:id="@+id/introWasteTypeImage"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/baseline_image_24"
+            android:scaleType="centerInside" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/introCard"
+            app:cardElevation="8dp"
+            app:cardCornerRadius="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="30dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/introduction_box">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/introWasteTypeDesc_title"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginRight="15dp"
+                    android:textColor="@color/dark_green"
+                    android:textSize="23sp"
+                    android:text="Description:"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/introWasteTypeDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:fontFamily="sans-serif-light"
+                    android:text="description"
+                    android:textColor="@color/dark_green"
+                    android:textSize="18sp"
+                    android:textAlignment="gravity"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/introWasteTypeExample_title"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="15dp"
+                    android:textColor="@color/dark_green"
+                    android:textSize="23sp"
+                    android:text="Examples:"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/introWasteTypeExample"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Example"
+                    android:textColor="@color/dark_green"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/introWasteTypeTips_title"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="15dp"
+                    android:textColor="@color/dark_green"
+                    android:textSize="23sp"
+                    android:text="Tips:"
+                    android:fontFamily="sans-serif-condensed"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/introWasteTypeTips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginBottom="20dp"
+
+                    android:fontFamily="sans-serif-light"
+                    android:text="Tips"
+                    android:textColor="@color/dark_green"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/showWasteList"
+            android:text="more examples"
+            android:textSize="20sp"
+            android:clickable="true"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/dark_green"
+            android:textColor="@color/light_green"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            />
+        -->
+    </LinearLayout>
+
+
+
+</ScrollView>

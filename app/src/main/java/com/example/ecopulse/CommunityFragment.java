@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,8 @@ public class CommunityFragment extends Fragment {
     private FirebaseStorage storage;
     private DatabaseReference databaseRef;
     private List<UploadEvent> eventList;
+    private TextView title;
+    private ImageButton backButton;
 
     public CommunityFragment() {
         // Required empty public constructor
@@ -55,6 +58,10 @@ public class CommunityFragment extends Fragment {
         RVCommunityPosts.setLayoutManager(new LinearLayoutManager(getActivity()));
         PBLoadCommunity = view.findViewById(R.id.PBLoadCommunity);
         TVNoPostMsg = view.findViewById(R.id.TVNoPostMsg);
+        title = (TextView) getActivity().findViewById(R.id.current_title);
+        title.setText("Recycling Community");
+        backButton = getActivity().findViewById(R.id.backButton);
+        backButton.setVisibility(View.INVISIBLE);
 
         eventList = new ArrayList<>();
         adapter = new ImageAdapter(getActivity(), eventList);

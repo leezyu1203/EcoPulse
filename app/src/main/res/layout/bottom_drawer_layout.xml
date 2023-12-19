@@ -147,10 +147,11 @@
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:background="@drawable/schedule_pick_up_button"
-        android:elevation="4dp"
+        android:translationZ="10dp"
         android:layout_marginTop="20dp"
         android:paddingHorizontal="20dp"
         android:stateListAnimator="@null"
+        android:textColor="@color/white"
         android:text="Schedule Pick Up"
         android:textSize="13dp"
 

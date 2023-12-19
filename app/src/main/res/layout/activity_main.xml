@@ -15,9 +15,11 @@
         android:paddingHorizontal="20dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/darkerResedaGreen"
+        android:background="@color/primary_dark_green"
+        android:elevation="10dp"
         android:layout_height="58dp">
         <ImageButton
+            android:id="@+id/backButton"
             android:background="@android:color/transparent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +35,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="20dp"
-            android:textColor="@color/ashGray"
+            android:textColor="@color/white"
             />
         <ImageButton
             android:background="@android:color/transparent"
@@ -52,6 +54,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+
         />
 
     <LinearLayout
@@ -62,8 +65,10 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:orientation="horizontal"
-        android:background="@color/darkerResedaGreen"
+        android:background="@color/white"
         android:gravity="center"
+        android:translationZ="20dp"
+
         >
 
         <androidx.appcompat.widget.AppCompatButton
@@ -76,8 +81,9 @@
             android:drawableTop="@drawable/guidance"
             android:includeFontPadding="false"
             android:text="Guidance"
-            android:textColor="@color/ashGray"
+            android:textColor="@color/black"
             android:textSize="10dp"
+
             />
 
 
@@ -91,7 +97,8 @@
             android:id="@+id/location_nav"
             android:text="Location"
             android:textSize="10dp"
-            android:textColor="@color/ashGray"
+
+            android:textColor="@color/black"
             />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/community_nav"
@@ -103,7 +110,7 @@
             android:drawableTop="@drawable/community_icon"
             android:text="Community"
             android:textSize="10dp"
-            android:textColor="@color/ashGray"
+            android:textColor="@color/black"
             />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/profile_nav"
@@ -115,7 +122,7 @@
             android:drawableTop="@drawable/profile_icon"
             android:text="Profile"
             android:textSize="10dp"
-            android:textColor="@color/ashGray"
+            android:textColor="@color/black"
             />
 
     </LinearLayout>
