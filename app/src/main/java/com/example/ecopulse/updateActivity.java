@@ -20,6 +20,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
 
@@ -33,7 +35,8 @@ public class updateActivity extends AppCompatActivity {
     Button updateButton,dltButton;
     EditText updateTitle,updateDesc,updateDate,updateTime;
     String title,desc,date,time,key;
-    DatabaseReference databaseReference;
+    FirebaseFirestore db;
+    //DatabaseReference databaseReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +73,7 @@ public class updateActivity extends AppCompatActivity {
         updateTime.setText(bundle.getString("Time"));
         key=bundle.getString("Key");
         }
-        databaseReference= FirebaseDatabase.getInstance().getReference("task").child(key);
+        //databaseReference= FirebaseDatabase.getInstance().getReference("task").child(key);
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,8 +97,38 @@ public class updateActivity extends AppCompatActivity {
 
 
     }
+    public void updateData() {
+        title = updateTitle.getText().toString().trim();
+        desc = updateDesc.getText().toString().trim();
+        date = updateDate.getText().toString().trim();
+        time = updateTime.getText().toString().trim();
 
-    public void updateData(){
+        DocumentReference docRef = db.collection("tasks").document(key);
+
+        docRef.update(
+                "taskTitle", title,
+                "taskDescription", desc,
+                "date", date,
+                "time", time
+        ).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(updateActivity.this, "Updated successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(updateActivity.this, "Update failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(updateActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    /*public void updateData(){
         title=updateTitle.getText().toString().trim();
         desc=updateDesc.getText().toString().trim();
         date=updateDate.getText().toString().trim();
@@ -119,7 +152,7 @@ public class updateActivity extends AppCompatActivity {
             }
         });
 
-    }
+    }*/
 
     public void openDateDialog(){
         final Calendar c = Calendar.getInstance();

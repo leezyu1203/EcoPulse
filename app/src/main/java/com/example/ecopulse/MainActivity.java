@@ -7,6 +7,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -27,11 +29,13 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatButton communityNav;
     private AppCompatButton profileNav;
     private ImageButton backButton;
+    private ImageButton IBtnReminder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         backButton = findViewById(R.id.backButton);
+        IBtnReminder = findViewById(R.id.IBtnReminder);
         locationNav = findViewById(R.id.location_nav);
         guidanceNav = findViewById(R.id.guidance_nav);
         communityNav = findViewById(R.id.community_nav);
@@ -48,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        IBtnReminder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MainActivityReminder.class);
+                startActivity(intent);
+            }
+        });
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";
         if (user != null) {

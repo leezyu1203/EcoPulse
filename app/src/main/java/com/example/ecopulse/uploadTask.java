@@ -24,7 +24,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.ecopulse.Model.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -74,12 +77,42 @@ public class uploadTask extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData();
+                uploadData();
                //setAlarm();
             }
         });
     }
 
+    public void uploadData(){
+
+        //String taskID=UUID.randomUUID().toString();
+        String title = uploadTitle.getText().toString();
+        String description = uploadDesc.getText().toString();
+        String date = uploadDate.getText().toString();
+        String time = uploadTime.getText().toString();
+
+        Task task = new Task(title, description, date, time);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Add the task to Firestore
+        db.collection("tasks")
+                .add(task)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        //setAlarm(task);
+                        Toast.makeText(uploadTask.this,"Successfully create task",Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(uploadTask.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
     public void saveData(){
 
         String title = uploadTitle.getText().toString();
