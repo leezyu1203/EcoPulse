@@ -1,10 +1,9 @@
 package com.example.ecopulse;
-
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatButton;
@@ -20,6 +19,7 @@ public class CollaboratorLocationFragment extends Fragment {
     private AppCompatButton requestButton = null;
 
     private TextView title = null;
+    private ImageButton backButton = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -33,39 +33,38 @@ public class CollaboratorLocationFragment extends Fragment {
             title.setText("Recycling Center Location");
         }
 
+        backButton = getActivity().findViewById(R.id.backButton);
+        backButton.setVisibility(View.INVISIBLE);
+
         timeslotButton = collaboratorLocation.findViewById(R.id.timeslot_button);
         requestButton = collaboratorLocation.findViewById(R.id.request_button);
         timeslotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(getContext(), R.color.light_green);
-                int black = ContextCompat.getColor(getContext(), R.color.black);
-                int white = ContextCompat.getColor(getContext(), R.color.white);
-                int dark_green = ContextCompat.getColor(getContext(), R.color.primary_dark_green);
-                timeslotButton.setBackgroundColor(color);
-                timeslotButton.setTextColor(black);
-                requestButton.setBackgroundColor(dark_green);
-                requestButton.setTextColor(white);
-                replaceFragment(new TimeslotFragment());
+                changeTabColorAndNavigate(timeslotButton, requestButton, new TimeslotFragment());
             }
         });
 
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int color = ContextCompat.getColor(getContext(), R.color.light_green);
-                int black = ContextCompat.getColor(getContext(), R.color.black);
-                int white = ContextCompat.getColor(getContext(), R.color.white);
-                int dark_green = ContextCompat.getColor(getContext(), R.color.primary_dark_green);
-                requestButton.setBackgroundColor(color);
-                requestButton.setTextColor(black);
-                timeslotButton.setBackgroundColor(dark_green);
-                timeslotButton.setTextColor(white);
-                replaceFragment(new RequestFragment());
+                changeTabColorAndNavigate(requestButton, timeslotButton, new RequestFragment());
             }
         });
 
         return collaboratorLocation;
+    }
+
+    private void changeTabColorAndNavigate(AppCompatButton selected, AppCompatButton notSelected, Fragment navigateTo) {
+        int color = ContextCompat.getColor(getContext(), R.color.light_green);
+        int black = ContextCompat.getColor(getContext(), R.color.black);
+        int white = ContextCompat.getColor(getContext(), R.color.white);
+        int dark_green = ContextCompat.getColor(getContext(), R.color.primary_dark_green);
+        selected.setBackgroundColor(color);
+        selected.setTextColor(black);
+        notSelected.setBackgroundColor(dark_green);
+        notSelected.setTextColor(white);
+        replaceFragment(navigateTo);
     }
 
     private void replaceFragment(Fragment fragment) {
@@ -74,4 +73,5 @@ public class CollaboratorLocationFragment extends Fragment {
         fragmentTransaction.replace(R.id.collaborator_location_fragment, fragment);
         fragmentTransaction.commit();
     }
+
 }

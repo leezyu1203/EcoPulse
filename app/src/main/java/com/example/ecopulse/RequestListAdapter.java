@@ -23,6 +23,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
@@ -110,7 +113,7 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
             datetime.setText(item.getDayOfweek() + ", " + item.getTime());
             note.setText(item.getNote());
 
-            if (item.getStatus() != "pending") {
+            if (!item.getStatus().equals("pending")) {
                 accept.setVisibility(View.GONE);
                 reject.setVisibility(View.GONE);
             }
@@ -120,38 +123,14 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    item.setStatus("accepted");
-                    items.remove(item);
-                    if (items.isEmpty()) {
-                        noRecords.setVisibility(View.VISIBLE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1.0f));
-                    } else {
-                        noRecords.setVisibility(View.GONE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
-                    }
-                    notifyDataSetChanged();
-                    dialog.dismiss();
+                    setStatusForRequest(item, dialog, "accepted");
                 }
             });
 
             reject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    item.setStatus("rejected");
-                    items.remove(item);
-                    if (items.isEmpty()) {
-                        noRecords.setVisibility(View.VISIBLE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1.0f));
-                    } else {
-                        noRecords.setVisibility(View.GONE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
-                    }
-                    notifyDataSetChanged();
-                    dialog.dismiss();
+                    setStatusForRequest(item, dialog, "rejected");
                 }
             });
         }
@@ -161,5 +140,32 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.drawerAnimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    public void setStatusForRequest(RequestListItem item, Dialog dialog, String status) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("pick_up_schedule").document(item.getId()).update("status", status).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    LinearLayout noRecords = fragment.findViewById(R.id.no_records);
+                    ListView requestList = fragment.findViewById(R.id.request_list);
+                    item.setStatus(status);
+                    items.remove(item);
+                    if (items.isEmpty()) {
+                        noRecords.setVisibility(View.VISIBLE);
+                        requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
+                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1.0f));
+                    } else {
+                        noRecords.setVisibility(View.GONE);
+                        requestList.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
+                    }
+                    notifyDataSetChanged();
+                    dialog.dismiss();
+                }
+            }
+        });
+
     }
 }

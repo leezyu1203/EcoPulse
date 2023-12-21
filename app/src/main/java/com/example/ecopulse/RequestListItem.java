@@ -7,9 +7,9 @@ public class RequestListItem {
     private String contact;
     private String note;
     private String status;
-    private int id;
+    private String id;
 
-    public RequestListItem(String dayOfWeek, String time, String address, String contact, String note, String status, int id) {
+    public RequestListItem(String dayOfWeek, String time, String address, String contact, String note, String status, String id) {
         this.dayOfweek = dayOfWeek;
         this.time = time;
         this.address = address;
@@ -27,7 +27,7 @@ public class RequestListItem {
         return note;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -63,7 +63,7 @@ public class RequestListItem {
         this.contact = contact;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
