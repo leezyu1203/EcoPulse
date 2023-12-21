@@ -1,5 +1,7 @@
 package com.example.ecopulse;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +77,53 @@ public class ManagePostsFragment extends Fragment {
         if(user != null) {
             userEmail = user.getEmail();
         }
+
+        /*db.collection("user")
+                .whereEqualTo("email", userEmail)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot userValue, @Nullable FirebaseFirestoreException error) {
+                        if(error != null) {
+                            Log.e(TAG, "Listen failed", error);
+                            return;
+                        }
+
+                        if(userValue != null && !userValue.isEmpty()) {
+                            DocumentSnapshot userDoc = userValue.getDocuments().get(0);
+                            String userID = userDoc.getId();
+
+                            bundle.putString("userID", userID);
+
+                            db.collection("events")
+                                    .whereEqualTo("user", userID)
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                            if(error != null ) {
+                                                Log.e(TAG, "Listen failed", error);
+                                                return;
+                                            }
+                                            eventList.clear();
+
+                                            if(value != null) {
+                                                for(QueryDocumentSnapshot documentSnapshot:value) {
+                                                    UploadEvent current = documentSnapshot.toObject(UploadEvent.class);
+                                                    eventList.add(current);
+                                                }
+
+                                                if(eventList.isEmpty()) {
+                                                    TVNoManagePostMsg.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    TVNoManagePostMsg.setVisibility(View.INVISIBLE);
+                                                }
+
+                                                adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    }); PBManagePost.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });*/
 
         db.collection("user")
                 .whereEqualTo("email", userEmail)

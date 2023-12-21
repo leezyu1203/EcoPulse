@@ -55,7 +55,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 EventPostFragment eventPostFragment = new EventPostFragment();
 
                 Bundle bundle = new Bundle();
-                bundle.putString("eventID", uploadCurrent.getID());
+                //bundle.putString("eventID", uploadCurrent.getID());
                 eventPostFragment.setArguments(bundle);
 
                 transaction.replace(R.id.CommunityFragment, eventPostFragment);

@@ -50,7 +50,7 @@ public class ManagePostsAdapter extends RecyclerView.Adapter<ManagePostsAdapter.
                 EventPostFragment epf = new EventPostFragment();
 
                 Bundle bundle = new Bundle();
-                bundle.putString("eventID", current.getID());
+                bundle.putString("eventTimestamp", current.getTimestamp());
                 epf.setArguments(bundle);
 
                 transaction.replace(R.id.main_fragment, epf);

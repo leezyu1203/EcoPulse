@@ -12,7 +12,6 @@ public class UploadEvent {
     private String imageUrl;
     private String timestamp;
     private String userID;
-    private String ID;
 
     public UploadEvent() {}
     public UploadEvent(String eventName, String eventDesc, String eventVenue, String eventDate, String eventStartTime, String eventEndTime, String imageUrl, String timestamp, String userID) {
@@ -97,15 +96,5 @@ public class UploadEvent {
 
     public void setUserID(String userID) {
         this.userID = userID;
-    }
-
-    @Exclude
-    public String getID() {
-        return ID;
-    }
-
-    @Exclude
-    public void setID(String ID){
-        this.ID = ID;
     }
 }

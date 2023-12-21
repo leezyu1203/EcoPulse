@@ -57,7 +57,7 @@ public class EventPostFragment extends Fragment {
     private Button BtnShare;
     private Button BtnAddReminder;
 
-    private String eventID;
+    private String eventTimestamp;
     private FirebaseFirestore db;
 
     public EventPostFragment() {
@@ -99,11 +99,40 @@ public class EventPostFragment extends Fragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            eventID = args.getString("eventID");
+            eventTimestamp = args.getString("eventTimestamp");
         }
 
         db = FirebaseFirestore.getInstance();
-        db.collection("events").document(eventID)
+        db.collection("events")
+                .whereEqualTo("timestamp",eventTimestamp)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                            UploadEvent current = snapshot.toObject(UploadEvent.class);
+
+                            TVEventPostTitle.setText(current.getEventName());
+                            TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
+                            TVPostDesc.setText(current.getEventDesc());
+                            TVEventVenue.setText("Venue: " + current.getEventVenue());
+                            TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
+                            TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
+                            Picasso.get()
+                                    .load(current.getImageUrl())
+                                    .placeholder(R.mipmap.ic_launcher)
+                                    .fit()
+                                    .centerCrop()
+                                    .into(IVEventPostPoster);
+                            PBLoadPost.setVisibility(View.INVISIBLE);
+                            PBLoadComments.setVisibility(View.VISIBLE);
+                        } else {
+                            Toast.makeText(requireActivity(),"Failed to load event post",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        /*db.collection("events").document(eventID)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
