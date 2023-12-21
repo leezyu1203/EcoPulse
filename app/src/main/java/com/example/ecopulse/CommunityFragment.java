@@ -76,7 +76,7 @@ public class CommunityFragment extends Fragment {
 
                 for(DataSnapshot communitySnapshot : snapshot.getChildren()) {
                     UploadEvent upload = communitySnapshot.getValue(UploadEvent.class);
-                    upload.setKey(communitySnapshot.getKey());
+                    //upload.setKey(communitySnapshot.getKey());
                     eventList.add(upload);
                 }
 

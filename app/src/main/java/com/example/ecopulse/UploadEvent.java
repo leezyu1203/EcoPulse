@@ -1,6 +1,6 @@
 package com.example.ecopulse;
 
-import com.google.firebase.database.Exclude;
+import com.google.firebase.firestore.Exclude;
 
 public class UploadEvent {
     private String eventName;
@@ -11,10 +11,11 @@ public class UploadEvent {
     private String eventEndTime;
     private String imageUrl;
     private String timestamp;
-    private String key;
+    private String userID;
+    private String ID;
 
     public UploadEvent() {}
-    public UploadEvent(String eventName, String eventDesc, String eventVenue, String eventDate, String eventStartTime, String eventEndTime, String imageUrl, String timestamp) {
+    public UploadEvent(String eventName, String eventDesc, String eventVenue, String eventDate, String eventStartTime, String eventEndTime, String imageUrl, String timestamp, String userID) {
         this.eventName = eventName;
         this.eventDesc = eventDesc;
         this.eventVenue = eventVenue;
@@ -23,6 +24,7 @@ public class UploadEvent {
         this.eventEndTime = eventEndTime;
         this.imageUrl = imageUrl;
         this.timestamp = timestamp;
+        this.userID = userID;
     }
 
     public String getEventName() {
@@ -89,13 +91,21 @@ public class UploadEvent {
         this.timestamp = timestamp;
     }
 
-    @Exclude
-    public String getKey() {
-        return key;
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     @Exclude
-    public void setKey(String key) {
-        this.key = key;
+    public String getID() {
+        return ID;
+    }
+
+    @Exclude
+    public void setID(String ID){
+        this.ID = ID;
     }
 }
