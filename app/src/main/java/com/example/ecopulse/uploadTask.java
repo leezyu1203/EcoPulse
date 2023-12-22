@@ -85,7 +85,7 @@ public class uploadTask extends AppCompatActivity {
 
     public void uploadData(){
 
-        //String taskID=UUID.randomUUID().toString();
+
         String title = uploadTitle.getText().toString();
         String description = uploadDesc.getText().toString();
         String date = uploadDate.getText().toString();

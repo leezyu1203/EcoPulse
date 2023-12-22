@@ -65,21 +65,24 @@ public class updateActivity extends AppCompatActivity {
             }
         });
 
+        db = FirebaseFirestore.getInstance();
+
         Bundle bundle=getIntent().getExtras();
         if(bundle!=null){
+
         updateTitle.setText(bundle.getString("Title"));
         updateDate.setText(bundle.getString("Date"));
         updateDesc.setText(bundle.getString("Desc"));
         updateTime.setText(bundle.getString("Time"));
         key=bundle.getString("Key");
         }
-        //databaseReference= FirebaseDatabase.getInstance().getReference("task").child(key);
+
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateData();
-                Intent intent=new Intent(updateActivity.this, MainActivity.class);
+                Intent intent=new Intent(updateActivity.this, MainActivityReminder.class);
                 startActivity(intent);
 
             }
@@ -87,11 +90,7 @@ public class updateActivity extends AppCompatActivity {
         dltButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final DatabaseReference reference= FirebaseDatabase.getInstance().getReference("task");
-                reference.child(key).removeValue();
-                Toast.makeText(updateActivity.this,"Deleted",Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                finish();
+                deleteTask();
             }
         });
 
@@ -109,7 +108,7 @@ public class updateActivity extends AppCompatActivity {
                 "taskTitle", title,
                 "taskDescription", desc,
                 "date", date,
-                "time", time
+                "firstAlarmTime", time
         ).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
@@ -128,31 +127,31 @@ public class updateActivity extends AppCompatActivity {
             }
         });
     }
-    /*public void updateData(){
-        title=updateTitle.getText().toString().trim();
-        desc=updateDesc.getText().toString().trim();
-        date=updateDate.getText().toString().trim();
-        time=updateTime.getText().toString();
 
+    public void deleteTask() {
+        // Delete the task from Firebase
+        db.collection("tasks").document(key)
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(updateActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(updateActivity.this, "Deletion failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(updateActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-        Task task=new Task(title,desc,date,time);
-
-        databaseReference.setValue(task).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(updateActivity.this,"Updated",Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(updateActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }*/
+        startActivity(new Intent(getApplicationContext(), MainActivityReminder.class));
+        finish();
+    }
 
     public void openDateDialog(){
         final Calendar c = Calendar.getInstance();

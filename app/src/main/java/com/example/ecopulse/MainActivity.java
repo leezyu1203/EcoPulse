@@ -52,13 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        IBtnReminder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MainActivityReminder.class);
-                startActivity(intent);
-            }
-        });
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";
@@ -128,8 +121,17 @@ public class MainActivity extends AppCompatActivity {
                             replaceFragment(new Profile_Collaborator());    // for collaborator testing purpose
                         }
                     });
+                    IBtnReminder.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(MainActivity.this, MainActivityReminder.class);
+                            startActivity(intent);
+                        }
+                    });
+
 
                 }
+
 
             }
         });

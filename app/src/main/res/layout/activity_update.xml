@@ -126,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/darkGreen"
+            android:backgroundTint="@color/error"
             android:text="Delete"
             android:textColor="@color/white" />
 

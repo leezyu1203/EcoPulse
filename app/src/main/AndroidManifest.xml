@@ -42,6 +42,13 @@
 
         </activity>
 
+        <activity android:name=".MainActivityReminder">
+            <!-- Add any necessary intent filters or configuration -->
+        </activity>
+        <activity android:name=".updateActivity"></activity>
+        <activity android:name=".uploadTask"></activity>
+        
+
         <activity android:name=".SchedulePickUp">
             <!-- Intent filters if needed -->
         </activity>

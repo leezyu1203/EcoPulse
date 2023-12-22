@@ -50,6 +50,7 @@ public class MainActivityReminder extends AppCompatActivity {
         taskList=new ArrayList<>();
 
         Myadapter adapter=new Myadapter(taskList,MainActivityReminder.this);
+
         recyclerView.setAdapter(adapter);
 
 
