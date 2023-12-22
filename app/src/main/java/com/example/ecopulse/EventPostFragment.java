@@ -10,18 +10,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -52,8 +57,8 @@ public class EventPostFragment extends Fragment {
     private Button BtnShare;
     private Button BtnAddReminder;
 
-    private String eventID;
-    private DatabaseReference databaseRef;
+    private String eventTimestamp;
+    private FirebaseFirestore db;
 
     public EventPostFragment() {
         // Required empty public constructor
@@ -94,12 +99,97 @@ public class EventPostFragment extends Fragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            eventID = args.getString("eventID");
+            eventTimestamp = args.getString("eventTimestamp");
         }
 
-        databaseRef = FirebaseDatabase.getInstance().getReference("events").child(eventID);
-        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        db = FirebaseFirestore.getInstance();
+        db.collection("events")
+                .whereEqualTo("timestamp",eventTimestamp)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                            UploadEvent current = snapshot.toObject(UploadEvent.class);
+
+                            TVEventPostTitle.setText(current.getEventName());
+                            TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
+                            TVPostDesc.setText(current.getEventDesc());
+                            TVEventVenue.setText("Venue: " + current.getEventVenue());
+                            TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
+                            TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
+                            Picasso.get()
+                                    .load(current.getImageUrl())
+                                    .placeholder(R.mipmap.ic_launcher)
+                                    .fit()
+                                    .centerCrop()
+                                    .into(IVEventPostPoster);
+                            PBLoadPost.setVisibility(View.INVISIBLE);
+                            PBLoadComments.setVisibility(View.VISIBLE);
+                        } else {
+                            Toast.makeText(requireActivity(),"Failed to load event post",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        /*db.collection("events").document(eventID)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(documentSnapshot.exists()) {
+                    UploadEvent current = documentSnapshot.toObject(UploadEvent.class);
+
+                    TVEventPostTitle.setText(current.getEventName());
+                    TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
+                    TVPostDesc.setText(current.getEventDesc());
+                    TVEventVenue.setText("Venue: " + current.getEventVenue());
+                    TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
+                    TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
+                    Picasso.get()
+                            .load(current.getImageUrl())
+                            .placeholder(R.mipmap.ic_launcher)
+                            .fit()
+                            .centerCrop()
+                            .into(IVEventPostPoster);
+                    PBLoadPost.setVisibility(View.INVISIBLE);
+                    PBLoadComments.setVisibility(View.VISIBLE);
+                } else {
+                    Toast.makeText(getContext(),"Event not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        });
+        /*
+        db.collection("events")
+                .document(eventID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot snapshot = task.getResult();
+                        UploadEvent current = snapshot.toObject(UploadEvent.class);
+
+                        TVEventPostTitle.setText(current.getEventName());
+                        TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
+                        TVPostDesc.setText(current.getEventDesc());
+                        TVEventVenue.setText("Venue: " + current.getEventVenue());
+                        TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
+                        TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
+                        Picasso.get()
+                                .load(current.getImageUrl())
+                                .placeholder(R.mipmap.ic_launcher)
+                                .fit()
+                                .centerCrop()
+                                .into(IVEventPostPoster);
+                        PBLoadPost.setVisibility(View.INVISIBLE);
+                        PBLoadComments.setVisibility(View.VISIBLE);
+                    }
+                }); */
+            /*@Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
                     UploadEvent upload = snapshot.getValue(UploadEvent.class);
@@ -130,7 +220,7 @@ public class EventPostFragment extends Fragment {
                 Toast.makeText(requireActivity(), error.getMessage(),Toast.LENGTH_SHORT).show();
                 PBLoadPost.setVisibility(View.INVISIBLE);
             }
-        });
+        });*/
 
         RVComments.setHasFixedSize(false);
         RVComments.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -139,7 +229,7 @@ public class EventPostFragment extends Fragment {
         adapter = new CommentAdapter(requireActivity(), commentList);
 
         RVComments.setAdapter(adapter);
-
+        /*
         databaseRef = FirebaseDatabase.getInstance().getReference("comment").child(eventID);
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -166,7 +256,7 @@ public class EventPostFragment extends Fragment {
                 Toast.makeText(requireActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                 PBLoadComments.setVisibility(View.INVISIBLE);
             }
-        });
+        });*/
 
         IBtnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,7 +321,7 @@ public class EventPostFragment extends Fragment {
 
     private void comment() {
         Comment comment = new Comment(ETInputComment.getText().toString().trim());
-        databaseRef.push().setValue(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
+        /*databaseRef.push().setValue(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Toast.makeText(requireActivity(), "Comment added", Toast.LENGTH_SHORT).show();
@@ -242,6 +332,6 @@ public class EventPostFragment extends Fragment {
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(requireActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
+        }); */
     }
 }

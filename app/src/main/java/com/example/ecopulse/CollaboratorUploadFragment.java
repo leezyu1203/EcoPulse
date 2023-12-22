@@ -62,7 +62,7 @@ public class CollaboratorUploadFragment extends Fragment {
     private Uri imageUri;
 
     private StorageReference storageRef;
-    private FirebaseFirestore databaseRef;
+    private FirebaseFirestore db;
     private FirebaseUser user;
 
     private StorageTask uploadTask;
@@ -98,7 +98,7 @@ public class CollaboratorUploadFragment extends Fragment {
         BtnUpload = view.findViewById(R.id.BtnUpload);
 
         storageRef = FirebaseStorage.getInstance().getReference("events");
-        databaseRef = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         IBtnEventDateSelector.setOnClickListener(new View.OnClickListener() {
@@ -205,46 +205,35 @@ public class CollaboratorUploadFragment extends Fragment {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     String imageUrl = uri.toString();
-                                    String userEmail = "";
-                                    if(user != null) {
-                                        userEmail = user.getEmail();
+                                    Bundle args = getArguments();
+                                    String userID = "";
+                                    if(args != null) {
+                                        userID = args.getString("userID");
                                     }
-                                    databaseRef.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if(task.isSuccessful()) {
-                                                for(QueryDocumentSnapshot document : task.getResult()) {
-                                                    String userID = document.getId();
-                                                    Map<String, String> event = new HashMap<>();
-                                                    event.put("eventName", ETInputEventName.getText().toString().trim());
-                                                    event.put("eventDesc", ETInputEventDesc.getText().toString().trim());
-                                                    event.put("eventVenue", ETInputEventVenue.getText().toString().trim());
-                                                    event.put("eventDate", TVSelectedEventDate.getText().toString().trim());
-                                                    event.put("eventStartTime", TVSelectedStartTime.getText().toString().trim());
-                                                    event.put("eventEndTime", TVSelectedEndTime.getText().toString().trim());
-                                                    event.put("imageURL", imageUrl);
-                                                    event.put("timestamp", String.valueOf(System.currentTimeMillis()));
-                                                    event.put("userID", userID);
+                                    UploadEvent event = new UploadEvent(
+                                            ETInputEventName.getText().toString().trim(),
+                                            ETInputEventDesc.getText().toString().trim(),
+                                            ETInputEventVenue.getText().toString().trim(),
+                                            TVSelectedEventDate.getText().toString().trim(),
+                                            TVSelectedStartTime.getText().toString().trim(),
+                                            TVSelectedEndTime.getText().toString().trim(),
+                                            imageUrl,
+                                            String.valueOf(System.currentTimeMillis()),
+                                            userID
+                                    );
 
-                                                    databaseRef.collection("events")
-                                                            .add(event)
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentReference documentReference) {
-                                                                    Toast.makeText(requireContext(), "Event successfully posted", Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Toast.makeText(requireContext(), "Failed", Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            });
+                                    db.collection("events")
+                                            .add(event).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Toast.makeText(requireContext(), "Event successfully posted", Toast.LENGTH_SHORT).show();
                                                 }
-                                            } else {
-                                                Toast.makeText(requireActivity(),"User is not authenticated",Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(requireContext(), "Failed to post the event", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
                                 }
                             });
                         }
