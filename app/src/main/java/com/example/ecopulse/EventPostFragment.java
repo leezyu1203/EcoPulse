@@ -8,6 +8,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -233,14 +235,21 @@ public class EventPostFragment extends Fragment {
                 }
             }
         });
-        /*
+
         BtnAddReminder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
 
+                uploadFragmentReminder ufr = new uploadFragmentReminder();
+                ufr.setArguments(args);
+
+                transaction.replace(R.id.main_fragment,ufr);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
-         */
     }
 
     private String formatTimestamp(String timestamp) {
@@ -252,7 +261,7 @@ public class EventPostFragment extends Fragment {
 
     private String formatDate(String inputDate) {
         try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             Date date = inputFormat.parse(inputDate);
             SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
             return outputFormat.format(date);

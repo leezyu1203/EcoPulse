@@ -1,6 +1,6 @@
 package com.example.ecopulse;
 
-
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -58,13 +62,38 @@ public class uploadFragmentReminder extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_upload_task,container,false);
         title = (TextView) getActivity().findViewById(R.id.current_title);
-        title.setText("Reminder");uploadTitle=rootView.findViewById(R.id.addTaskTitle);
+        title.setText("Reminder");
+        uploadTitle=rootView.findViewById(R.id.addTaskTitle);
         createNotificationChannel();
         uploadDesc=rootView.findViewById(R.id.addTaskDescription);
         uploadDate=rootView.findViewById(R.id.taskDate);
         uploadTime=rootView.findViewById(R.id.taskTime);
         addTaskButton=rootView.findViewById(R.id.AddTask);
 
+        Bundle bundle = getArguments();
+        if(bundle != null) {
+            String eventID = bundle.getString("eventID");
+            Log.d(TAG, "Reminder Event Check: " + eventID);
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("events").document(eventID)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                            if(error != null){
+                                Log.e(TAG, error.getMessage(), error);
+                            }
+
+                            if(value.exists() && value != null) {
+                                UploadEvent event = value.toObject(UploadEvent.class);
+                                uploadTitle.setText(event.getEventName());
+                                uploadDesc.setText("Venue: " + event.getEventVenue());
+                                uploadDate.setText(event.getEventDate());
+                                uploadTime.setText(event.getEventStartTime());
+                            }
+                        }
+                    });
+        }
 
         uploadDate.setOnClickListener(new View.OnClickListener() {
             @Override

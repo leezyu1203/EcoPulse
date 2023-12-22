@@ -40,6 +40,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -104,14 +105,17 @@ public class CollaboratorUploadFragment extends Fragment {
         IBtnEventDateSelector.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocalDate currentDate = LocalDate.now();
-                DatePickerDialog dialog = new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR);
+                int mMonth = c.get(Calendar.MONTH);
+                int mDay = c.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog = new DatePickerDialog(requireContext(), R.style.DatePickerTheme, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        TVSelectedEventDate.setText(String.valueOf(dayOfMonth) + "/" +
-                                String.valueOf(month+1) + "/" + String.valueOf(year));
+                        TVSelectedEventDate.setText(dayOfMonth + "-" + (month+1) + "-" + year);
                     }
-                }, currentDate.getYear(), currentDate.getMonthValue() - 1, currentDate.getDayOfMonth());
+                }, mYear, mMonth, mDay);
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 dialog.show();
             }
         });
@@ -158,13 +162,15 @@ public class CollaboratorUploadFragment extends Fragment {
     }
 
     private void timeSelector(TextView showTime) {
-        LocalTime currentTime = LocalTime.now();
-        TimePickerDialog dialog = new TimePickerDialog(requireContext(), new TimePickerDialog.OnTimeSetListener() {
+        final Calendar c = Calendar.getInstance();
+        int mHour = c.get(Calendar.HOUR_OF_DAY);
+        int mMinutes = c.get(Calendar.MINUTE);
+        TimePickerDialog dialog = new TimePickerDialog(requireContext(),R.style.DatePickerTheme, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 showTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
             }
-        }, currentTime.getHour(), currentTime.getMinute(), true);
+        }, mHour, mMinutes, false);
         dialog.show();
     }
 
