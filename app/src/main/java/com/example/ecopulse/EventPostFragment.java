@@ -22,6 +22,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -52,7 +54,7 @@ public class EventPostFragment extends Fragment {
 
     private RecyclerView RVComments;
     private CommentAdapter adapter;
-    private List<Comment> commentList;
+    private List<DocumentSnapshot> commentList;
     private EditText ETInputComment;
     private ImageButton IBtnSend;
     private TextView TVNoCommentMsg;
@@ -148,30 +150,28 @@ public class EventPostFragment extends Fragment {
         adapter = new CommentAdapter(requireActivity(), commentList);
 
         RVComments.setAdapter(adapter);
-        db.collection("comments")
-                .whereEqualTo("eventID", eventID)
+        db.collection("events").document(eventID)
+                .collection("comments")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
-                            if(task != null && !task.getResult().isEmpty()) {
-                                commentList.clear();
-                                Log.d(TAG, "Comment eventID: " + eventID);
+                            commentList.clear();
 
-                                for(DocumentSnapshot snapshots : task.getResult()) {
-                                    Comment current = snapshots.toObject(Comment.class);
-                                    commentList.add(current);
-                                }
-
-                                adapter.notifyDataSetChanged();
-                            } else {
-                                if(commentList.isEmpty()) {
-                                    TVNoCommentMsg.setVisibility(View.VISIBLE);
-                                } else {
-                                    TVNoCommentMsg.setVisibility(View.INVISIBLE);
-                                }
+                            for(DocumentSnapshot snapshots : task.getResult()) {
+                                commentList.add(snapshots);
+                                Log.d(TAG, "check snapshot: " + snapshots.getId());
                             }
+
+                            adapter.notifyDataSetChanged();
+
+                            if(commentList.isEmpty()) {
+                                TVNoCommentMsg.setVisibility(View.VISIBLE);
+                            } else {
+                                TVNoCommentMsg.setVisibility(View.INVISIBLE);
+                            }
+
                             PBLoadComments.setVisibility(View.INVISIBLE);
                         }
                     }
@@ -267,7 +267,45 @@ public class EventPostFragment extends Fragment {
     }
 
     private void comment() {
-        Comment comment = new Comment(ETInputComment.getText().toString().trim());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userEmail = "";
+        if(user != null){
+            userEmail = user.getEmail();
+        }
+
+        db.collection("user")
+                .whereEqualTo("email", userEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                            String userID = snapshot.getId();
+
+                            Comment comment = new Comment(ETInputComment.getText().toString().trim(),
+                                    userID);
+
+                            db.collection("events").document(eventID)
+                                    .collection("comments")
+                                    .add(comment)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Toast.makeText(getContext(), "Successfully comment", Toast.LENGTH_SHORT).show();
+                                            ETInputComment.setText("");
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(getContext(),"Comment failed", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
+                    }
+                });
+
+        //Comment comment = new Comment(ETInputComment.getText().toString().trim());
         /*databaseRef.push().setValue(comment).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {

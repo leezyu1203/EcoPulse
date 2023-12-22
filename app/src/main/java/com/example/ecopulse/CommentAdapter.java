@@ -1,6 +1,9 @@
 package com.example.ecopulse;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +13,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
     private Context context;
-    private List<Comment> commentList;
+    private List<DocumentSnapshot> commentList;
 
-    public CommentAdapter(Context context, List<Comment> commentList) {
+    public CommentAdapter(Context context, List<DocumentSnapshot> commentList) {
         this.context = context;
         this.commentList = commentList;
     }
@@ -32,9 +36,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-        Comment currentComment = this.commentList.get(position);
-        holder.TVCommentUserID.setText("UserID");       //modify to userID
-        holder.TVUserComment.setText(currentComment.getContent());
+        DocumentSnapshot snapshot = this.commentList.get(position);
+        Log.d(TAG,"adapter check: " + snapshot.getId());
+        Comment current = snapshot.toObject(Comment.class);
+        holder.TVCommentUserID.setText(current.getUserID());
+        holder.TVUserComment.setText(current.getContent());
         Picasso.get()
                 .load(R.mipmap.ic_launcher)
                 .placeholder(R.mipmap.ic_launcher)
@@ -45,7 +51,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     @Override
     public int getItemCount() {
-        return 0;
+        return commentList.size();
     }
 
     public class CommentViewHolder extends RecyclerView.ViewHolder {
