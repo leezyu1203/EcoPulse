@@ -36,7 +36,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         holder.TVCommentUserID.setText("UserID");       //modify to userID
         holder.TVUserComment.setText(currentComment.getContent());
         Picasso.get()
-                .load("https://firebasestorage.googleapis.com/v0/b/community-app-bf82b.appspot.com/o/events%2FEcoEvent_1700662726317.jpg?alt=media&token=ae6ce6a8-5ee5-4bac-a283-de133d2df2b1")     // modify
+                .load(R.mipmap.ic_launcher)
                 .placeholder(R.mipmap.ic_launcher)
                 .fit()
                 .centerCrop()

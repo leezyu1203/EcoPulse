@@ -1,5 +1,7 @@
 package com.example.ecopulse;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -25,7 +27,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
@@ -57,7 +61,8 @@ public class EventPostFragment extends Fragment {
     private Button BtnShare;
     private Button BtnAddReminder;
 
-    private String eventTimestamp;
+    //private String eventTimestamp;
+    private String eventID;
     private FirebaseFirestore db;
 
     public EventPostFragment() {
@@ -98,20 +103,23 @@ public class EventPostFragment extends Fragment {
         BtnAddReminder = view.findViewById(R.id.BtnAddReminder);
 
         Bundle args = getArguments();
-        if (args != null) {
-            eventTimestamp = args.getString("eventTimestamp");
+        if(args != null) {
+            eventID = args.getString("eventID");
         }
-
+        Log.d(TAG, "Check eventID: " +eventID);
         db = FirebaseFirestore.getInstance();
         db.collection("events")
-                .whereEqualTo("timestamp",eventTimestamp)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .document(eventID)
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()) {
-                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                            UploadEvent current = snapshot.toObject(UploadEvent.class);
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if(error != null) {
+                            Log.w(TAG, "Listen failed", error);
+                            return;
+                        }
+
+                        if(value.exists() && value != null) {
+                            UploadEvent current = value.toObject(UploadEvent.class);
 
                             TVEventPostTitle.setText(current.getEventName());
                             TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
@@ -127,100 +135,11 @@ public class EventPostFragment extends Fragment {
                                     .into(IVEventPostPoster);
                             PBLoadPost.setVisibility(View.INVISIBLE);
                             PBLoadComments.setVisibility(View.VISIBLE);
-                        } else {
+                        } else{
                             Toast.makeText(requireActivity(),"Failed to load event post",Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-        /*db.collection("events").document(eventID)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(documentSnapshot.exists()) {
-                    UploadEvent current = documentSnapshot.toObject(UploadEvent.class);
-
-                    TVEventPostTitle.setText(current.getEventName());
-                    TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
-                    TVPostDesc.setText(current.getEventDesc());
-                    TVEventVenue.setText("Venue: " + current.getEventVenue());
-                    TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
-                    TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
-                    Picasso.get()
-                            .load(current.getImageUrl())
-                            .placeholder(R.mipmap.ic_launcher)
-                            .fit()
-                            .centerCrop()
-                            .into(IVEventPostPoster);
-                    PBLoadPost.setVisibility(View.INVISIBLE);
-                    PBLoadComments.setVisibility(View.VISIBLE);
-                } else {
-                    Toast.makeText(getContext(),"Event not found", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        });
-        /*
-        db.collection("events")
-                .document(eventID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot snapshot = task.getResult();
-                        UploadEvent current = snapshot.toObject(UploadEvent.class);
-
-                        TVEventPostTitle.setText(current.getEventName());
-                        TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
-                        TVPostDesc.setText(current.getEventDesc());
-                        TVEventVenue.setText("Venue: " + current.getEventVenue());
-                        TVEventDate.setText("Date: " + formatDate(current.getEventDate()));
-                        TVEventTime.setText("Time: " + current.getEventStartTime() + " to " + current.getEventEndTime());
-                        Picasso.get()
-                                .load(current.getImageUrl())
-                                .placeholder(R.mipmap.ic_launcher)
-                                .fit()
-                                .centerCrop()
-                                .into(IVEventPostPoster);
-                        PBLoadPost.setVisibility(View.INVISIBLE);
-                        PBLoadComments.setVisibility(View.VISIBLE);
-                    }
-                }); */
-            /*@Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
-                    UploadEvent upload = snapshot.getValue(UploadEvent.class);
-
-                    TVEventPostTitle.setText(upload.getEventName());
-                    TVPostedOn.setText("Posted on " + formatTimestamp(upload.getTimestamp()));
-                    TVPostDesc.setText(upload.getEventDesc());
-                    TVEventVenue.setText("Venue: " + upload.getEventVenue());
-                    TVEventDate.setText("Date: " + formatDate(upload.getEventDate()));
-                    TVEventTime.setText("Time: " + upload.getEventStartTime() + " to " + upload.getEventEndTime());
-                    Picasso.get()
-                            .load(upload.getImageUrl())
-                            .placeholder(R.mipmap.ic_launcher)
-                            .fit()
-                            .centerCrop()
-                            .into(IVEventPostPoster);
-                    PBLoadPost.setVisibility(View.INVISIBLE);
-                    PBLoadComments.setVisibility(View.VISIBLE);
-                } else {
-                    Toast.makeText(requireActivity(), "Event not found", Toast.LENGTH_SHORT).show();
-                    PBLoadPost.setVisibility(View.INVISIBLE);
-                    getActivity().finish();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(requireActivity(), error.getMessage(),Toast.LENGTH_SHORT).show();
-                PBLoadPost.setVisibility(View.INVISIBLE);
-            }
-        });*/
 
         RVComments.setHasFixedSize(false);
         RVComments.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -229,6 +148,34 @@ public class EventPostFragment extends Fragment {
         adapter = new CommentAdapter(requireActivity(), commentList);
 
         RVComments.setAdapter(adapter);
+        db.collection("comments")
+                .whereEqualTo("eventID", eventID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            if(task != null && !task.getResult().isEmpty()) {
+                                commentList.clear();
+                                Log.d(TAG, "Comment eventID: " + eventID);
+
+                                for(DocumentSnapshot snapshots : task.getResult()) {
+                                    Comment current = snapshots.toObject(Comment.class);
+                                    commentList.add(current);
+                                }
+
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                if(commentList.isEmpty()) {
+                                    TVNoCommentMsg.setVisibility(View.VISIBLE);
+                                } else {
+                                    TVNoCommentMsg.setVisibility(View.INVISIBLE);
+                                }
+                            }
+                            PBLoadComments.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
         /*
         databaseRef = FirebaseDatabase.getInstance().getReference("comment").child(eventID);
         databaseRef.addValueEventListener(new ValueEventListener() {

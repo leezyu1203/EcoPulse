@@ -16,11 +16,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
@@ -32,9 +40,8 @@ public class CommunityFragment extends Fragment {
     private TextView TVNoPostMsg;
     private ImageAdapter adapter;
 
-    private FirebaseStorage storage;
-    private DatabaseReference databaseRef;
-    private List<UploadEvent> eventList;
+    private FirebaseFirestore db;
+    private List<DocumentSnapshot> eventList;
     private TextView title;
     private ImageButton backButton;
 
@@ -58,6 +65,7 @@ public class CommunityFragment extends Fragment {
         RVCommunityPosts.setLayoutManager(new LinearLayoutManager(getActivity()));
         PBLoadCommunity = view.findViewById(R.id.PBLoadCommunity);
         TVNoPostMsg = view.findViewById(R.id.TVNoPostMsg);
+
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Recycling Community");
         backButton = getActivity().findViewById(R.id.backButton);
@@ -67,7 +75,34 @@ public class CommunityFragment extends Fragment {
         adapter = new ImageAdapter(getActivity(), eventList);
         RVCommunityPosts.setAdapter(adapter);
 
-        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+        db.collection("events")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            eventList.clear();
+
+                            for(QueryDocumentSnapshot snapshot: task.getResult()) {
+                                eventList.add(snapshot);
+                            }
+
+                            if(eventList.isEmpty()){
+                                TVNoPostMsg.setVisibility(View.VISIBLE);
+                            } else {
+                                TVNoPostMsg.setVisibility(View.INVISIBLE);
+                            }
+
+                            adapter.notifyDataSetChanged();
+
+                            PBLoadCommunity.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+
+        adapter.setOnItemClickListener(position -> {});
+        /*storage = FirebaseStorage.getInstance();
         databaseRef = FirebaseDatabase.getInstance().getReference("events");
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -96,6 +131,6 @@ public class CommunityFragment extends Fragment {
                 Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                 PBLoadCommunity.setVisibility(View.INVISIBLE);
             }
-        });
+        });*/
     }
 }

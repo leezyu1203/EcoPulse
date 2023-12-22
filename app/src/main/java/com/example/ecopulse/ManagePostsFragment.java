@@ -41,7 +41,7 @@ public class ManagePostsFragment extends Fragment {
     private TextView TVNoManagePostMsg;
 
     private ManagePostsAdapter adapter;
-    private List<UploadEvent> eventList;
+    private List<DocumentSnapshot> eventList;
 
     private FirebaseFirestore db;
 
@@ -78,37 +78,29 @@ public class ManagePostsFragment extends Fragment {
             userEmail = user.getEmail();
         }
 
-        /*db.collection("user")
+        db.collection("user")
                 .whereEqualTo("email", userEmail)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot userValue, @Nullable FirebaseFirestoreException error) {
-                        if(error != null) {
-                            Log.e(TAG, "Listen failed", error);
-                            return;
-                        }
-
-                        if(userValue != null && !userValue.isEmpty()) {
-                            DocumentSnapshot userDoc = userValue.getDocuments().get(0);
-                            String userID = userDoc.getId();
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().iterator().next();
+                            String userID = snapshot.getId();
 
                             bundle.putString("userID", userID);
 
                             db.collection("events")
-                                    .whereEqualTo("user", userID)
-                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                    .whereEqualTo("userID", userID)
+                                    .get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
-                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                            if(error != null ) {
-                                                Log.e(TAG, "Listen failed", error);
-                                                return;
-                                            }
-                                            eventList.clear();
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if(task.isSuccessful()) {
+                                                eventList.clear();
 
-                                            if(value != null) {
-                                                for(QueryDocumentSnapshot documentSnapshot:value) {
-                                                    UploadEvent current = documentSnapshot.toObject(UploadEvent.class);
-                                                    eventList.add(current);
+                                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                                                    eventList.add(documentSnapshot);
                                                 }
 
                                                 if(eventList.isEmpty()) {
@@ -118,14 +110,22 @@ public class ManagePostsFragment extends Fragment {
                                                 }
 
                                                 adapter.notifyDataSetChanged();
+
+                                                PBManagePost.setVisibility(View.INVISIBLE);
                                             }
                                         }
-                                    }); PBManagePost.setVisibility(View.INVISIBLE);
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            PBManagePost.setVisibility(View.INVISIBLE);
+                                        }
+                                    });
                         }
                     }
-                });*/
+                });
 
-        db.collection("user")
+        /*db.collection("user")
                 .whereEqualTo("email", userEmail)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -171,7 +171,7 @@ public class ManagePostsFragment extends Fragment {
                                     });
                         }
                     }
-                });
+                });*/
 
         adapter.setOnItemClickListener(position -> { });
 
