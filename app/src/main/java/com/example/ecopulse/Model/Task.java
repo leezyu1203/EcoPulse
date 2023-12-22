@@ -10,6 +10,7 @@ public class Task implements Serializable{
 
 
 
+    String requestCode;
     String key;
     @ColumnInfo(name = "taskTitle")
     String taskTitle;
@@ -21,16 +22,22 @@ public class Task implements Serializable{
     boolean isComplete;
     @ColumnInfo(name = "firstAlarmTime")
     String firstAlarmTime;
-    @ColumnInfo(name = "secondAlarmTime")
-    String secondAlarmTime;
-    @ColumnInfo(name = "lastAlarm")
-    String lastAlarm;
 
-    public Task(String title, String taskDescription, String date, String time) {
+    public Task(String title, String taskDescription, String date, String time,String requestCode) {
    this.taskTitle=title;
    this.taskDescription=taskDescription;
    this.date=date;
    this.firstAlarmTime=time;
+   this.requestCode=requestCode;
+    }
+
+
+    public String getRequestCode() {
+        return requestCode;
+    }
+
+    public void setRequestCode(String requestCode) {
+        this.requestCode = requestCode;
     }
 
     public String getKey() {
@@ -55,22 +62,6 @@ public class Task implements Serializable{
 
     public void setFirstAlarmTime(String firstAlarmTime) {
         this.firstAlarmTime = firstAlarmTime;
-    }
-
-    public String getSecondAlarmTime() {
-        return secondAlarmTime;
-    }
-
-    public void setSecondAlarmTime(String secondAlarmTime) {
-        this.secondAlarmTime = secondAlarmTime;
-    }
-
-    public String getLastAlarm() {
-        return lastAlarm;
-    }
-
-    public void setLastAlarm(String lastAlarm) {
-        this.lastAlarm = lastAlarm;
     }
 
 

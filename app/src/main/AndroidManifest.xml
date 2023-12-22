@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -42,12 +43,12 @@
 
         </activity>
 
-        <activity android:name=".MainActivityReminder">
+        <activity android:name=".reminderMainFragment">
             <!-- Add any necessary intent filters or configuration -->
         </activity>
-        <activity android:name=".updateActivity"></activity>
-        <activity android:name=".uploadTask"></activity>
-        
+        <activity android:name=".updateFragment"></activity>
+        <activity android:name=".uploadFragmentReminder"></activity>
+
 
         <activity android:name=".SchedulePickUp">
             <!-- Intent filters if needed -->

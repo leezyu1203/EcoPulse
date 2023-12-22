@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             guidanceNav.setBackgroundColor(transparent);
                             communityNav.setBackgroundColor(transparent);
                             profileNav.setBackgroundColor(transparent);
+                            IBtnReminder.setBackgroundColor(transparent);
                             if (role.equals("RC")) {
                                 replaceFragment(new CollaboratorLocationFragment());
                             } else {
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                             communityNav.setBackgroundColor(transparent);
                             profileNav.setBackgroundColor(transparent);
                             replaceFragment(new guidanceMainFragment());
+                            IBtnReminder.setBackgroundColor(transparent);
                         }
                     });
 
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                             locationNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);
                             profileNav.setBackgroundColor(transparent);
+                            IBtnReminder.setBackgroundColor(transparent);
                             replaceFragment(new CommunityFragment());
                         }
                     });
@@ -118,14 +121,21 @@ public class MainActivity extends AppCompatActivity {
                             locationNav.setBackgroundColor(transparent);
                             communityNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);
+                            IBtnReminder.setBackgroundColor(transparent);
                             replaceFragment(new Profile_Collaborator());    // for collaborator testing purpose
                         }
                     });
                     IBtnReminder.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent intent = new Intent(MainActivity.this, MainActivityReminder.class);
-                            startActivity(intent);
+                            int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
+                            int transparent = Color.argb(0, 0, 0, 0);
+                            IBtnReminder.setBackgroundColor(color);
+                            communityNav.setBackgroundColor(transparent);
+                            locationNav.setBackgroundColor(transparent);
+                            guidanceNav.setBackgroundColor(transparent);
+                            profileNav.setBackgroundColor(transparent);
+                            replaceFragment(new reminderMainFragment());
                         }
                     });
 
@@ -136,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        replaceFragment(new guidanceMainFragment());
     }
 
     private void replaceFragment(Fragment fragment) {

@@ -1,7 +1,7 @@
 package com.example.ecopulse.adapter;
 
 import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,12 +9,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecopulse.Model.Task;
 import com.example.ecopulse.R;
-import com.example.ecopulse.updateActivity;
+import com.example.ecopulse.updateFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,9 +49,7 @@ public class Myadapter extends RecyclerView.Adapter<Myadapter.ViewHolder> {
     @Override
     //bind data to viewholder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-           //setting details to TextView in item(task)
 
-        // holder.status.setText(task.isComplete() ? "COMPLETED" : "UPCOMING");
             Task task = taskList.get(position);
             holder.title.setText(task.getTaskTitle());
             holder.description.setText((task.getTaskDescription()));
@@ -74,16 +75,27 @@ public class Myadapter extends RecyclerView.Adapter<Myadapter.ViewHolder> {
         holder.recCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent(context, updateActivity.class);
+                    FragmentManager fragmentManager = ((AppCompatActivity) v.getContext()).getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                   intent.putExtra("Title",taskList.get(holder.getAdapterPosition()).getTaskTitle());
-                   intent.putExtra("Desc",taskList.get(holder.getAdapterPosition()).getTaskDescription());
-                   intent.putExtra("Date",taskList.get(holder.getAdapterPosition()).getDate());
-                   intent.putExtra("Time",taskList.get(holder.getAdapterPosition()).getFirstAlarmTime());
-                   intent.putExtra("Key",taskList.get(holder.getAdapterPosition()).getKey());
+                    // Create your fragment instance
+                     updateFragment updateFragment = new updateFragment();
 
+                    // Pass data to the fragment using Bundle
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Title", taskList.get(holder.getAdapterPosition()).getTaskTitle());
+                    bundle.putString("Desc", taskList.get(holder.getAdapterPosition()).getTaskDescription());
+                    bundle.putString("Date", taskList.get(holder.getAdapterPosition()).getDate());
+                    bundle.putString("requestCode",taskList.get(holder.getAdapterPosition()).getRequestCode());
+                    bundle.putString("Time", taskList.get(holder.getAdapterPosition()).getFirstAlarmTime());
+                    bundle.putString("Key", taskList.get(holder.getAdapterPosition()).getKey());
 
-                    context.startActivity(intent);
+                    updateFragment.setArguments(bundle);
+
+                    // Perform fragment transaction
+                    fragmentTransaction.replace(R.id.main_fragment, updateFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
                 }
             });
 
@@ -104,12 +116,7 @@ public class Myadapter extends RecyclerView.Adapter<Myadapter.ViewHolder> {
         TextView date;
         TextView month;
         TextView status;
-
-        ImageView options;
-
         TextView time;
-        String id;
-
         CardView recCard;
 
 
@@ -120,8 +127,6 @@ public class Myadapter extends RecyclerView.Adapter<Myadapter.ViewHolder> {
            date=(TextView) itemView.findViewById(R.id.dateDetail);
            day=(TextView) itemView.findViewById(R.id.day);
            month=(TextView) itemView.findViewById(R.id.Month);
-           //status=(TextView)itemView.findViewById(R.id.status);
-          // options=(ImageView)itemView.findViewById(R.id.options);
            time=(TextView)itemView.findViewById(R.id.time);
            recCard=(CardView) itemView.findViewById(R.id.recCard);
         }

@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    tools:context="com.example.ecopulse.updateActivity">
+    tools:context="com.example.ecopulse.uploadFragmentReminder">
 
     <LinearLayout
+        android:id="@+id/AddButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -22,13 +23,26 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:text="Update task"
+            android:text="Add a task"
             android:textColor="@android:color/black"
             android:textSize="22sp"
             tools:ignore="MissingPrefix" />
 
         <TextView
-            android:id="@+id/addTaskTitle"
+            fontPath="fonts/nunito_light.ttf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:alpha="0.8"
+            android:text="Fill the details below to add a task into your TODO"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
+            android:id="@+id/addTaskTile"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,12 +52,13 @@
             tools:ignore="MissingPrefix" />
 
         <EditText
-            android:id="@+id/updateTaskTitle"
+            android:id="@+id/addTaskTitle"
             fontPath="fonts/nunito_light.ttf"
+            android:background="@drawable/edittext_background"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -59,12 +74,12 @@
             tools:ignore="MissingPrefix" />
 
         <EditText
-            android:id="@+id/updateTaskDescription"
+            android:id="@+id/addTaskDescription"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -80,12 +95,12 @@
             tools:ignore="MissingPrefix" />
 
         <EditText
-            android:id="@+id/updateTaskDate"
+            android:id="@+id/taskDate"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -101,33 +116,24 @@
             tools:ignore="MissingPrefix" />
 
         <EditText
-            android:id="@+id/updateTaskTime"
+            android:id="@+id/taskTime"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
             tools:ignore="MissingPrefix" />
 
         <Button
-            android:id="@+id/updateButton"
+            android:id="@+id/AddTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:backgroundTint="@color/darkGreen"
-            android:text="Update"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/dltButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/error"
-            android:text="Delete"
+            android:text="Add task"
             android:textColor="@color/white" />
 
     </LinearLayout>

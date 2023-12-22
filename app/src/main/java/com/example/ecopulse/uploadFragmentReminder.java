@@ -1,5 +1,7 @@
 package com.example.ecopulse;
 
+
+
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
@@ -10,16 +12,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.ecopulse.Model.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,29 +41,29 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class uploadTask extends AppCompatActivity {
+public class uploadFragmentReminder extends Fragment {
     Button addTaskButton;
-    EditText uploadTitle,uploadDesc,uploadDate,uploadTime,uploadEvent;
+    EditText uploadTitle,uploadDesc,uploadDate,uploadTime;
+    TextView title;
     int mYear, mMonth, mDay;
     int mHour, mMinute;
     AlarmManager alarmManager;
     TimePickerDialog timePickerDialog;
     DatePickerDialog datePickerDialog;
-    MainActivity activity;
     private PendingIntent pendingIntent;
 
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.create_task);
-        createNotificationChannel();
 
-        uploadTitle=findViewById(R.id.addTaskTitle);
-        uploadDesc=findViewById(R.id.addTaskDescription);
-        uploadDate=findViewById(R.id.taskDate);
-        uploadTime=findViewById(R.id.taskTime);
-        addTaskButton=findViewById(R.id.AddTask);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_upload_task,container,false);
+        title = (TextView) getActivity().findViewById(R.id.current_title);
+        title.setText("Reminder");uploadTitle=rootView.findViewById(R.id.addTaskTitle);
+        createNotificationChannel();
+        uploadDesc=rootView.findViewById(R.id.addTaskDescription);
+        uploadDate=rootView.findViewById(R.id.taskDate);
+        uploadTime=rootView.findViewById(R.id.taskTime);
+        addTaskButton=rootView.findViewById(R.id.AddTask);
 
 
         uploadDate.setOnClickListener(new View.OnClickListener() {
@@ -78,10 +84,13 @@ public class uploadTask extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 uploadData();
-               //setAlarm();
+
             }
         });
+
+        return rootView;
     }
+
 
     public void uploadData(){
 
@@ -90,8 +99,10 @@ public class uploadTask extends AppCompatActivity {
         String description = uploadDesc.getText().toString();
         String date = uploadDate.getText().toString();
         String time = uploadTime.getText().toString();
+        String requestCode= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
 
-        Task task = new Task(title, description, date, time);
+
+        Task task = new Task(title, description, date, time,requestCode);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -101,52 +112,29 @@ public class uploadTask extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        //setAlarm(task);
-                        Toast.makeText(uploadTask.this,"Successfully create task",Toast.LENGTH_SHORT).show();
-                        finish();
+                        setAlarm(task);
+                        Toast.makeText(requireContext(),"Successfully create task",Toast.LENGTH_SHORT).show();
+                        getActivity().getSupportFragmentManager().popBackStack();
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(uploadTask.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-    public void saveData(){
-
-        String title = uploadTitle.getText().toString();
-        String description=uploadDesc.getText().toString();
-        String date=uploadDate.getText().toString();
-        String time = uploadTime.getText().toString();
-        String currentDate= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-
-        Task task = new Task(title,description,date,time);
 
 
 
-        FirebaseDatabase.getInstance().getReference("task").child(currentDate).setValue(task).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(uploadTask.this,"Task is created successfully.",Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(uploadTask.this,e.getMessage().toString(),Toast.LENGTH_SHORT).show();
 
-            }
-        });
-    }
     public void openDateDialog(){
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
-        datePickerDialog = new DatePickerDialog(uploadTask.this, R.style.DatePickerTheme, new DatePickerDialog.OnDateSetListener() {
+        datePickerDialog = new DatePickerDialog(requireContext(), R.style.DatePickerTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 uploadDate.setText(dayOfMonth+"-"+(month+1)+"-"+year);
@@ -163,7 +151,7 @@ public class uploadTask extends AppCompatActivity {
         mMinute=c.get(Calendar.MINUTE);
 
         //launch time picker
-        timePickerDialog=new TimePickerDialog(uploadTask.this, R.style.DatePickerTheme, new TimePickerDialog.OnTimeSetListener() {
+        timePickerDialog=new TimePickerDialog(requireContext(), R.style.DatePickerTheme, new TimePickerDialog.OnTimeSetListener() {
 
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -181,26 +169,30 @@ public class uploadTask extends AppCompatActivity {
             NotificationChannel channel= new NotificationChannel("reminder",name,importance);
             channel.setDescription(description);
 
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            NotificationManager notificationManager = requireContext().getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
 
         }
     }
 
-    private void setAlarm(){
-        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
-       // Intent intent =new Intent(this,AlarmReceiver.class);
-       // pendingIntent=PendingIntent.getBroadcast(this,0,intent, PendingIntent.FLAG_IMMUTABLE);
+    private void setAlarm(Task task){
 
-        // Get the date and time from your EditText fields
-        String dateStr = uploadDate.getText().toString();
-        String timeStr = uploadTime.getText().toString();
+        alarmManager=(AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+
+        int requestCode = task.getRequestCode().hashCode();
+
+        Intent intent =new Intent(requireContext(),AlarmReceiver.class);
+        intent.putExtra("title",task.getTaskTitle());
+        intent.putExtra("desc",task.getTaskDescription());
+
+        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+
 
         // Parse the date and time strings to create a Calendar instance
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         try {
-            calendar.setTime(dateFormat.parse(dateStr + " " + timeStr));
+            calendar.setTime(dateFormat.parse(task.getDate() + " " + task.getFirstAlarmTime()));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -208,11 +200,11 @@ public class uploadTask extends AppCompatActivity {
         // Set the alarm using AlarmManager
         if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
             // Only set the alarm if it's in the future
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            Toast.makeText(this, "Alarm set successfully!", Toast.LENGTH_SHORT).show();
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            Toast.makeText(requireContext(), "Reminder set successfully!", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Please select a future date and time", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Please select a future date and time", Toast.LENGTH_SHORT).show();
         }
-}
+    }
 
 }
