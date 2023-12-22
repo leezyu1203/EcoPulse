@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        replaceFragment(new guidanceMainFragment());
     }
 
     private void replaceFragment(Fragment fragment) {
