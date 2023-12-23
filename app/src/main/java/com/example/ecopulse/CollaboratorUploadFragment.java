@@ -12,8 +12,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,18 +22,28 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.*;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class CollaboratorUploadFragment extends Fragment {
     private EditText ETInputEventName;
@@ -52,7 +63,8 @@ public class CollaboratorUploadFragment extends Fragment {
     private Uri imageUri;
 
     private StorageReference storageRef;
-    private DatabaseReference databaseRef;
+    private FirebaseFirestore db;
+    private FirebaseUser user;
 
     private StorageTask uploadTask;
 
@@ -87,19 +99,23 @@ public class CollaboratorUploadFragment extends Fragment {
         BtnUpload = view.findViewById(R.id.BtnUpload);
 
         storageRef = FirebaseStorage.getInstance().getReference("events");
-        databaseRef = FirebaseDatabase.getInstance().getReference("events");
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         IBtnEventDateSelector.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocalDate currentDate = LocalDate.now();
-                DatePickerDialog dialog = new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR);
+                int mMonth = c.get(Calendar.MONTH);
+                int mDay = c.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog = new DatePickerDialog(requireContext(), R.style.DatePickerTheme, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        TVSelectedEventDate.setText(String.valueOf(dayOfMonth) + "/" +
-                                String.valueOf(month+1) + "/" + String.valueOf(year));
+                        TVSelectedEventDate.setText(dayOfMonth + "-" + (month+1) + "-" + year);
                     }
-                }, currentDate.getYear(), currentDate.getMonthValue() - 1, currentDate.getDayOfMonth());
+                }, mYear, mMonth, mDay);
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 dialog.show();
             }
         });
@@ -135,21 +151,26 @@ public class CollaboratorUploadFragment extends Fragment {
                     Toast.makeText(requireContext(), "Upload in progress", Toast.LENGTH_SHORT).show();
                 } else {
                     uploadFile();
-                    // navigate to community (collaborator ver.)
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = manager.beginTransaction();
+
+                    transaction.replace(R.id.main_fragment, new ManagePostsFragment());
+                    transaction.commit();
                 }
             }
         });
     }
 
     private void timeSelector(TextView showTime) {
-        LocalTime currentTime = LocalTime.now();
-        TimePickerDialog dialog = new TimePickerDialog(requireContext(), new TimePickerDialog.OnTimeSetListener() {
+        final Calendar c = Calendar.getInstance();
+        int mHour = c.get(Calendar.HOUR_OF_DAY);
+        int mMinutes = c.get(Calendar.MINUTE);
+        TimePickerDialog dialog = new TimePickerDialog(requireContext(),R.style.DatePickerTheme, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                showTime.setText(String.valueOf(hourOfDay) + ":" +
-                        String.valueOf(minute));
+                showTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
             }
-        }, currentTime.getHour(), currentTime.getMinute(), true);
+        }, mHour, mMinutes, false);
         dialog.show();
     }
 
@@ -190,18 +211,35 @@ public class CollaboratorUploadFragment extends Fragment {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     String imageUrl = uri.toString();
-                                    UploadEvent uploadEvent = new UploadEvent(
+                                    Bundle args = getArguments();
+                                    String userID = "";
+                                    if(args != null) {
+                                        userID = args.getString("userID");
+                                    }
+                                    UploadEvent event = new UploadEvent(
                                             ETInputEventName.getText().toString().trim(),
                                             ETInputEventDesc.getText().toString().trim(),
                                             ETInputEventVenue.getText().toString().trim(),
                                             TVSelectedEventDate.getText().toString().trim(),
                                             TVSelectedStartTime.getText().toString().trim(),
                                             TVSelectedEndTime.getText().toString().trim(),
-                                            imageUrl, String.valueOf(System.currentTimeMillis()));
-                                    String eventID =databaseRef.push().getKey();
-                                    databaseRef.child(eventID).setValue(uploadEvent);
+                                            imageUrl,
+                                            String.valueOf(System.currentTimeMillis()),
+                                            userID
+                                    );
 
-                                    Toast.makeText(requireContext(), "Event sucessfully posted", Toast.LENGTH_LONG).show();
+                                    db.collection("events")
+                                            .add(event).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Toast.makeText(requireContext(), "Event successfully posted", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(requireContext(), "Failed to post the event", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
                                 }
                             });
                         }

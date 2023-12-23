@@ -1,7 +1,10 @@
 package com.example.ecopulse;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +17,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private Context context;
-    private List<UploadEvent> eventList;
+    private List<DocumentSnapshot> eventList;
+    private OnItemClickListener listener;
 
-    public ImageAdapter(Context context, List<UploadEvent> eventList) {
+    public ImageAdapter(Context context, List<DocumentSnapshot> eventList) {
         this.context = context;
         this.eventList = eventList;
     }
@@ -36,16 +41,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder holder, int position) {
-        UploadEvent uploadCurrent = this.eventList.get(position);
-        holder.postTitle.setText(uploadCurrent.getEventName());
+        DocumentSnapshot snapshot = this.eventList.get(position);
+        UploadEvent current = snapshot.toObject(UploadEvent.class);
+        holder.postTitle.setText(current.getEventName());
         Picasso.get()
-                .load(uploadCurrent.getImageUrl())
+                .load(current.getImageUrl())
                 .placeholder(R.mipmap.ic_launcher)
                 .fit()
                 .centerCrop()
                 .into(holder.postPoster);
 
-        // to be tested
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,10 +60,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 EventPostFragment eventPostFragment = new EventPostFragment();
 
                 Bundle bundle = new Bundle();
-                bundle.putString("eventID", uploadCurrent.getKey());
+                bundle.putString("eventID", snapshot.getId());
+                Log.d(TAG, "ImageAdapter eventID: " + bundle.getString("eventID"));
                 eventPostFragment.setArguments(bundle);
 
-                transaction.replace(R.id.CommunityFragment, eventPostFragment);
+                transaction.replace(R.id.main_fragment, eventPostFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -67,7 +73,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public int getItemCount() {
-        return 0;
+        return this.eventList.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
@@ -80,5 +86,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             postTitle = itemView.findViewById(R.id.TVPostTitle);
             postPoster = itemView.findViewById(R.id.IVPostPoster);
         }
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(int position);
+    }
+    public void setOnItemClickListener(ImageAdapter.OnItemClickListener listener) {
+        this.listener = listener;
     }
 }

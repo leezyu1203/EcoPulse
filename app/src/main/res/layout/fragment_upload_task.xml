@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    tools:context="com.example.ecopulse.uploadTask">
+    tools:context="com.example.ecopulse.uploadFragmentReminder">
 
     <LinearLayout
         android:id="@+id/AddButton"
@@ -54,10 +54,11 @@
         <EditText
             android:id="@+id/addTaskTitle"
             fontPath="fonts/nunito_light.ttf"
+            android:background="@drawable/edittext_background"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -78,7 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -99,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
@@ -120,7 +121,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/btn_border"
+            android:background="@drawable/edittext_background"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
