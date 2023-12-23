@@ -11,9 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -39,14 +43,35 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         DocumentSnapshot snapshot = this.commentList.get(position);
         Log.d(TAG,"adapter check: " + snapshot.getId());
         Comment current = snapshot.toObject(Comment.class);
-        holder.TVCommentUserID.setText(current.getUserID());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("user").document(current.getUserID())
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if(error != null) {
+                            Log.e(TAG, error.getMessage(), error);
+                        }
+
+                        if(value != null && value.exists()) {
+                            holder.TVCommentUserID.setText(value.getString("username"));
+                            Picasso.get()
+                                    .load(value.getString("imageUrl"))
+                                    .placeholder(R.mipmap.ic_launcher)
+                                    .fit()
+                                    .centerCrop()
+                                    .into(holder.IVCommentUserProfile);
+                        }
+                    }
+                });
+        //holder.TVCommentUserID.setText(current.getUserID());
         holder.TVUserComment.setText(current.getContent());
-        Picasso.get()
+        /*Picasso.get()
                 .load(R.mipmap.ic_launcher)
                 .placeholder(R.mipmap.ic_launcher)
                 .fit()
                 .centerCrop()
-                .into(holder.IVCommentUserProfile);
+                .into(holder.IVCommentUserProfile);*/
     }
 
     @Override
