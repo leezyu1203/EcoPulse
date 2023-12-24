@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
@@ -152,7 +153,36 @@ public class EventPostFragment extends Fragment {
         adapter = new CommentAdapter(requireActivity(), commentList);
 
         RVComments.setAdapter(adapter);
+
         db.collection("events").document(eventID)
+                .collection("comments")
+                        .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                            @Override
+                            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                if(error != null) {
+                                    Log.e(TAG, "EventPostFragment error", error);
+                                }
+
+                                if(value != null){
+                                    commentList.clear();
+
+                                    for(QueryDocumentSnapshot snapshot : value) {
+                                        commentList.add(snapshot);
+                                    }
+
+                                    adapter.notifyDataSetChanged();
+
+                                    if(commentList.isEmpty()) {
+                                        TVNoCommentMsg.setVisibility(View.VISIBLE);
+                                    } else {
+                                        TVNoCommentMsg.setVisibility(View.INVISIBLE);
+                                    }
+
+                                    PBLoadComments.setVisibility(View.INVISIBLE);
+                                }
+                            }
+                        });
+        /*db.collection("events").document(eventID)
                 .collection("comments")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -177,7 +207,7 @@ public class EventPostFragment extends Fragment {
                             PBLoadComments.setVisibility(View.INVISIBLE);
                         }
                     }
-                });
+                });8?
         /*
         databaseRef = FirebaseDatabase.getInstance().getReference("comment").child(eventID);
         databaseRef.addValueEventListener(new ValueEventListener() {

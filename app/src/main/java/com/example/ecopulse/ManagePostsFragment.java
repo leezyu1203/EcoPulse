@@ -81,6 +81,53 @@ public class ManagePostsFragment extends Fragment {
 
         db.collection("user")
                 .whereEqualTo("email", userEmail)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value1, @Nullable FirebaseFirestoreException error1) {
+                        if(error1 != null) {
+                            Log.e(TAG, "ManagePostsFragment user error", error1);
+                        }
+
+                        if(value1 != null && !value1.isEmpty()) {
+                            DocumentSnapshot snapshot = value1.getDocuments().get(0);
+                            String userID = snapshot.getId();
+
+                            bundle.putString("userID", userID);
+
+                            db.collection("events")
+                                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                                    .whereEqualTo("userID", userID)
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                            if(error != null) {
+                                                Log.e(TAG, "ManagePostsFragment event error: ", error);
+                                            }
+
+                                            if(value != null) {
+                                                eventList.clear();
+
+                                                for(QueryDocumentSnapshot snapshots : value) {
+                                                    eventList.add(snapshots);
+                                                }
+
+                                                if(eventList.isEmpty()) {
+                                                    TVNoManagePostMsg.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    TVNoManagePostMsg.setVisibility(View.INVISIBLE);
+                                                }
+
+                                                adapter.notifyDataSetChanged();
+
+                                                PBManagePost.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                });
+        /*db.collection("user")
+                .whereEqualTo("email", userEmail)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -125,7 +172,7 @@ public class ManagePostsFragment extends Fragment {
                                     });
                         }
                     }
-                });
+                });*/
 
         /*db.collection("user")
                 .whereEqualTo("email", userEmail)

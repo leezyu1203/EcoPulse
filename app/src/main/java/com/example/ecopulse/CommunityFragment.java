@@ -1,5 +1,7 @@
 package com.example.ecopulse;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +29,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -79,6 +84,34 @@ public class CommunityFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         db.collection("events")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if(error != null){
+                            Log.e(TAG, "CommunityFragment error", error);
+                        }
+
+                        if(value != null){
+                            eventList.clear();
+
+                            for(QueryDocumentSnapshot snapshot: value) {
+                                eventList.add(snapshot);
+                            }
+
+                            if(eventList.isEmpty()) {
+                                TVNoPostMsg.setVisibility(View.VISIBLE);
+                            } else {
+                                TVNoPostMsg.setVisibility(View.INVISIBLE);
+                            }
+
+                            adapter.notifyDataSetChanged();
+
+                            PBLoadCommunity.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+        /*db.collection("events")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -101,7 +134,7 @@ public class CommunityFragment extends Fragment {
                             PBLoadCommunity.setVisibility(View.INVISIBLE);
                         }
                     }
-                });
+                });*/
 
         adapter.setOnItemClickListener(position -> {});
         /*storage = FirebaseStorage.getInstance();
