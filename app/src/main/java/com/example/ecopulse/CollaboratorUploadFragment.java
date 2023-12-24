@@ -2,6 +2,8 @@ package com.example.ecopulse;
 
 import static android.app.Activity.RESULT_OK;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
@@ -16,6 +18,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,13 +33,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -62,6 +68,8 @@ public class CollaboratorUploadFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
 
+    private Bundle temp;
+
     private StorageReference storageRef;
     private FirebaseFirestore db;
     private FirebaseUser user;
@@ -76,14 +84,7 @@ public class CollaboratorUploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        // If navigate from EventPost the details are filled in
-        // BtnSubmit change into BtnUpload
-        return inflater.inflate(R.layout.fragment_collaborator_upload, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_collaborator_upload, container, false);
 
         ETInputEventName = view.findViewById(R.id.ETInputEventName);
         ETInputEventDesc = view.findViewById(R.id.ETInputEventDesc);
@@ -98,8 +99,45 @@ public class CollaboratorUploadFragment extends Fragment {
         IVUploadedImage = view.findViewById(R.id.IVUploadedImage);
         BtnUpload = view.findViewById(R.id.BtnUpload);
 
-        storageRef = FirebaseStorage.getInstance().getReference("events");
         db = FirebaseFirestore.getInstance();
+        temp = new Bundle();
+
+        if(getArguments().containsKey("editPost")) {
+            String eventID = getArguments().getString("eventID");
+
+            db.collection("events").document(eventID)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                            if(error != null) {
+                                Log.e(TAG, "CollaboratorUploadFragment: Listen exist doc error", error);
+                            }
+
+                            if(value != null && value.exists()){
+                                UploadEvent loadedEvent = value.toObject(UploadEvent.class);
+
+                                ETInputEventName.setText(loadedEvent.getEventName());
+                                ETInputEventDesc.setText(loadedEvent.getEventDesc());
+                                ETInputEventVenue.setText(loadedEvent.getEventVenue());
+                                TVSelectedEventDate.setText(loadedEvent.getEventDate());
+                                TVSelectedStartTime.setText(loadedEvent.getEventStartTime());
+                                TVSelectedEndTime.setText(loadedEvent.getEventEndTime());
+
+                                temp.putString("timestamp", loadedEvent.getTimestamp());
+                                temp.putString("userID", loadedEvent.getUserID());
+                            }
+                        }
+                    });
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        storageRef = FirebaseStorage.getInstance().getReference("events");
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         IBtnEventDateSelector.setOnClickListener(new View.OnClickListener() {
@@ -151,11 +189,6 @@ public class CollaboratorUploadFragment extends Fragment {
                     Toast.makeText(requireContext(), "Upload in progress", Toast.LENGTH_SHORT).show();
                 } else {
                     uploadFile();
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = manager.beginTransaction();
-
-                    transaction.replace(R.id.main_fragment, new ManagePostsFragment());
-                    transaction.commit();
                 }
             }
         });
@@ -187,6 +220,7 @@ public class CollaboratorUploadFragment extends Fragment {
 
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
             imageUri = data.getData();
+            IVUploadedImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             IVUploadedImage.setImageURI(imageUri);
         }
     }
@@ -228,18 +262,37 @@ public class CollaboratorUploadFragment extends Fragment {
                                             userID
                                     );
 
-                                    db.collection("events")
-                                            .add(event).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Toast.makeText(requireContext(), "Event successfully posted", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Toast.makeText(requireContext(), "Failed to post the event", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                    if(getArguments().containsKey("editPost")){
+                                        event.setTimestamp(temp.getString("timestamp"));
+                                        event.setUserID(temp.getString("userID"));
+                                        db.collection("events")
+                                                .document(getArguments().getString("eventID"))
+                                                .set(event)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(getContext(), "Event successfully edited", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getContext(), "Edit unsuccessful. Try again later.", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                    } else {
+                                        db.collection("events")
+                                                .add(event).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentReference documentReference) {
+                                                        Toast.makeText(requireContext(), "Event successfully posted", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(requireContext(), "Failed to post the event", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
                                 }
                             });
                         }
@@ -250,6 +303,11 @@ public class CollaboratorUploadFragment extends Fragment {
                             Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
+            FragmentManager manager = getActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+
+            transaction.replace(R.id.main_fragment, new ManagePostsFragment());
+            transaction.commit();
 
         } else {
             Toast.makeText(requireContext(), "Upload an image", Toast.LENGTH_SHORT).show();
