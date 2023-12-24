@@ -57,6 +57,7 @@ public class ManagePostsAdapter extends RecyclerView.Adapter<ManagePostsAdapter.
 
                 Bundle bundle = new Bundle();
                 bundle.putString("eventID", snapshot.getId());
+                bundle.putBoolean("fromManagePost",true);
                 Log.d(TAG, "Get snapshot ID: "+bundle.getString("eventID"));
                 epf.setArguments(bundle);
 
