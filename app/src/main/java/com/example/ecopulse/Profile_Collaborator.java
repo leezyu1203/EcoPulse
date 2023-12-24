@@ -14,11 +14,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
-public class Profile_Collaborator extends Fragment {
+public class Profile_Collaborator extends BaseProfile {
     Button BtnManagePosts;
 
     public Profile_Collaborator() {
         // Required empty public constructor
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.fragment_profile_user;
+    }
+
+    @Override
+    protected String getCollectionPath() {
+        return "user"; // or the path to user data in Firestore
     }
 
     @Override
@@ -39,7 +49,6 @@ public class Profile_Collaborator extends Fragment {
             public void onClick(View v) {
                 FragmentManager manager = getFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
-
                 transaction.replace(R.id.main_fragment, new ManagePostsFragment());
                 transaction.addToBackStack(null);
                 transaction.commit();

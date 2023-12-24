@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class Login extends AppCompatActivity {
     private EditText emailTextView, passwordTextView;
+    private TextView forgotPassword,signIn;
     private AppCompatButton Btn;
     private FirebaseAuth mAuth;
     @Override
@@ -27,17 +29,34 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-
         emailTextView = findViewById(R.id.editTextTextEmailAddress);
         passwordTextView = findViewById(R.id.editTextTextPassword);
         Btn = findViewById(R.id.Login_btn);
-
-        //Set On Click Listener on Sign-in button
+        forgotPassword = findViewById(R.id.textView5);
+        signIn = findViewById(R.id.textView6);
 
         Btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginUserAccount();
+            }
+        });
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, ForgotPassword.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        signIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, Register.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -77,14 +96,9 @@ public class Login extends AppCompatActivity {
                                                     "Login successful!!",
                                                     Toast.LENGTH_LONG)
                                             .show();
-
-
-
-                                    // if sign-in is successful
-                                    // intent to home activity
                                     Intent intent
                                             = new Intent(Login.this,
-                                            MainActivity.class);
+                                            Profile_user.class);
                                     startActivity(intent);
                                 }
 
