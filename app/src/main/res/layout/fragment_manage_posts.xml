@@ -12,14 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/BtnAddPost"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_alignBottom="@id/RVManagePosts"
         android:layout_centerInParent="true"
         android:background="@drawable/edittext_background"
-        android:backgroundTint="#758467"
+        android:backgroundTint="@color/primary_dark_green"
         android:gravity="center"
         android:text="+"
         android:textSize="24dp"

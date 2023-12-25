@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -67,11 +68,13 @@ public class EventPostFragment extends Fragment {
     private TextView TVNoCommentMsg;
     private ProgressBar PBLoadComments;
 
-    private Button BtnShareNEdit;
-    private Button BtnAddReminderNDelete;
+    private AppCompatButton BtnShareNEdit;
+    private AppCompatButton BtnAddReminderNDelete;
 
     //private String eventTimestamp;
     private String eventID;
+    private TextView title;
+    private Bundle args;
     private FirebaseFirestore db;
 
     public EventPostFragment() {
@@ -101,31 +104,24 @@ public class EventPostFragment extends Fragment {
 
             BtnAddReminderNDelete.setText("Delete");
             BtnAddReminderNDelete.setCompoundDrawablesWithIntrinsicBounds(R.drawable.delete_icon,0,0,0);
+            BtnAddReminderNDelete.setTextColor(android.graphics.Color.parseColor("#E58C8C"));
+            BtnAddReminderNDelete.setBackgroundColor(android.graphics.Color.parseColor("#E58C8C"));
         }
-        return root;
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        IVEventPostPoster = view.findViewById(R.id.IVEventPostPoster);
-        TVEventPostTitle = view.findViewById(R.id.TVEventPostTitle);
-        TVPostedOn = view.findViewById(R.id.TVPostedOn);
-        TVPostDesc = view.findViewById(R.id.TVPostDesc);
-        TVEventVenue = view.findViewById(R.id.TVEventVenue);
-        TVEventDate = view.findViewById(R.id.TVEventDate);
-        TVEventTime = view.findViewById(R.id.TVEventTime);
-        PBLoadPost = view.findViewById(R.id.PBLoadPost);
-
-        RVComments = view.findViewById(R.id.RVComments);
-        PBLoadComments = view.findViewById(R.id.PBLoadComments);
-        TVNoCommentMsg = view.findViewById(R.id.TVNoCommentMsg);
+        IVEventPostPoster = root.findViewById(R.id.IVEventPostPoster);
+        TVEventPostTitle = root.findViewById(R.id.TVEventPostTitle);
+        TVPostedOn = root.findViewById(R.id.TVPostedOn);
+        TVPostDesc = root.findViewById(R.id.TVPostDesc);
+        TVEventVenue = root.findViewById(R.id.TVEventVenue);
+        TVEventDate = root.findViewById(R.id.TVEventDate);
+        TVEventTime = root.findViewById(R.id.TVEventTime);
+        PBLoadPost = root.findViewById(R.id.PBLoadPost);
 
         Bundle args = getArguments();
         if(args != null) {
             eventID = args.getString("eventID");
         }
+
         Log.d(TAG, "EventPostFragment: Check eventID" +eventID);
         db = FirebaseFirestore.getInstance();
         db.collection("events")
@@ -140,6 +136,9 @@ public class EventPostFragment extends Fragment {
 
                         if(value.exists() && value != null) {
                             UploadEvent current = value.toObject(UploadEvent.class);
+
+                            title = (TextView) getActivity().findViewById(R.id.current_title);
+                            title.setText(current.getEventName());
 
                             TVEventPostTitle.setText(current.getEventName());
                             TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
@@ -160,6 +159,16 @@ public class EventPostFragment extends Fragment {
                         }
                     }
                 });
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        RVComments = view.findViewById(R.id.RVComments);
+        PBLoadComments = view.findViewById(R.id.PBLoadComments);
+        TVNoCommentMsg = view.findViewById(R.id.TVNoCommentMsg);
 
         RVComments.setHasFixedSize(false);
         RVComments.setLayoutManager(new LinearLayoutManager(requireContext()));

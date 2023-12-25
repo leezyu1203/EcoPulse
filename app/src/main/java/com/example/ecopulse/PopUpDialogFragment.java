@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -32,8 +33,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 public class PopUpDialogFragment extends DialogFragment {
-    private Button BtnCancelDelete;
-    private Button BtnConfirmDelete;
+    private AppCompatButton BtnCancelDelete;
+    private AppCompatButton BtnConfirmDelete;
 
     private String eventID;
 

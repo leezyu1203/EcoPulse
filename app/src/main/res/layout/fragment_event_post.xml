@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="10dp"
-    android:paddingHorizontal="10dp"
     tools:context=".EventPostFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
         <ImageView
             android:id="@+id/IVEventPostPoster"
@@ -25,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/IVEventPostPoster"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/primary_dark_green"
             android:textSize="32sp"
             android:textStyle="bold" />
         
@@ -34,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/TVEventPostTitle"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/green"
             android:textSize="12sp"
             android:textStyle="italic" />
 
@@ -43,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/TVPostedOn"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/dark_green"
             android:textSize="16sp" />
 
         <TextView
@@ -52,6 +54,7 @@
             android:layout_below="@id/TVPostDesc"
             android:layout_marginLeft="12dp"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/dark_green"
             android:textSize="16sp" />
 
         <TextView
@@ -61,6 +64,7 @@
             android:layout_below="@id/TVEventVenue"
             android:layout_marginLeft="12dp"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/dark_green"
             android:textSize="16sp" />
 
         <TextView
@@ -70,6 +74,7 @@
             android:layout_below="@id/TVEventDate"
             android:layout_marginLeft="12dp"
             android:layout_marginBottom="8dp"
+            android:textColor="@color/dark_green"
             android:textSize="16sp" />
 
         <TextView
@@ -79,6 +84,7 @@
             android:layout_below="@id/TVEventTime"
             android:layout_marginTop="16dp"
             android:text="Comment"
+            android:textColor="@color/primary_dark_green"
             android:textSize="20sp" />
 
         <TextView
@@ -101,20 +107,20 @@
 
         <EditText
             android:id="@+id/ETInputComment"
-            android:layout_width="310dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
             android:layout_below="@id/RVComments"
-            android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp"
             android:paddingStart="16dp"
             android:paddingEnd="20dp"
             android:paddingVertical="10dp"
-            android:ems="10"
+            android:ems="18"
             android:background="@drawable/edittext_background"
             android:gravity="start|center"
             android:hint="Add a comment"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp"
             android:inputType="textMultiLine" />
 
@@ -126,7 +132,10 @@
             android:layout_marginLeft="8dp"
             android:layout_toRightOf="@id/ETInputComment"
             android:contentDescription="Send"
+            android:padding="4dp"
             android:src="@android:drawable/ic_menu_send"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@android:color/transparent"
              />
 
         <ProgressBar
@@ -146,7 +155,7 @@
             android:layout_centerHorizontal="true"
             android:visibility="gone" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -156,13 +165,14 @@
             android:background="@drawable/rounded_frame_background"
             android:drawableStart="@drawable/share_icon"
             android:drawablePadding="4dp"
+            android:drawableTint="@color/darkGreen"
             android:paddingHorizontal="16dp"
             android:text="Share"
             android:textAllCaps="false"
-            android:textColor="#758467"
+            android:textColor="@color/darkGreen"
             android:textSize="16sp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnAddReminder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -171,11 +181,11 @@
             android:background="@drawable/rounded_frame_background"
             android:drawableStart="@drawable/reminder_icon"
             android:drawablePadding="4dp"
-            android:drawableTint="#758467"
+            android:drawableTint="@color/darkGreen"
             android:paddingHorizontal="16dp"
             android:text="Add Reminder"
             android:textAllCaps="false"
-            android:textColor="#758467"
+            android:textColor="@color/darkGreen"
             android:textSize="16sp" />
     </RelativeLayout>
 

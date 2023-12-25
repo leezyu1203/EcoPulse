@@ -13,6 +13,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -61,10 +62,11 @@ public class CollaboratorUploadFragment extends Fragment {
     private TextView TVSelectedStartTime;
     private ImageButton IBtnEndTimeSelector;
     private TextView TVSelectedEndTime;
-    private Button BtnAddImage;
+    private AppCompatButton BtnAddImage;
     private ImageView IVUploadedImage;
-    private Button BtnUpload;
+    private AppCompatButton BtnUpload;
 
+    private TextView title;
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
 
@@ -86,6 +88,8 @@ public class CollaboratorUploadFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_collaborator_upload, container, false);
 
+        title = (TextView) getActivity().findViewById(R.id.current_title);
+
         ETInputEventName = view.findViewById(R.id.ETInputEventName);
         ETInputEventDesc = view.findViewById(R.id.ETInputEventDesc);
         ETInputEventVenue = view.findViewById(R.id.ETInputEventVenue);
@@ -103,6 +107,7 @@ public class CollaboratorUploadFragment extends Fragment {
         temp = new Bundle();
 
         if(getArguments().containsKey("editPost")) {
+            title.setText("Edit Post");
             String eventID = getArguments().getString("eventID");
 
             db.collection("events").document(eventID)
@@ -128,6 +133,8 @@ public class CollaboratorUploadFragment extends Fragment {
                             }
                         }
                     });
+        } else {
+            title.setText("New Post");
         }
 
         return view;

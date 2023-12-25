@@ -17,7 +17,7 @@
             android:layout_centerHorizontal="true"
             android:text="Are you sure?"
             android:textSize="21sp"
-            android:textColor="#ca3433" />
+            android:textColor="@color/error" />
 
         <TextView
             android:id="@+id/TVPopUpDesc"
@@ -28,25 +28,30 @@
             android:text="Are you sure you would like to delete this post? The deletion is permanent can cannot be undone."
             android:textSize="16sp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnCancelDelete"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_alignParentStart="true"
             android:layout_below="@id/TVPopUpDesc"
             android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_frame_background"
             android:text="Cancel"
+            android:textColor="@color/darkGreen"
             android:textAllCaps="false"
             android:textSize="16sp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnConfirmDelete"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
             android:layout_below="@id/TVPopUpDesc"
             android:layout_marginTop="8dp"
+            android:background="@drawable/edittext_background"
+            android:backgroundTint="@color/error"
             android:text="Delete"
+            android:textColor="@color/white"
             android:textAllCaps="false"
             android:textSize="16sp" />
 

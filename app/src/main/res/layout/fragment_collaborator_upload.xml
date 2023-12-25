@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     tools:context=".CollaboratorUploadFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
         <EditText
             android:id="@+id/ETInputEventName"
@@ -23,7 +23,8 @@
             android:background="@drawable/edittext_background"
             android:gravity="start|center"
             android:hint="Event Name"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp"
             android:inputType="text" />
 
@@ -41,7 +42,8 @@
             android:background="@drawable/edittext_background"
             android:gravity="start|center"
             android:hint="Description"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp"
             android:inputType="textMultiLine"/>
 
@@ -59,7 +61,8 @@
             android:background="@drawable/edittext_background"
             android:gravity="start|center"
             android:hint="Venue"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp" />
 
         <ImageButton
@@ -82,7 +85,8 @@
             android:ems="10"
             android:gravity="start|center"
             android:hint="Date"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp" />
 
         <ImageButton
@@ -106,7 +110,8 @@
             android:ems="6"
             android:gravity="start|center"
             android:hint="Start Time"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp" />
 
         <ImageButton
@@ -130,10 +135,11 @@
             android:ems="6"
             android:gravity="start|center"
             android:hint="End Time"
-            android:textColorHint="#819171"
+            android:textColor="@color/primary_dark_green"
+            android:textColorHint="@color/green"
             android:textSize="16sp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnAddImage"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
@@ -145,9 +151,9 @@
             android:drawableStart="@drawable/add_icon"
             android:drawablePadding="8dp"
             android:text="Add Image"
-            android:textColor="#758467"
+            android:textColor="@color/darkGreen"
             android:textSize="16sp"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false" />
 
         <ImageView
             android:id="@+id/IVUploadedImage"
@@ -156,7 +162,7 @@
             android:layout_below="@id/BtnAddImage"
             android:layout_marginBottom="8dp"/>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/BtnUpload"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -165,6 +171,7 @@
             android:paddingHorizontal="16dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/button_background"
+            android:backgroundTint="@color/darkGreen"
             android:text="Upload"
             android:textAllCaps="false"
             android:textColor="@color/white"
