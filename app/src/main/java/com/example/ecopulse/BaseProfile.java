@@ -28,6 +28,7 @@ public abstract class BaseProfile extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         firestore = FirebaseFirestore.getInstance();

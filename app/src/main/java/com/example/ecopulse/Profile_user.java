@@ -14,13 +14,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 public class Profile_user extends BaseProfile {
 
-    private FirebaseAuth mAuth;
-    private FirebaseUser currentUser;
-    private FirebaseFirestore firestore;
-    private Button logout;
-    private TextView username, email, phone;
-    private ListenerRegistration userDataListener;
-
 
     public Profile_user() {
         // Required empty public constructor
@@ -42,7 +35,5 @@ public class Profile_user extends BaseProfile {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         return view;
     }
-
-
 
 }

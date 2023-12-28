@@ -23,18 +23,18 @@
 
         <activity
             android:name=".Register"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="false">
+
 
         </activity>
 
         <activity
             android:name=".Login"
-            android:exported="false">
-
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -45,6 +45,7 @@
 
         <activity android:name=".reminderMainFragment">
             <!-- Add any necessary intent filters or configuration -->
+
         </activity>
         <activity android:name=".updateFragment"></activity>
         <activity android:name=".uploadFragmentReminder"></activity>
@@ -53,6 +54,7 @@
         <activity android:name=".SchedulePickUp">
             <!-- Intent filters if needed -->
         </activity>
+
 
     </application>
 

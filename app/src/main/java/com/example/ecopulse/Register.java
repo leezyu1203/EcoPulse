@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class Register extends AppCompatActivity {
 
-    private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone;
+    private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone,editTextAddress;
     private RadioGroup radioGroup;
     private AppCompatButton buttonReg;
     private FirebaseFirestore databaseReference;
@@ -53,6 +53,7 @@ public class Register extends AppCompatActivity {
         editTextPassword = findViewById(R.id.editTextTextPassword);
         editTextRepassword = findViewById(R.id.editTextTextRePassword);
         editTextPhone = findViewById(R.id.editTextTextPhone);
+        editTextAddress = findViewById(R.id.editTextTextAddress);
         radioGroup = findViewById(R.id.radioGroup);
         buttonReg = findViewById(R.id.SignUp_btn);
         buttonReg.setOnClickListener(new View.OnClickListener() {

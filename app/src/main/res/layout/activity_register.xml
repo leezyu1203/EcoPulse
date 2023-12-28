@@ -47,11 +47,11 @@
                 android:id="@+id/Name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="Name"
                 android:textColor="#000000"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp"/>
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editTextTextName"
@@ -70,11 +70,11 @@
                 android:id="@+id/Email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:text="Email"
                 android:textColor="#000000"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp"/>
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editTextTextEmailAddress"
@@ -134,6 +134,7 @@
                 android:padding="12dp"
                 android:textColor="#819171"
                 android:textSize="18sp" />
+
             <TextView
                 android:id="@+id/Phone"
                 android:layout_width="match_parent"
@@ -158,11 +159,34 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/Address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Address"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editTextTextAddress"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/edittext_background"
+                android:ems="10"
+                android:hint="Address"
+                android:inputType="phone"
+                android:padding="12dp"
+                android:textColor="#819171"
+                android:textSize="18sp" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:text="Register as:"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <RadioGroup
                 android:id="@+id/radioGroup"
@@ -173,22 +197,22 @@
                     android:id="@+id/User"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="User"
-                    android:onClick="checkButton"/>
+                    android:onClick="checkButton"
+                    android:text="User" />
 
                 <RadioButton
                     android:id="@+id/EventCollaborator"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Event Collaborator"
-                    android:onClick="checkButton"/>
+                    android:onClick="checkButton"
+                    android:text="Event Collaborator" />
 
                 <RadioButton
                     android:id="@+id/RecyclingCenter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Recycling Center Collaborator"
-                    android:onClick="checkButton"/>
+                    android:onClick="checkButton"
+                    android:text="Recycling Center Collaborator" />
 
             </RadioGroup>
 

@@ -98,7 +98,7 @@ public class Login extends AppCompatActivity {
                                             .show();
                                     Intent intent
                                             = new Intent(Login.this,
-                                            Profile_user.class);
+                                            MainActivity.class);
                                     startActivity(intent);
                                 }
 

@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             userEmail = user.getEmail();
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -122,9 +125,34 @@ public class MainActivity extends AppCompatActivity {
                             communityNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);
                             IBtnReminder.setBackgroundColor(transparent);
-                            replaceFragment(new Profile_Collaborator());    // for collaborator testing purpose
+
+                            if (currentUser != null) {
+                                String uid = currentUser.getUid();
+                                DocumentReference userDocRef = db.collection("user").document(uid);
+                                userDocRef.get().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            String userRole = document.getString("role");
+
+                                            if ("User".equals(userRole)) {
+                                                replaceFragment(new Profile_user());
+                                            } else if ("Recycling Center Collaborator".equals(userRole)) {
+                                                replaceFragment(new Profile_Collaborator());
+                                            } else {
+                                                // Handle unknown role or other cases
+                                            }
+                                        } else {
+                                            // Handle the case where the document does not exist
+                                        }
+                                    } else {
+                                        // Handle exceptions during Firestore document retrieval
+                                    }
+                                });
+                            }
                         }
                     });
+
                     IBtnReminder.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
