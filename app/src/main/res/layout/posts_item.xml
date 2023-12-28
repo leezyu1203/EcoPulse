@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp">
+    android:layout_margin="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
             android:text="Post title"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/black"/>
+            android:textColor="@color/primary_dark_green"/>
 
         <TextView
             android:id="@+id/TVCollaboratorPostedOn"
@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="dd MMM yyyy hh:mm"
+            android:textColor="@color/green"
             android:textSize="16sp"/>
     </LinearLayout>
 

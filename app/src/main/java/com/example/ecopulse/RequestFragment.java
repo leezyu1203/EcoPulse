@@ -118,7 +118,8 @@ public class RequestFragment extends Fragment {
                                                 String id = document.getId();
                                                 selectedItems.add(new RequestListItem(dayOfWeek, time, address, contact, note , status, id));
                                             }
-                                            ArrayAdapter<RequestListItem> adapter = new RequestListAdapter(getActivity(),getContext(), selectedItems, requestLocation);
+
+                                            ArrayAdapter<RequestListItem> adapter = new RequestListAdapter(requireActivity(),requireContext(), selectedItems, requestLocation);
                                             requestList.setAdapter(adapter);
 
                                             LinearLayout noRecords = requestLocation.findViewById(R.id.no_records);

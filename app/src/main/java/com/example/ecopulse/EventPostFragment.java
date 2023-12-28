@@ -1,5 +1,6 @@
 package com.example.ecopulse;
 
+import static android.view.View.GONE;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Intent;
@@ -7,6 +8,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,6 +39,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -63,11 +68,13 @@ public class EventPostFragment extends Fragment {
     private TextView TVNoCommentMsg;
     private ProgressBar PBLoadComments;
 
-    private Button BtnShare;
-    private Button BtnAddReminder;
+    private AppCompatButton BtnShareNEdit;
+    private AppCompatButton BtnAddReminderNDelete;
 
     //private String eventTimestamp;
     private String eventID;
+    private TextView title;
+    private Bundle args;
     private FirebaseFirestore db;
 
     public EventPostFragment() {
@@ -78,40 +85,44 @@ public class EventPostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        // if navigate from ManagePostsFragment
-        // -> gone comment...
-        // -> change BtnShare into BtnEdit
-        // -> change BtnAddReminder into BtnDelete
-        return inflater.inflate(R.layout.fragment_event_post, container, false);
-    }
+        View root = inflater.inflate(R.layout.fragment_event_post, container, false);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        ETInputComment = root.findViewById(R.id.ETInputComment);
+        IBtnSend = root.findViewById(R.id.IBtnSend);
 
-        IVEventPostPoster = view.findViewById(R.id.IVEventPostPoster);
-        TVEventPostTitle = view.findViewById(R.id.TVEventPostTitle);
-        TVPostedOn = view.findViewById(R.id.TVPostedOn);
-        TVPostDesc = view.findViewById(R.id.TVPostDesc);
-        TVEventVenue = view.findViewById(R.id.TVEventVenue);
-        TVEventDate = view.findViewById(R.id.TVEventDate);
-        TVEventTime = view.findViewById(R.id.TVEventTime);
-        PBLoadPost = view.findViewById(R.id.PBLoadPost);
+        BtnShareNEdit = root.findViewById(R.id.BtnShare);
+        BtnAddReminderNDelete = root.findViewById(R.id.BtnAddReminder);
 
-        RVComments = view.findViewById(R.id.RVComments);
-        ETInputComment = view.findViewById(R.id.ETInputComment);
-        IBtnSend = view.findViewById(R.id.IBtnSend);
-        PBLoadComments = view.findViewById(R.id.PBLoadComments);
-        TVNoCommentMsg = view.findViewById(R.id.TVNoCommentMsg);
+        if(getArguments().containsKey("fromManagePost")){
+            Log.d(TAG,"EventPostFragment: Check fromManagePost");
 
-        BtnShare = view.findViewById(R.id.BtnShare);
-        BtnAddReminder = view.findViewById(R.id.BtnAddReminder);
+            ETInputComment.setVisibility(View.GONE);
+            IBtnSend.setVisibility(View.GONE);
+
+            BtnShareNEdit.setText("Edit");
+            BtnShareNEdit.setCompoundDrawablesWithIntrinsicBounds(R.drawable.edit_icon, 0, 0, 0);
+
+            BtnAddReminderNDelete.setText("Delete");
+            BtnAddReminderNDelete.setCompoundDrawablesWithIntrinsicBounds(R.drawable.delete_icon,0,0,0);
+            BtnAddReminderNDelete.setTextColor(android.graphics.Color.parseColor("#E58C8C"));
+            BtnAddReminderNDelete.setBackgroundColor(android.graphics.Color.parseColor("#E58C8C"));
+        }
+
+        IVEventPostPoster = root.findViewById(R.id.IVEventPostPoster);
+        TVEventPostTitle = root.findViewById(R.id.TVEventPostTitle);
+        TVPostedOn = root.findViewById(R.id.TVPostedOn);
+        TVPostDesc = root.findViewById(R.id.TVPostDesc);
+        TVEventVenue = root.findViewById(R.id.TVEventVenue);
+        TVEventDate = root.findViewById(R.id.TVEventDate);
+        TVEventTime = root.findViewById(R.id.TVEventTime);
+        PBLoadPost = root.findViewById(R.id.PBLoadPost);
 
         Bundle args = getArguments();
         if(args != null) {
             eventID = args.getString("eventID");
         }
-        Log.d(TAG, "Check eventID: " +eventID);
+
+        Log.d(TAG, "EventPostFragment: Check eventID" +eventID);
         db = FirebaseFirestore.getInstance();
         db.collection("events")
                 .document(eventID)
@@ -119,12 +130,15 @@ public class EventPostFragment extends Fragment {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                         if(error != null) {
-                            Log.w(TAG, "Listen failed", error);
+                            Log.e(TAG, "EventPostFragment: Listen event fail", error);
                             return;
                         }
 
                         if(value.exists() && value != null) {
                             UploadEvent current = value.toObject(UploadEvent.class);
+
+                            title = (TextView) getActivity().findViewById(R.id.current_title);
+                            title.setText(current.getEventName());
 
                             TVEventPostTitle.setText(current.getEventName());
                             TVPostedOn.setText("Posted on " + formatTimestamp(current.getTimestamp()));
@@ -141,10 +155,20 @@ public class EventPostFragment extends Fragment {
                             PBLoadPost.setVisibility(View.INVISIBLE);
                             PBLoadComments.setVisibility(View.VISIBLE);
                         } else{
-                            Toast.makeText(requireActivity(),"Failed to load event post",Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "EventPostFragement: Fail to load event");
                         }
                     }
                 });
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        RVComments = view.findViewById(R.id.RVComments);
+        PBLoadComments = view.findViewById(R.id.PBLoadComments);
+        TVNoCommentMsg = view.findViewById(R.id.TVNoCommentMsg);
 
         RVComments.setHasFixedSize(false);
         RVComments.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -160,7 +184,7 @@ public class EventPostFragment extends Fragment {
                             @Override
                             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                                 if(error != null) {
-                                    Log.e(TAG, "EventPostFragment error", error);
+                                    Log.e(TAG, "EventPostFragment: Listen comments fail", error);
                                 }
 
                                 if(value != null){
@@ -248,36 +272,57 @@ public class EventPostFragment extends Fragment {
             }
         });
 
-        BtnShare.setOnClickListener(new View.OnClickListener() {
+        BtnShareNEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEND);
-                String msgToSend = "Let's join " + TVEventPostTitle.getText().toString()
-                        + "\n\t" + TVEventVenue.getText().toString()
-                        + "\n\t" + TVEventDate.getText().toString()
-                        + "\n\t" + TVEventTime.getText().toString();
-                intent.putExtra(Intent.EXTRA_TEXT, msgToSend);
-                intent.setType("text/plain");
+                if(getArguments().containsKey("fromManagePost")) {
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = manager.beginTransaction();
 
-                if(intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-                    startActivity(intent);
+                    CollaboratorUploadFragment cuf = new CollaboratorUploadFragment();
+                    args.putBoolean("editPost", true);
+                    cuf.setArguments(args);
+
+                    transaction.replace(R.id.main_fragment, cuf);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                } else {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_SEND);
+                    String msgToSend = "Let's join " + TVEventPostTitle.getText().toString()
+                            + "\n\t" + TVEventVenue.getText().toString()
+                            + "\n\t" + TVEventDate.getText().toString()
+                            + "\n\t" + TVEventTime.getText().toString();
+                    intent.putExtra(Intent.EXTRA_TEXT, msgToSend);
+                    intent.setType("text/plain");
+
+                    if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
                 }
             }
         });
 
-        BtnAddReminder.setOnClickListener(new View.OnClickListener() {
+        BtnAddReminderNDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = manager.beginTransaction();
+                if(getArguments().containsKey("fromManagePost")) {
+                    Log.d(TAG, "EventPostFragment: Check delete process...");
 
-                uploadFragmentReminder ufr = new uploadFragmentReminder();
-                ufr.setArguments(args);
+                    PopUpDialogFragment popUp = new PopUpDialogFragment();
+                    popUp.setArguments(getArguments());
+                    popUp.show(requireActivity().getSupportFragmentManager(), "PopUpDialog");
+                } else {
+                    FragmentManager manager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = manager.beginTransaction();
 
-                transaction.replace(R.id.main_fragment,ufr);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                    uploadFragmentReminder ufr = new uploadFragmentReminder();
+                    ufr.setArguments(args);
+
+                    transaction.replace(R.id.main_fragment, ufr);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
             }
         });
     }
