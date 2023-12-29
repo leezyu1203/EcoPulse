@@ -31,21 +31,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SchedulePickUp extends AppCompatActivity {
-    TextView centerName = null;
-    TextView centerAddress = null;
-    TextView centerContact = null;
-    String name = null;
-    String address = null;
-    String contact = null;
-    String id = null;
+    TextView centerName, centerContact, centerAddress;
+    String name, address, contact, id, selectedTimeslot, selectedDay, userContact, userAddress, userNote;
 
-    String selectedTimeslot = null;
-    String selectedDay = null;
-    String userContact = null;
-    String userAddress = null;
-    String userNote = null;
-
-    AppCompatButton submit = null;
+    AppCompatButton submit, cancel;
 
     Map<String, ArrayList<String>> dayTimeMap = new HashMap<String, ArrayList<String>>();
     ArrayList<String> items = new ArrayList<>();
@@ -146,6 +135,7 @@ public class SchedulePickUp extends AppCompatActivity {
         });
 
         submit = findViewById(R.id.submit_schedule);
+        cancel = findViewById(R.id.cancel_btn);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -207,6 +197,12 @@ public class SchedulePickUp extends AppCompatActivity {
             }
         });
 
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
     }
 }
