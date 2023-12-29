@@ -9,8 +9,8 @@ public class RecylingCenterCollaborator extends User {
     public RecylingCenterCollaborator() {
     }
 
-    public RecylingCenterCollaborator(String name, String email, String password, String rePassword, String recyclingCenterID) {
-        super(name, email, password, rePassword);
+    public RecylingCenterCollaborator(String name, String email, String password, String rePassword, String address, String recyclingCenterID) {
+        super(name, email, password, rePassword,address);
         this.recyclingCenterID = recyclingCenterID;
     }
 

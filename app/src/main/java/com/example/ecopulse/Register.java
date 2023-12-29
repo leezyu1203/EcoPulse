@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class Register extends AppCompatActivity {
 
     private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone,editTextAddress;
+    private TextView logIn;
     private RadioGroup radioGroup;
     private AppCompatButton buttonReg;
     private FirebaseFirestore databaseReference;
@@ -54,23 +56,35 @@ public class Register extends AppCompatActivity {
         editTextRepassword = findViewById(R.id.editTextTextRePassword);
         editTextPhone = findViewById(R.id.editTextTextPhone);
         editTextAddress = findViewById(R.id.editTextTextAddress);
+
         radioGroup = findViewById(R.id.radioGroup);
         buttonReg = findViewById(R.id.SignUp_btn);
+        logIn = findViewById(R.id.textView5);
         buttonReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 register();
             }
         });
+
+        logIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Register.this, Login.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     private void register(){
-        String name,email, password, rePassword,phone;
+        String name,email, password, rePassword,phone,address;
         name = String.valueOf(editTextName.getText());
         email = String.valueOf(editTextEmail.getText());
         password = String.valueOf(editTextPassword.getText());
         rePassword = String.valueOf(editTextRepassword.getText());
         phone = String.valueOf(editTextPhone.getText());
+        address = String.valueOf(editTextAddress.getText());
 
         int selectedId = radioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = findViewById(selectedId);
@@ -110,6 +124,7 @@ public class Register extends AppCompatActivity {
                                                 user.put("email", email);
                                                 user.put("phone", phone);
                                                 user.put("role", role);
+                                                user.put("address",address);
 
                                                 // Create a new document with the user's UID
                                                 databaseReference.collection("user")
