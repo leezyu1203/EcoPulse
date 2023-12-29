@@ -137,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
 
                                             if ("User".equals(userRole)) {
                                                 replaceFragment(new Profile_user());
-                                            } else if ("Recycling Center Collaborator".equals(userRole)) {
+                                            } else if ("Event Collaborator".equals(userRole)) {
                                                 replaceFragment(new Profile_Collaborator());
-                                            } else {
-                                                // Handle unknown role or other cases
-                                            }
+                                            } else if("Recycling Center Collaborator".equals(userRole)){
+                                                replaceFragment(new Profile_RC());
+                                            }else{}
                                         } else {
                                             // Handle the case where the document does not exist
                                         }
