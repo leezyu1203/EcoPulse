@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -27,6 +30,8 @@ public abstract class BaseProfile extends Fragment {
     protected TextView username, email, phone, address,profileName;
     protected ImageView profilePic;
     protected Button logout;
+
+    protected Button updateProfile;
     protected ListenerRegistration userDataListener;
 
     private TextView title = null;
@@ -56,6 +61,7 @@ public abstract class BaseProfile extends Fragment {
             address = view.findViewById(R.id.address);
             profileName = view.findViewById(R.id.profile_name);
             profilePic = view.findViewById(R.id.profile_img);
+            updateProfile = view.findViewById(R.id.updateProfileButton);
 
             userDataListener = firestore.collection(getCollectionPath()).document(uid)
                     .addSnapshotListener((documentSnapshot, e) -> {
@@ -93,6 +99,15 @@ public abstract class BaseProfile extends Fragment {
             }
         });
 
+        updateProfile.setOnClickListener(v->{
+            Update updateFragment = new Update();
+            FragmentManager fragmentManager = getParentFragmentManager(); // Use getParentFragmentManager() if in a Fragment
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(getCurrentContainerId(), updateFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
+
         logout = view.findViewById(R.id.button);
         logout.setOnClickListener(v -> {
             mAuth.signOut();
@@ -114,4 +129,11 @@ public abstract class BaseProfile extends Fragment {
 
     protected abstract int getLayoutResourceId();
     protected abstract String getCollectionPath();
+    protected int getCurrentContainerId() {
+        View view = getView();
+        if (view != null && view.getParent() != null) {
+            return ((ViewGroup) view.getParent()).getId();
+        }
+        return View.NO_ID;
+    }
 }
