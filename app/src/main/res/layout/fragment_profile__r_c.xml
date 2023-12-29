@@ -5,8 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile_Collaborator"
-    android:id="@+id/fragment_container_collaborator_profile">
+    tools:context=".Profile_RC"
+    android:id="@+id/fragment_container_RC">
 
     <!-- Profile LinearLayout -->
     <LinearLayout
@@ -174,7 +174,7 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:layout_marginTop="15dp"
                 android:backgroundTint="@color/primary_dark_green"
-                android:text="Manage Posts"
+                android:text="Manage Time Slot"
                 android:textAllCaps="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
