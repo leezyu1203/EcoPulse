@@ -30,6 +30,7 @@ public class Profile_RC extends BaseProfile {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         return view;
     }
 

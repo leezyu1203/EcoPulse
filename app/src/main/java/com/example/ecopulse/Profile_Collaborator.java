@@ -41,7 +41,7 @@ public class Profile_Collaborator extends BaseProfile {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         BtnManagePosts = view.findViewById(R.id.BtnManagePosts);
         // navigate to ManagePostsFragment
         BtnManagePosts.setOnClickListener(new View.OnClickListener() {

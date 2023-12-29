@@ -86,7 +86,7 @@ public class EventPostFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_event_post, container, false);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
         ETInputComment = root.findViewById(R.id.ETInputComment);
         IBtnSend = root.findViewById(R.id.IBtnSend);
 

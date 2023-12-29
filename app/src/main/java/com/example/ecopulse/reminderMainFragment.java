@@ -42,7 +42,7 @@ public class reminderMainFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_reminder_main, container, false);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Reminder");
 

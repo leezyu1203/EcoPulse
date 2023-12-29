@@ -45,6 +45,7 @@ public class updateFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_update_task,container,false);
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
         updateButton=rootView.findViewById(R.id.updateButton);
         updateTitle=rootView.findViewById(R.id.updateTaskTitle);
         updateDesc=rootView.findViewById(R.id.updateTaskDescription);

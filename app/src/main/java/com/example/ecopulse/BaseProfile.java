@@ -27,7 +27,7 @@ public abstract class BaseProfile extends Fragment {
     protected FirebaseAuth mAuth;
     protected FirebaseUser currentUser;
     protected FirebaseFirestore firestore;
-    protected TextView username, email, phone, address,profileName;
+    protected TextView username, email, phone, address,profileName, opening, type;
     protected ImageView profilePic;
     protected Button logout;
 
@@ -50,6 +50,7 @@ public abstract class BaseProfile extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(getLayoutResourceId(), container, false);
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Profile");
 
@@ -59,9 +60,12 @@ public abstract class BaseProfile extends Fragment {
             email = view.findViewById(R.id.email);
             phone = view.findViewById(R.id.phone);
             address = view.findViewById(R.id.address);
+            opening = view.findViewById(R.id.opening);
+            type = view.findViewById(R.id.type);
             profileName = view.findViewById(R.id.profile_name);
             profilePic = view.findViewById(R.id.profile_img);
             updateProfile = view.findViewById(R.id.updateProfileButton);
+
 
             userDataListener = firestore.collection(getCollectionPath()).document(uid)
                     .addSnapshotListener((documentSnapshot, e) -> {
@@ -76,13 +80,18 @@ public abstract class BaseProfile extends Fragment {
                             String phoneValue = documentSnapshot.getString("phone");
                             String addressValue = documentSnapshot.getString("address");
                             String imageUrl = documentSnapshot.getString("imageUrl");
-
-
                             username.setText(usernameValue);
                             email.setText(emailValue);
                             phone.setText(phoneValue);
                             address.setText(addressValue);
                             profileName.setText(usernameValue);
+                            if (opening != null && type != null) {
+                                String openingValue = documentSnapshot.getString("opening");
+                                String typeValue = documentSnapshot.getString("type");
+                                opening.setText(openingValue);
+                                type.setText(typeValue);
+                            }
+
 
                             if (imageUrl != null && !imageUrl.isEmpty()) {
                                 Picasso.get().load(imageUrl).fit().centerInside().into(profilePic);

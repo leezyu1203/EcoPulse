@@ -156,9 +156,7 @@ public class MainActivity extends AppCompatActivity {
                     IBtnReminder.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                             int transparent = Color.argb(0, 0, 0, 0);
-                            IBtnReminder.setBackgroundColor(color);
                             communityNav.setBackgroundColor(transparent);
                             locationNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);
