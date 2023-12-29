@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                             communityNav.setBackgroundColor(transparent);
                             profileNav.setBackgroundColor(transparent);
                             IBtnReminder.setBackgroundColor(transparent);
-                            if (role.equals("RC") || role.equals("Recycling Center Collaborator")) {
+                            if (role.equals("Recycling Center Collaborator")) {
                                 replaceFragment(new CollaboratorLocationFragment());
                             } else {
                                 replaceFragment(new LocationFragment());

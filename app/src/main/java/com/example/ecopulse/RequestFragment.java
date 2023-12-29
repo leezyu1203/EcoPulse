@@ -1,5 +1,6 @@
 package com.example.ecopulse;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +36,9 @@ public class RequestFragment extends Fragment {
 
     private ArrayList<RequestListItem> selectedItems = new ArrayList<>();
     private ListView requestList;
+
+    private Context mContext;
+    private FragmentActivity mActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,6 +73,19 @@ public class RequestFragment extends Fragment {
             }
         });
         return requestLocation;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+        mActivity = requireActivity();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
     }
 
     public void showNoRecordsImage(AppCompatButton selected, AppCompatButton notSelected1, AppCompatButton notSelected2, String status) {
@@ -119,8 +137,10 @@ public class RequestFragment extends Fragment {
                                                 selectedItems.add(new RequestListItem(dayOfWeek, time, address, contact, note , status, id));
                                             }
 
-                                            ArrayAdapter<RequestListItem> adapter = new RequestListAdapter(requireActivity(),requireContext(), selectedItems, requestLocation);
-                                            requestList.setAdapter(adapter);
+                                            if (mActivity != null && mContext != null) {
+                                                ArrayAdapter<RequestListItem> adapter = new RequestListAdapter(mActivity,mContext, selectedItems, requestLocation);
+                                                requestList.setAdapter(adapter);
+                                            }
 
                                             LinearLayout noRecords = requestLocation.findViewById(R.id.no_records);
                                             if (selectedItems.isEmpty()) {
