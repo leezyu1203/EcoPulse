@@ -24,8 +24,17 @@
         <activity
             android:name=".Register"
             android:exported="false">
+        </activity>
+
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false">
+        </activity>
 
 
+        <activity
+            android:name=".ForgotPassword"
+            android:exported="false">
         </activity>
 
         <activity

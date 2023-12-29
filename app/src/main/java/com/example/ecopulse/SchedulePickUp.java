@@ -82,32 +82,37 @@ public class SchedulePickUp extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     List<String> timeslot = (List<String>) task.getResult().getData().get("timeslot");
-                    timeslot.stream().forEach((slot)-> {
-                        String[] dayAndTime = slot.split(", ");
 
-                        if (dayTimeMap.containsKey(dayAndTime[0])) {
-                            if (!dayTimeMap.get(dayAndTime[0]).contains(dayAndTime[1])) {
-                                dayTimeMap.get(dayAndTime[0]).add(dayAndTime[1]);
+                    if (timeslot.isEmpty()) {
+                        // handle no timeslot
+                    } else {
+                        timeslot.stream().forEach((slot)-> {
+                            String[] dayAndTime = slot.split(", ");
+
+                            if (dayTimeMap.containsKey(dayAndTime[0])) {
+                                if (!dayTimeMap.get(dayAndTime[0]).contains(dayAndTime[1])) {
+                                    dayTimeMap.get(dayAndTime[0]).add(dayAndTime[1]);
+                                }
+                            } else {
+                                dayTimeMap.put(dayAndTime[0], new ArrayList<String>(Arrays.asList(dayAndTime[1])));
                             }
-                        } else {
-                            dayTimeMap.put(dayAndTime[0], new ArrayList<String>(Arrays.asList(dayAndTime[1])));
+                        });
+
+                        items.clear();
+                        items.addAll(dayTimeMap.get(dayTimeMap.keySet().toArray()[0]));
+
+                        for (String day : dayTimeMap.keySet()) {
+                            days.add(day);
                         }
-                    });
 
-                    items.clear();
-                    items.addAll(dayTimeMap.get(dayTimeMap.keySet().toArray()[0]));
-
-                    Log.d("DEBUG", items.toString());
-                    for (String day : dayTimeMap.keySet()) {
-                        days.add(day);
+                        adapter.notifyDataSetChanged();
+                        adapterDay.notifyDataSetChanged();
                     }
-
-                    adapter.notifyDataSetChanged();
-                    adapterDay.notifyDataSetChanged();
                 } else {
                     Log.e("Get Timeslot Failed", "GET TIME SLOT FAILED!");
                 }
-            }
+                    }
+
         });
 
         timeslotSpinner.setAdapter(adapter);
