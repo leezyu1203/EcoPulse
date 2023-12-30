@@ -7,13 +7,13 @@
     tools:context=".Login">
 
     <LinearLayout
-
         android:id="@+id/Login_Image"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:orientation="vertical"
         android:background="@color/primary_dark_green"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/Login_font"

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,11 +34,13 @@ import java.util.Map;
 
 public class Register extends AppCompatActivity {
 
-    private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone,editTextAddress;
+    private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone,editTextAddress, editTextOpening, editTextType;
     private RadioGroup radioGroup;
     private AppCompatButton buttonReg;
     private FirebaseFirestore databaseReference;
     private FirebaseAuth mAuth;
+
+    private TextView loginText, openingTV, typeTV;
 
 
     @Override
@@ -54,6 +57,10 @@ public class Register extends AppCompatActivity {
         editTextRepassword = findViewById(R.id.editTextTextRePassword);
         editTextPhone = findViewById(R.id.editTextTextPhone);
         editTextAddress = findViewById(R.id.editTextTextAddress);
+        editTextOpening = findViewById(R.id.editTextTextOpening);
+        editTextType = findViewById(R.id.editTextTextType);
+        openingTV = findViewById(R.id.openingTV);
+        typeTV = findViewById(R.id.typeTV);
         radioGroup = findViewById(R.id.radioGroup);
         buttonReg = findViewById(R.id.SignUp_btn);
         buttonReg.setOnClickListener(new View.OnClickListener() {
@@ -62,15 +69,48 @@ public class Register extends AppCompatActivity {
                 register();
             }
         });
+
+        loginText = findViewById(R.id.login_text);
+        loginText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Register.this, Login.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                RadioButton btn = findViewById(radioGroup.getCheckedRadioButtonId());
+                String role = btn.getText().toString();
+
+                if (role.equals("Recycling Center Collaborator")) {
+                    openingTV.setVisibility(View.VISIBLE);
+                    editTextOpening.setVisibility(View.VISIBLE);
+                    typeTV.setVisibility(View.VISIBLE);
+                    editTextType.setVisibility(View.VISIBLE);
+                } else {
+                    openingTV.setVisibility(View.GONE);
+                    editTextOpening.setVisibility(View.GONE);
+                    typeTV.setVisibility(View.GONE);
+                    editTextType.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     private void register(){
-        String name,email, password, rePassword,phone;
+        String name,email, password, rePassword,phone, address, opening, type;
         name = String.valueOf(editTextName.getText());
         email = String.valueOf(editTextEmail.getText());
         password = String.valueOf(editTextPassword.getText());
         rePassword = String.valueOf(editTextRepassword.getText());
         phone = String.valueOf(editTextPhone.getText());
+        address = String.valueOf(editTextAddress.getText());
+        opening = String.valueOf(editTextOpening.getText());
+        type = String.valueOf(editTextType.getText());
 
         int selectedId = radioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = findViewById(selectedId);
@@ -78,7 +118,7 @@ public class Register extends AppCompatActivity {
 
         // Inside the register() method
 
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword) || TextUtils.isEmpty(phone)) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(address) || (role.equals("Recycling Center Collaborator") && (TextUtils.isEmpty(opening) ||TextUtils.isEmpty(type) ))) {
             Toast.makeText(Register.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
@@ -88,7 +128,6 @@ public class Register extends AppCompatActivity {
             Toast.makeText(Register.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         } else {
-
             databaseReference.collection("user").whereEqualTo("email",email)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -98,8 +137,7 @@ public class Register extends AppCompatActivity {
 
                                 if (!task.getResult().isEmpty()){
                                     Toast.makeText(getApplicationContext(),"Email already exists. Please choose a different email.",Toast.LENGTH_LONG).show();
-
-                                }else {
+                                } else {
                                     mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -110,6 +148,16 @@ public class Register extends AppCompatActivity {
                                                 user.put("email", email);
                                                 user.put("phone", phone);
                                                 user.put("role", role);
+                                                user.put("address", address);
+                                                if (role.contains("Collaborator")) {
+                                                    user.put("verified", "pending");
+                                                    if (role.equals("Recycling Center Collaborator")) {
+                                                        user.put("opening", opening);
+                                                        user.put("type", type);
+                                                    }
+                                                } else {
+                                                    user.put("verified", "approved");
+                                                }
 
                                                 // Create a new document with the user's UID
                                                 databaseReference.collection("user")

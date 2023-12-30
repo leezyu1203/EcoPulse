@@ -2,31 +2,28 @@ package com.example.ecopulse;
 
 import android.os.Bundle;
 
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
-public class Profile_user extends BaseProfile {
+public class Profile_RC extends BaseProfile {
 
+    Button BtnManageTimeSlot;
+    public Profile_RC(){
 
-    public Profile_user() {
-        // Required empty public constructor
     }
 
     @Override
     protected int getLayoutResourceId() {
-        return R.layout.fragment_profile_user;
+        return R.layout.fragment_profile__r_c;
     }
 
     @Override
     protected String getCollectionPath() {
-        return "user";
+        return "user"; // or the path to user data in Firestore
     }
 
     @Override

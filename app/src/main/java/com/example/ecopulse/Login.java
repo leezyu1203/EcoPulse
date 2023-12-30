@@ -17,6 +17,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class Login extends AppCompatActivity {
     private EditText emailTextView, passwordTextView;
@@ -68,51 +70,56 @@ public class Login extends AppCompatActivity {
         password = passwordTextView.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(getApplicationContext(),
-                            "Please enter email!!",
-                            Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(getApplicationContext(), "Please enter email!!", Toast.LENGTH_LONG).show();
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(getApplicationContext(),
-                            "Please enter password!!",
-                            Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(getApplicationContext(), "Please enter password!!", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // signin existing user
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(
-                        new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(
-                                    @NonNull Task<AuthResult> task)
-                            {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(),
-                                                    "Login successful!!",
-                                                    Toast.LENGTH_LONG)
-                                            .show();
-                                    Intent intent
-                                            = new Intent(Login.this,
-                                            MainActivity.class);
-                                    startActivity(intent);
-                                }
+        FirebaseFirestore firestoreRef = FirebaseFirestore.getInstance();
+        firestoreRef.collection("user").whereEqualTo("email", email).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                  if (!task.getResult().isEmpty()) {
+                      String verified = (String) task.getResult().iterator().next().get("verified");
+                      String role = (String) task.getResult().iterator().next().get("role");
+                      if (verified.equals("approved")) {
+                          // signin existing user
+                          mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                              @Override
+                              public void onComplete(@NonNull Task<AuthResult> task) {
+                                  if (task.isSuccessful()) {
+                                      Toast.makeText(getApplicationContext(), "Login successful!!", Toast.LENGTH_LONG).show();
+                                      Intent intent;
+                                      if (role.equals("Admin")) {
+                                          intent = new Intent(Login.this, AdminActivity.class);
+                                      } else {
+                                          intent = new Intent(Login.this, MainActivity.class);
+                                      }
+                                      startActivity(intent);
+                                      finish();
+                                  }
 
-                                else {
+                                  else {
+                                      // sign-in failed
+                                      Toast.makeText(getApplicationContext(), "Login failed!!", Toast.LENGTH_LONG).show();
+                                  }
+                              }
+                          });
+                      } else {
+                          Toast.makeText(Login.this, "Account not verified!", Toast.LENGTH_SHORT).show();
+                      }
+                  } else {
+                      Toast.makeText(Login.this, "Login unsuccessful!", Toast.LENGTH_SHORT).show();
+                  }
+                }
+            }
+        });
 
-                                    // sign-in failed
-                                    Toast.makeText(getApplicationContext(),
-                                                    "Login failed!!",
-                                                    Toast.LENGTH_LONG)
-                                            .show();
 
-
-                                }
-                            }
-                        });
     }
 }

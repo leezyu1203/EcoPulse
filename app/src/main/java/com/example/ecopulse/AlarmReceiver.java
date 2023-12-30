@@ -27,7 +27,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         }
 
-        Intent i = new Intent(context, MainActivity.class);
+        Intent i = new Intent(context, reminderMainFragment.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
 

@@ -58,14 +58,14 @@
                 android:id="@+id/taskRecycler"
                 android:layout_width="match_parent"
                 android:scrollbars="vertical"
-                android:layout_height="490dp" />
+                android:layout_height="530dp" />
 
             <ImageButton
                 android:id="@+id/BtnAddTask"
                 android:layout_width="60sp"
                 android:layout_height="60sp"
                 android:layout_marginLeft="320dp"
-                android:layout_marginTop="450dp"
+                android:layout_marginTop="530dp"
                 android:background="@drawable/baseline_add_24"
                 android:backgroundTint="@color/darkGreen"
                 android:elevation="16dp"

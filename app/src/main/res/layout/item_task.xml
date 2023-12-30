@@ -26,14 +26,13 @@
             android:id="@+id/LinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/darkGreen"
+            android:background="@drawable/rounded_background"
             android:orientation="horizontal">
 
 
             <LinearLayout
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginRight="10dp"
@@ -42,13 +41,14 @@
 
                 <TextView
                     android:id="@+id/day"
+                    android:layout_marginTop="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Tue"
                     android:textStyle="bold"
                     android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/dateDetail"
@@ -57,7 +57,7 @@
                     android:layout_gravity="center"
                     android:text="16"
                     android:textColor="@color/light_green"
-                    android:textSize="23sp" />
+                    android:textSize="21sp" />
 
                 <TextView
                     android:id="@+id/Month"
@@ -65,9 +65,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Sep"
+                    android:layout_marginBottom="5dp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <View
@@ -89,6 +90,7 @@
                     <TextView
                         android:id="@+id/title"
                         android:layout_width="wrap_content"
+                        android:layout_marginTop="5sp"
                         android:textStyle="bold"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -105,7 +107,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:alpha="0.5"
-                    android:singleLine="true"
+
+                    android:maxLines="3"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     tools:text="Full House is the Grand prize in any Tambola game played. " />

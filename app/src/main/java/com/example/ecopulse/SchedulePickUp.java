@@ -31,21 +31,10 @@ import java.util.List;
 import java.util.Map;
 
 public class SchedulePickUp extends AppCompatActivity {
-    TextView centerName = null;
-    TextView centerAddress = null;
-    TextView centerContact = null;
-    String name = null;
-    String address = null;
-    String contact = null;
-    String id = null;
+    TextView centerName, centerContact, centerAddress;
+    String name, address, contact, id, selectedTimeslot, selectedDay, userContact, userAddress, userNote;
 
-    String selectedTimeslot = null;
-    String selectedDay = null;
-    String userContact = null;
-    String userAddress = null;
-    String userNote = null;
-
-    AppCompatButton submit = null;
+    AppCompatButton submit, cancel;
 
     Map<String, ArrayList<String>> dayTimeMap = new HashMap<String, ArrayList<String>>();
     ArrayList<String> items = new ArrayList<>();
@@ -82,32 +71,37 @@ public class SchedulePickUp extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     List<String> timeslot = (List<String>) task.getResult().getData().get("timeslot");
-                    timeslot.stream().forEach((slot)-> {
-                        String[] dayAndTime = slot.split(", ");
 
-                        if (dayTimeMap.containsKey(dayAndTime[0])) {
-                            if (!dayTimeMap.get(dayAndTime[0]).contains(dayAndTime[1])) {
-                                dayTimeMap.get(dayAndTime[0]).add(dayAndTime[1]);
+                    if (timeslot.isEmpty()) {
+                        // handle no timeslot
+                    } else {
+                        timeslot.stream().forEach((slot)-> {
+                            String[] dayAndTime = slot.split(", ");
+
+                            if (dayTimeMap.containsKey(dayAndTime[0])) {
+                                if (!dayTimeMap.get(dayAndTime[0]).contains(dayAndTime[1])) {
+                                    dayTimeMap.get(dayAndTime[0]).add(dayAndTime[1]);
+                                }
+                            } else {
+                                dayTimeMap.put(dayAndTime[0], new ArrayList<String>(Arrays.asList(dayAndTime[1])));
                             }
-                        } else {
-                            dayTimeMap.put(dayAndTime[0], new ArrayList<String>(Arrays.asList(dayAndTime[1])));
+                        });
+
+                        items.clear();
+                        items.addAll(dayTimeMap.get(dayTimeMap.keySet().toArray()[0]));
+
+                        for (String day : dayTimeMap.keySet()) {
+                            days.add(day);
                         }
-                    });
 
-                    items.clear();
-                    items.addAll(dayTimeMap.get(dayTimeMap.keySet().toArray()[0]));
-
-                    Log.d("DEBUG", items.toString());
-                    for (String day : dayTimeMap.keySet()) {
-                        days.add(day);
+                        adapter.notifyDataSetChanged();
+                        adapterDay.notifyDataSetChanged();
                     }
-
-                    adapter.notifyDataSetChanged();
-                    adapterDay.notifyDataSetChanged();
                 } else {
                     Log.e("Get Timeslot Failed", "GET TIME SLOT FAILED!");
                 }
-            }
+                    }
+
         });
 
         timeslotSpinner.setAdapter(adapter);
@@ -141,6 +135,7 @@ public class SchedulePickUp extends AppCompatActivity {
         });
 
         submit = findViewById(R.id.submit_schedule);
+        cancel = findViewById(R.id.cancel_btn);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -202,6 +197,12 @@ public class SchedulePickUp extends AppCompatActivity {
             }
         });
 
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
     }
 }

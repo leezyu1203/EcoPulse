@@ -32,6 +32,8 @@ import com.example.ecopulse.Model.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -61,10 +63,11 @@ public class uploadFragmentReminder extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_upload_task,container,false);
-        createNotificationChannel();
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Reminder");
         uploadTitle=rootView.findViewById(R.id.addTaskTitle);
+        createNotificationChannel();
         uploadDesc=rootView.findViewById(R.id.addTaskDescription);
         uploadDate=rootView.findViewById(R.id.taskDate);
         uploadTime=rootView.findViewById(R.id.taskTime);
@@ -112,8 +115,15 @@ public class uploadFragmentReminder extends Fragment {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadData();
+                String titleText = uploadTitle.getText().toString().trim();
+                String timeText = uploadTime.getText().toString().trim();
+                String dateText = uploadDate.getText().toString().trim();
 
+                if(!titleText.isEmpty() && !timeText.isEmpty() && !dateText.isEmpty()) {
+                    uploadData();
+
+            }else{
+                Toast.makeText(requireContext(),"Please fill in the fields",Toast.LENGTH_SHORT).show();}
             }
         });
 
@@ -123,26 +133,27 @@ public class uploadFragmentReminder extends Fragment {
 
     public void uploadData(){
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         String title = uploadTitle.getText().toString();
         String description = uploadDesc.getText().toString();
         String date = uploadDate.getText().toString();
         String time = uploadTime.getText().toString();
         String requestCode= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-
+        String userID=user.getUid();
 
         Task task = new Task(title, description, date, time,requestCode);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Add the task to Firestore
-        db.collection("tasks")
+        db.collection("user").document(userID).collection("tasks")
                 .add(task)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         setAlarm(task);
-                        Toast.makeText(requireContext(),"Successfully create task",Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(requireContext(),"Successfully create task",Toast.LENGTH_SHORT).show();
                         getActivity().getSupportFragmentManager().popBackStack();
 
                     }

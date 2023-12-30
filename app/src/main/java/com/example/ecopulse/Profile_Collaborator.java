@@ -23,7 +23,7 @@ public class Profile_Collaborator extends BaseProfile {
 
     @Override
     protected int getLayoutResourceId() {
-        return R.layout.fragment_profile_user;
+        return R.layout.fragment_profile__collaborator;
     }
 
     @Override
@@ -34,14 +34,14 @@ public class Profile_Collaborator extends BaseProfile {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile__collaborator, container, false);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         BtnManagePosts = view.findViewById(R.id.BtnManagePosts);
         // navigate to ManagePostsFragment
         BtnManagePosts.setOnClickListener(new View.OnClickListener() {

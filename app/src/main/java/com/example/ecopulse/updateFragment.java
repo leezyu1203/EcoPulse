@@ -2,10 +2,13 @@ package com.example.ecopulse;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +24,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.ecopulse.Model.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 
 public class updateFragment extends Fragment {
@@ -40,11 +50,17 @@ public class updateFragment extends Fragment {
     String title,desc,date,time,key;
     int requestCode;
     FirebaseFirestore db;
+    PendingIntent pendingIntent;
+    String userID;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        createNotificationChannel();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        userID=user.getUid();
         View rootView = inflater.inflate(R.layout.fragment_update_task,container,false);
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
         updateButton=rootView.findViewById(R.id.updateButton);
         updateTitle=rootView.findViewById(R.id.updateTaskTitle);
         updateDesc=rootView.findViewById(R.id.updateTaskDescription);
@@ -81,6 +97,7 @@ public class updateFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 updateData();
+                cancelAlarm(requestCode);
 
             }
         });
@@ -95,12 +112,19 @@ public class updateFragment extends Fragment {
     }
 
     public void updateData() {
+         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 title = updateTitle.getText().toString().trim();
                 desc = updateDesc.getText().toString().trim();
                 date = updateDate.getText().toString().trim();
                 time = updateTime.getText().toString().trim();
+                String NewRequestCode= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+                cancelAlarm(requestCode);
 
-                DocumentReference docRef = db.collection("tasks").document(key);
+
+                Task Ntask=new Task(title,desc,date,time,NewRequestCode);
+
+
+                DocumentReference docRef = db.collection("user").document(userID).collection("tasks").document(key);
 
                 docRef.update(
                         "taskTitle", title,
@@ -111,6 +135,7 @@ public class updateFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
                 if (task.isSuccessful()) {
+                    setAlarm(Ntask);
                     Toast.makeText(requireContext(), "Updated successfully", Toast.LENGTH_SHORT).show();
                     getActivity().getSupportFragmentManager().popBackStack();
 
@@ -128,8 +153,9 @@ public class updateFragment extends Fragment {
     }
 
     public void deleteTask() {
+
         // Delete the task from Firebase
-        db.collection("tasks").document(key)
+        db.collection("user").document(userID).collection("tasks").document(key)
                 .delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -150,13 +176,57 @@ public class updateFragment extends Fragment {
 
 
     }
+    private void setAlarm(Task task){
+
+        alarmManager=(AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+
+        int requestCode = task.getRequestCode().hashCode();
+
+        Intent intent =new Intent(requireContext(),AlarmReceiver.class);
+        intent.putExtra("title",task.getTaskTitle());
+        intent.putExtra("desc",task.getTaskDescription());
+
+        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+
+
+        // Parse the date and time strings to create a Calendar instance
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(dateFormat.parse(task.getDate() + " " + task.getFirstAlarmTime()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Set the alarm using AlarmManager
+        if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
+            // Only set the alarm if it's in the future
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+           // Toast.makeText(requireContext(), "Reminder set successfully!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "Please select a future date and time", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void createNotificationChannel(){
+        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O){
+            CharSequence name="MADReminderChannel";
+            String description= "Channel For Alarm Manager";
+            int importance= NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel= new NotificationChannel("reminder",name,importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = requireContext().getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+        }
+    }
 
     public void openDateDialog(){
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
-        datePickerDialog = new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
+        datePickerDialog = new DatePickerDialog(requireContext(), R.style.DatePickerTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 updateDate.setText(dayOfMonth+"-"+(month+1)+"-"+year);
@@ -173,7 +243,7 @@ public class updateFragment extends Fragment {
         mMinute=c.get(Calendar.MINUTE);
 
         //launch time picker
-        timePickerDialog=new TimePickerDialog(requireContext(), new TimePickerDialog.OnTimeSetListener() {
+        timePickerDialog=new TimePickerDialog(requireContext(), R.style.DatePickerTheme, new TimePickerDialog.OnTimeSetListener() {
 
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {

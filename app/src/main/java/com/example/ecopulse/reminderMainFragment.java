@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecopulse.Model.Task;
 import com.example.ecopulse.adapter.Myadapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class reminderMainFragment extends Fragment {
-    FirebaseFirestore db;
+
     RecyclerView recyclerView;
     List<Task> taskList;
     TextView title;
@@ -42,7 +44,7 @@ public class reminderMainFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_reminder_main, container, false);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Reminder");
 
@@ -55,7 +57,9 @@ public class reminderMainFragment extends Fragment {
 
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference taskRef = db.collection("tasks");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userID=user.getUid();
+        CollectionReference taskRef = db.collection("user").document(userID).collection("tasks");
         taskRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException error) {

@@ -2,63 +2,157 @@ package com.example.ecopulse;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Update#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class Update extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore firestore;
+    private FirebaseUser currentUser;
+    private EditText nameEditText, phoneEditText, addressEditText, openingEditText, typeEditText;
+    private TextView openingTV, typeTV;
+    private Button updateButton;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public Update() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Update.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Update newInstance(String param1, String param2) {
-        Update fragment = new Update();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    private ImageButton backBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_update, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_update, container, false);
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
+        return rootView ;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
+        nameEditText = view.findViewById(R.id.editTextTextName);
+        phoneEditText = view.findViewById(R.id.editTextTextPhone);
+        addressEditText = view.findViewById(R.id.editTextTextAddress);
+        openingEditText = view.findViewById(R.id.editTextOpening);
+        typeEditText = view.findViewById(R.id.editTextType);
+        openingTV = view.findViewById(R.id.Opening);
+        typeTV = view.findViewById(R.id.Type);
+
+        updateButton = view.findViewById(R.id.updateButton);
+
+        getUserData();
+
+        updateButton.setOnClickListener(v -> updateUserProfile());
+    }
+
+    private void updateUserProfile() {
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            DocumentReference userRef = firestore.collection("user").document(uid);
+
+            // Update user data based on EditText fields
+            if (openingEditText.getVisibility() == View.GONE && typeEditText.getVisibility() == View.GONE) {
+                userRef.update(
+                        "username", nameEditText.getText().toString(),
+                        "phone", phoneEditText.getText().toString(),
+                        "address", addressEditText.getText().toString()
+                ).addOnSuccessListener(aVoid -> {
+                    // Handle success
+                    Toast.makeText(getActivity(), "Update Successfully", Toast.LENGTH_LONG).show();
+                    goBackToProfile();
+                }).addOnFailureListener(e -> {
+                    // Handle failure
+                    Toast.makeText(getActivity(), "Cannot successfully", Toast.LENGTH_LONG).show();
+                });
+            } else {
+                userRef.update(
+                        "username", nameEditText.getText().toString(),
+                        "phone", phoneEditText.getText().toString(),
+                        "address", addressEditText.getText().toString(),
+                        "opening", openingEditText.getText().toString(),
+                        "type", typeEditText.getText().toString()
+                ).addOnSuccessListener(aVoid -> {
+                    // Handle success
+                    Toast.makeText(getActivity(), "Update Successfully", Toast.LENGTH_LONG).show();
+                    goBackToProfile();
+                }).addOnFailureListener(e -> {
+                    // Handle failure
+                    Toast.makeText(getActivity(), "Cannot successfully", Toast.LENGTH_LONG).show();
+                });
+            }
+
+        }
+    }
+
+    private void getUserData() {
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            DocumentReference userRef = firestore.collection("user").document(uid);
+
+            userRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    String name = documentSnapshot.getString("username");
+                    String phone = documentSnapshot.getString("phone");
+                    String address = documentSnapshot.getString("address");
+                    String role = documentSnapshot.getString("role");
+
+                    // Set retrieved data to EditText fields
+                    nameEditText.setText(name);
+                    phoneEditText.setText(phone);
+                    addressEditText.setText(address);
+
+                    if (role.equals("Recycling Center Collaborator")) {
+                        openingTV.setVisibility(View.VISIBLE);
+                        openingEditText.setVisibility(View.VISIBLE);
+                        typeTV.setVisibility(View.VISIBLE);
+                        typeEditText.setVisibility(View.VISIBLE);
+
+                        String openingVal = documentSnapshot.getString("opening");
+                        String typeVal = documentSnapshot.getString("type");
+
+                        openingEditText.setText(openingVal);
+                        typeEditText.setText(typeVal);
+                    } else {
+                        openingTV.setVisibility(View.GONE);
+                        openingEditText.setVisibility(View.GONE);
+                        typeTV.setVisibility(View.GONE);
+                        typeEditText.setVisibility(View.GONE);
+                    }
+
+                }
+            }).addOnFailureListener(e -> {
+                // Handle failure
+            });
+        }
+
+    }
+
+    private void goBackToProfile() {
+        // Get the FragmentManager
+        FragmentManager fragmentManager = getParentFragmentManager(); // Use getParentFragmentManager() if in a Fragment
+
+        // Pop the topmost fragment from the back stack
+        fragmentManager.popBackStack();
     }
 }

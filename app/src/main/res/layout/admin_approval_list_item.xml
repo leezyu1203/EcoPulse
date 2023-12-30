@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="30dp"
+        android:background="@drawable/admin_approval_list_background"
+        android:layout_margin="15dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:fontFamily="arial"
+            android:layout_marginBottom="10dp"
+            android:textFontWeight="800"
+            android:text="Ng Ching WEi Sdn Bhd" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="arial"
+            android:textFontWeight="600"
+            android:textSize="15sp"
+            android:layout_marginBottom="10dp"
+            android:text="Ng Ching WEi Sdn Bhd, Taman Ungku Tun AMinah, 81300 skudai, Johor" />
+
+        <TextView
+            android:id="@+id/opening"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial"
+            android:textFontWeight="500"
+            android:text="Opening: 9:00 am - 6: 00 pm" />
+
+        <TextView
+            android:id="@+id/type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial"
+            android:textFontWeight="500"
+            android:text="Type: Electronic waste, paper, battery, car, computer, abc, cde" />
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial"
+            android:textFontWeight="500"
+            android:text="Email: cw@email.com" />
+
+        <TextView
+            android:id="@+id/contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial"
+            android:textFontWeight="500"
+            android:text="Contact: 01170216015" />
+        <TextView
+            android:id="@+id/role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial"
+            android:textFontWeight="500"
+            android:text="Role: Recycling Center Collaborator" />
+        <LinearLayout
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content">
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/approve_btn"
+                    android:layout_width="80dp"
+                    android:textSize="10sp"
+                    android:layout_height="30dp"
+                    android:text="Approve"
+                    android:textColor="@color/light_green"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/primary_dark_green" />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/reject_btn"
+                    android:layout_width="80dp"
+                    android:textSize="10sp"
+                    android:layout_height="30dp"
+                    android:text="Reject"
+                    android:textColor="@color/black"
+                    android:background="@color/grey" />
+        </LinearLayout>
+
+</LinearLayout>

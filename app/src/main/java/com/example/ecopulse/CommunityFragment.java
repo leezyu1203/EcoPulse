@@ -60,7 +60,7 @@ public class CommunityFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_community, container, false);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.GONE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Community");
 

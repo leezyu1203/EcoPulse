@@ -12,6 +12,10 @@ public class Task implements Serializable{
 
     String requestCode;
     String key;
+
+
+
+    String userID;
     @ColumnInfo(name = "taskTitle")
     String taskTitle;
     @ColumnInfo(name="date")
@@ -27,8 +31,16 @@ public class Task implements Serializable{
    this.date=date;
    this.firstAlarmTime=time;
    this.requestCode=requestCode;
+
     }
 
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
 
     public String getRequestCode() {
         return requestCode;

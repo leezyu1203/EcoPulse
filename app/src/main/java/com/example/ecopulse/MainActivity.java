@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                             communityNav.setBackgroundColor(transparent);
                             profileNav.setBackgroundColor(transparent);
                             IBtnReminder.setBackgroundColor(transparent);
-                            if (role.equals("RC") || role.equals("Recycling Center Collaborator")) {
+                            if (role.equals("Recycling Center Collaborator")) {
                                 replaceFragment(new CollaboratorLocationFragment());
                             } else {
                                 replaceFragment(new LocationFragment());
@@ -137,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
 
                                             if ("User".equals(userRole)) {
                                                 replaceFragment(new Profile_user());
-                                            } else if ("Recycling Center Collaborator".equals(userRole)) {
+                                            } else if ("Event Collaborator".equals(userRole)) {
                                                 replaceFragment(new Profile_Collaborator());
-                                            } else {
-                                                // Handle unknown role or other cases
-                                            }
+                                            } else if("Recycling Center Collaborator".equals(userRole)){
+                                                replaceFragment(new Profile_RC());
+                                            }else{}
                                         } else {
                                             // Handle the case where the document does not exist
                                         }
@@ -156,9 +156,7 @@ public class MainActivity extends AppCompatActivity {
                     IBtnReminder.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            int color = ContextCompat.getColor(MainActivity.this, R.color.light_green);
                             int transparent = Color.argb(0, 0, 0, 0);
-                            IBtnReminder.setBackgroundColor(color);
                             communityNav.setBackgroundColor(transparent);
                             locationNav.setBackgroundColor(transparent);
                             guidanceNav.setBackgroundColor(transparent);

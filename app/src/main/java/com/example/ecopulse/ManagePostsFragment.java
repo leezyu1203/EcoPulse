@@ -57,7 +57,7 @@ public class ManagePostsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_manage_posts, container, false);
-
+        getActivity().findViewById(R.id.backButton).setVisibility(View.VISIBLE);
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Manage Post");
 
