@@ -74,7 +74,7 @@ public class updateFragment extends Fragment {
             updateDate.setText(getArguments().getString("Date", ""));
             updateTime.setText(getArguments().getString("Time", ""));
             key=getArguments().getString("Key", "");
-            requestCode=getArguments().getString("requestCode").hashCode();
+            requestCode=getArguments().getString("requestCode","").hashCode();
 
         }
         updateButton.setOnClickListener(new View.OnClickListener() {

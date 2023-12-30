@@ -86,9 +86,9 @@ public class Myadapter extends RecyclerView.Adapter<Myadapter.ViewHolder> {
                     bundle.putString("Title", taskList.get(holder.getAdapterPosition()).getTaskTitle());
                     bundle.putString("Desc", taskList.get(holder.getAdapterPosition()).getTaskDescription());
                     bundle.putString("Date", taskList.get(holder.getAdapterPosition()).getDate());
-                    bundle.putString("requestCode",taskList.get(holder.getAdapterPosition()).getRequestCode());
                     bundle.putString("Time", taskList.get(holder.getAdapterPosition()).getFirstAlarmTime());
                     bundle.putString("Key", taskList.get(holder.getAdapterPosition()).getKey());
+                    bundle.putString("requestCode",taskList.get(holder.getAdapterPosition()).getRequestCode());
 
                     updateFragment.setArguments(bundle);
 

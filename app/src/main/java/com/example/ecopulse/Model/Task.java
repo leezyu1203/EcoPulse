@@ -18,8 +18,6 @@ public class Task implements Serializable{
     String date;
     @ColumnInfo(name = "taskDescription")
     String taskDescription;
-    @ColumnInfo(name = "isComplete")
-    boolean isComplete;
     @ColumnInfo(name = "firstAlarmTime")
     String firstAlarmTime;
 
@@ -46,14 +44,6 @@ public class Task implements Serializable{
 
     public void setKey(String key) {
         this.key = key;
-    }
-    public boolean isComplete() {
-        return isComplete;
-    }
-
-
-    public void setComplete(boolean complete) {
-        isComplete = complete;
     }
 
     public String getFirstAlarmTime() {

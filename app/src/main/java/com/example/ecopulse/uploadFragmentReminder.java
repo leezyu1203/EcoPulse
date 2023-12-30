@@ -61,10 +61,10 @@ public class uploadFragmentReminder extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_upload_task,container,false);
+        createNotificationChannel();
         title = (TextView) getActivity().findViewById(R.id.current_title);
         title.setText("Reminder");
         uploadTitle=rootView.findViewById(R.id.addTaskTitle);
-        createNotificationChannel();
         uploadDesc=rootView.findViewById(R.id.addTaskDescription);
         uploadDate=rootView.findViewById(R.id.taskDate);
         uploadTime=rootView.findViewById(R.id.taskTime);
