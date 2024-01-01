@@ -73,7 +73,8 @@ public class SchedulePickUp extends AppCompatActivity {
                     List<String> timeslot = (List<String>) task.getResult().getData().get("timeslot");
 
                     if (timeslot.isEmpty()) {
-                        // handle no timeslot
+                        Toast.makeText(SchedulePickUp.this, "No Timeslot to be booked!", Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
                         timeslot.stream().forEach((slot)-> {
                             String[] dayAndTime = slot.split(", ");

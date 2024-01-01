@@ -1,8 +1,11 @@
 package com.example.ecopulse;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -24,12 +27,27 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
     private Activity activity;
@@ -117,8 +135,6 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
                 accept.setVisibility(View.GONE);
                 reject.setVisibility(View.GONE);
             }
-            LinearLayout noRecords = fragment.findViewById(R.id.no_records);
-            ListView requestList = fragment.findViewById(R.id.request_list);
 
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -152,6 +168,30 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
                     ListView requestList = fragment.findViewById(R.id.request_list);
                     item.setStatus(status);
                     items.remove(item);
+
+                    if (status.equals("accepted")) {
+                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("h:mm a");
+                        LocalTime time12Hour = LocalTime.parse(item.getTime(), inputFormatter);
+                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                        String time24Hour = time12Hour.format(outputFormatter);
+                        LocalTime inputLocalTime = LocalTime.parse(time24Hour, DateTimeFormatter.ofPattern("HH:mm"));
+                        LocalTime currentTime = LocalTime.now();
+
+                        LocalDate today = LocalDate.now();
+                        DayOfWeek targetDayOfWeek = DayOfWeek.valueOf(item.getDayOfweek().toUpperCase());
+                        LocalDate nearestDate = today.with(targetDayOfWeek);
+
+                        if (nearestDate.isBefore(today) || (nearestDate.isEqual(today) && currentTime.isAfter(inputLocalTime))) {
+                            nearestDate = nearestDate.plusWeeks(1);
+                        }
+
+                        LocalDate localDate = LocalDate.parse(nearestDate.toString(), DateTimeFormatter.ISO_LOCAL_DATE);
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-M-yyyy");
+                        String outputDate = localDate.format(formatter);
+
+                        uploadData("Recycling Pick Up Schedule", outputDate, inputLocalTime.toString(), item.getId());
+                    }
+
                     if (items.isEmpty()) {
                         noRecords.setVisibility(View.VISIBLE);
                         requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
@@ -168,4 +208,83 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
         });
 
     }
+
+    public void uploadData(String title, String date, String time, String id){
+
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("pick_up_schedule").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task2) {
+                if (task2.isSuccessful()) {
+                    String userID = task2.getResult().get("userID") + "";
+                    String recyclingCenterID = task2.getResult().get("recyclingCenterID") + "";
+
+                    db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
+                            if (task3.isSuccessful()) {
+                                String recyclingCenterName = task3.getResult().get("name") + "";
+                                String requestCode= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+                                com.example.ecopulse.Model.Task task = new com.example.ecopulse.Model.Task(title, recyclingCenterName, date, time, requestCode);
+                                // Add the task to Firestore
+                                db.collection("user").document(userID).collection("tasks")
+                                        .add(task)
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+                                                setAlarm(task);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        }
+                    });
+
+
+
+                }
+            }
+        });
+
+
+    }
+
+    private void setAlarm(com.example.ecopulse.Model.Task task){
+
+        AlarmManager alarmManager=(AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
+        int requestCode = task.getRequestCode().hashCode();
+
+        Intent intent =new Intent(getContext(),AlarmReceiver.class);
+        intent.putExtra("title",task.getTaskTitle());
+        intent.putExtra("desc",task.getTaskDescription());
+
+        PendingIntent pendingIntent= PendingIntent.getBroadcast(getContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+
+
+        // Parse the date and time strings to create a Calendar instance
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(dateFormat.parse(task.getDate() + " " + task.getFirstAlarmTime()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Set the alarm using AlarmManager
+        if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
+            // Only set the alarm if it's in the future
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+    }
+
 }

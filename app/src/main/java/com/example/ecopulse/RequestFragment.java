@@ -1,6 +1,9 @@
 package com.example.ecopulse;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
@@ -18,15 +22,27 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class RequestFragment extends Fragment {
     private View requestLocation = null;
@@ -39,6 +55,9 @@ public class RequestFragment extends Fragment {
 
     private Context mContext;
     private FragmentActivity mActivity;
+
+    private PendingIntent pendingIntent;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -135,6 +154,7 @@ public class RequestFragment extends Fragment {
                                                 String status = document.get("status") + "";
                                                 String id = document.getId();
                                                 selectedItems.add(new RequestListItem(dayOfWeek, time, address, contact, note , status, id));
+
                                             }
 
                                             if (mActivity != null && mContext != null) {
@@ -177,4 +197,6 @@ public class RequestFragment extends Fragment {
             loading.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
         }
     }
+
 }
+
