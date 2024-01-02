@@ -104,6 +104,9 @@
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
+            android:textIsSelectable="false"
+            android:focusable="false"
+            android:inputType="none"
             tools:ignore="MissingPrefix" />
 
         <TextView
@@ -125,6 +128,9 @@
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
+            android:textIsSelectable="false"
+            android:focusable="false"
+            android:inputType="none"
             tools:ignore="MissingPrefix" />
 
         <Button

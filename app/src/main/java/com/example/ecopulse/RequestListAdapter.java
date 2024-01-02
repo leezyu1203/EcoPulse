@@ -268,7 +268,7 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
         intent.putExtra("title",task.getTaskTitle());
         intent.putExtra("desc",task.getTaskDescription());
 
-        PendingIntent pendingIntent= PendingIntent.getBroadcast(getContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent= PendingIntent.getBroadcast(getContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Parse the date and time strings to create a Calendar instance
@@ -283,7 +283,7 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
         // Set the alarm using AlarmManager
         if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
             // Only set the alarm if it's in the future
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
     }
 

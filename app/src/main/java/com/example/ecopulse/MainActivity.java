@@ -1,5 +1,7 @@
 package com.example.ecopulse;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -8,11 +10,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,6 +36,32 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatButton profileNav;
     private ImageButton backButton;
     private ImageButton IBtnReminder;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                }
+            });
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = getIntent();
+        if (intent.getExtras() != null) {
+            String redirect = getIntent().getExtras().get("redirect").toString();
+            System.out.println(redirect);
+            if (redirect.equals("reminder")) {
+                replaceFragment(new reminderMainFragment());
+            } else if(redirect.equals("location")) {
+                Bundle bundle = new Bundle();
+                bundle.putString("redirect", "request");
+                CollaboratorLocationFragment colabLocationFrag = new CollaboratorLocationFragment();
+                colabLocationFrag.setArguments(bundle);
+                replaceFragment(colabLocationFrag);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         guidanceNav = findViewById(R.id.guidance_nav);
         communityNav = findViewById(R.id.community_nav);
         profileNav = findViewById(R.id.profile_nav);
-
+        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -54,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";

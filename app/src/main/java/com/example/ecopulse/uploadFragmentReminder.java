@@ -195,7 +195,7 @@ public class uploadFragmentReminder extends Fragment {
 
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                uploadTime.setText(hourOfDay+":"+minute);
+                uploadTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
             }
         },mHour,mMinute,false);
         timePickerDialog.show();
@@ -221,11 +221,11 @@ public class uploadFragmentReminder extends Fragment {
 
         int requestCode = task.getRequestCode().hashCode();
 
-        Intent intent =new Intent(requireContext(),AlarmReceiver.class);
+        Intent intent =new Intent(requireContext(), AlarmReceiver.class);
         intent.putExtra("title",task.getTaskTitle());
         intent.putExtra("desc",task.getTaskDescription());
 
-        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Parse the date and time strings to create a Calendar instance
@@ -240,7 +240,7 @@ public class uploadFragmentReminder extends Fragment {
         // Set the alarm using AlarmManager
         if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
             // Only set the alarm if it's in the future
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
             Toast.makeText(requireContext(), "Reminder set successfully!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(requireContext(), "Please select a future date and time", Toast.LENGTH_SHORT).show();

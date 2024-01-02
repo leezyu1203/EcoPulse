@@ -1,11 +1,13 @@
 package com.example.ecopulse;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -20,12 +22,30 @@ public class CollaboratorLocationFragment extends Fragment {
 
     private TextView title = null;
     private ImageButton backButton = null;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null) {
+            String redirect = getArguments().getString("redirect");
+            Log.d("REDIRECT", redirect);
+            if (redirect.equals("request")) {
+                replaceFragment(new RequestFragment());
+            } else {
+                replaceFragment(new TimeslotFragment());
+            }
+        } else {
+            replaceFragment(new TimeslotFragment());
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         collaboratorLocation = inflater.inflate(R.layout.fragment_collaborator_location, container, false);
-        replaceFragment(new TimeslotFragment());
+
 
         title = (TextView) getActivity().findViewById(R.id.current_title);
 

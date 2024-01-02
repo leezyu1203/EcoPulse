@@ -57,7 +57,6 @@ import java.util.Map;
 
 public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
     private GoogleMap mGoogleMap = null;
-    private Marker myLocationMarker = null;
     private TextView recycleCenterName = null;
     private TextView recycleCenterAddress = null;
     private TextView recycleCenterContact = null;
@@ -172,44 +171,48 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Geocoder gcd = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
-                            if (SEARCH.isEmpty()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
+                            Geocoder gcd;
+                            if (getActivity() != null && getActivity().getBaseContext() != null) {
+                                gcd = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
+                                if (SEARCH.isEmpty()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
 
-                                    try {
-                                        if (document.getData().get("lat").equals("")) {
-                                            List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
-                                            updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                            LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                            addRecyclingCenterMarker(latLng);
-                                        } else {
-                                            LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                            addRecyclingCenterMarker(latLng);
+                                        try {
+                                            if (document.getData().get("lat").equals("")) {
+                                                List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
+                                                updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                                LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                                addRecyclingCenterMarker(latLng);
+                                            } else {
+                                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                                addRecyclingCenterMarker(latLng);
+                                            }
+                                        } catch (IOException e) {
+                                            Log.e("GET LOCATION ERROR", "Fail to get location latitude and longitude");
                                         }
-                                    } catch (IOException e) {
-                                        Log.e("GET LOCATION ERROR", "Fail to get location latitude and longitude");
-                                    }
 //
-                                }
-                            } else {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    try {
-                                        if (document.getData().get("lat").equals("")) {
-                                            List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
-                                            updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                            LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                            addRecyclingCenterMarker(latLng);
-                                        } else {
-                                            LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                            addRecyclingCenterMarker(latLng);
-                                        }
-                                    } catch (IOException e) {
-                                        Log.e("GETLOCATIONERROR", "Fail to get location latitude and longitude");
                                     }
+                                } else {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        try {
+                                            if (document.getData().get("lat").equals("")) {
+                                                List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
+                                                updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                                LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
+                                                addRecyclingCenterMarker(latLng);
+                                            } else {
+                                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
+                                                addRecyclingCenterMarker(latLng);
+                                            }
+                                        } catch (IOException e) {
+                                            Log.e("GETLOCATIONERROR", "Fail to get location latitude and longitude");
+                                        }
 
+                                    }
                                 }
                             }
+
                         } else {
                             Log.d("TAG", "Error getting documents: ", task.getException());
                         }

@@ -28,6 +28,18 @@
             tools:ignore="MissingPrefix" />
 
         <TextView
+            android:id="@+id/warn_text"
+            fontPath="fonts/nunito_extra_bold.ttf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="Pick Up Schedule is ineditable"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="12sp"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
             android:id="@+id/addTaskTitle"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="wrap_content"
@@ -85,9 +97,12 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
+            android:inputType="none"
+            android:textIsSelectable="false"
             android:background="@drawable/btn_border"
             android:padding="10dp"
             android:singleLine="true"
+            android:focusable="false"
             android:textSize="14sp"
             tools:ignore="MissingPrefix" />
 
@@ -103,6 +118,8 @@
         <EditText
             android:id="@+id/updateTaskTime"
             fontPath="fonts/nunito_light.ttf"
+            android:inputType="none"
+            android:textIsSelectable="false"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
@@ -110,6 +127,7 @@
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="14sp"
+            android:focusable="false"
             tools:ignore="MissingPrefix" />
 
         <Button

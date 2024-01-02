@@ -10,12 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -53,6 +55,8 @@ public class updateFragment extends Fragment {
     PendingIntent pendingIntent;
     String userID;
 
+    TextView warnText;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -67,20 +71,9 @@ public class updateFragment extends Fragment {
         updateDate=rootView.findViewById(R.id.updateTaskDate);
         updateTime=rootView.findViewById(R.id.updateTaskTime);
         dltButton=rootView.findViewById(R.id.dltButton);
+        warnText = rootView.findViewById(R.id.warn_text);
 
-        updateDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDateDialog();
-            }
-        });
 
-        updateTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openTimeDialog();
-            }
-        });
 
         db = FirebaseFirestore.getInstance();
 
@@ -91,7 +84,35 @@ public class updateFragment extends Fragment {
             updateTime.setText(getArguments().getString("Time", ""));
             key=getArguments().getString("Key", "");
             requestCode=getArguments().getString("requestCode","").hashCode();
+        }
 
+        if (getArguments().getString("Title","").equals("Recycling Pick Up Schedule")) {
+            updateButton.setVisibility(View.GONE);
+            updateTitle.setInputType(InputType.TYPE_NULL);
+            updateTitle.setTextIsSelectable(false);
+            updateDesc.setInputType(InputType.TYPE_NULL);
+            updateDesc.setTextIsSelectable(false);
+            warnText.setVisibility(View.VISIBLE);
+        } else {
+            updateButton.setVisibility(View.VISIBLE);
+            updateTitle.setInputType(InputType.TYPE_CLASS_TEXT);
+            updateTitle.setTextIsSelectable(true);
+            updateDesc.setInputType(InputType.TYPE_CLASS_TEXT);
+            updateDesc.setTextIsSelectable(true);
+            warnText.setVisibility(View.GONE);
+            updateDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openDateDialog();
+                }
+            });
+
+            updateTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openTimeDialog();
+                }
+            });
         }
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,11 +203,11 @@ public class updateFragment extends Fragment {
 
         int requestCode = task.getRequestCode().hashCode();
 
-        Intent intent =new Intent(requireContext(),AlarmReceiver.class);
+        Intent intent =new Intent(requireContext(), AlarmReceiver.class);
         intent.putExtra("title",task.getTaskTitle());
         intent.putExtra("desc",task.getTaskDescription());
 
-        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE);
+        pendingIntent=PendingIntent.getBroadcast(requireContext(),requestCode,intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Parse the date and time strings to create a Calendar instance
@@ -201,7 +222,7 @@ public class updateFragment extends Fragment {
         // Set the alarm using AlarmManager
         if (calendar.getTimeInMillis() > System.currentTimeMillis()) {
             // Only set the alarm if it's in the future
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
            // Toast.makeText(requireContext(), "Reminder set successfully!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(requireContext(), "Please select a future date and time", Toast.LENGTH_SHORT).show();
@@ -214,10 +235,8 @@ public class updateFragment extends Fragment {
             int importance= NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel= new NotificationChannel("reminder",name,importance);
             channel.setDescription(description);
-
-            NotificationManager notificationManager = requireContext().getSystemService(NotificationManager.class);
+            NotificationManager notificationManager = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE) ;
             notificationManager.createNotificationChannel(channel);
-
         }
     }
 
@@ -247,7 +266,7 @@ public class updateFragment extends Fragment {
 
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                updateTime.setText(hourOfDay+":"+minute);
+                updateTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute));
             }
         },mHour,mMinute,false);
         timePickerDialog.show();
@@ -262,7 +281,7 @@ public class updateFragment extends Fragment {
                 requireContext(),
                 requestCode,
                 intent,
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();

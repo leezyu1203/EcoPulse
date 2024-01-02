@@ -24,12 +24,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (extras != null) {
            title = extras.getString("title");
            desc= extras.getString("desc");
-
         }
 
-        Intent i = new Intent(context, reminderMainFragment.class);
+        Intent i = new Intent(context, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
+        i.putExtra("redirect", "reminder");
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "reminder")
                 .setSmallIcon(R.drawable.baseline_recycling_24)
