@@ -55,8 +55,6 @@ public class UploadProfileImage extends AppCompatActivity {
         uploadPicButton.setOnClickListener(view -> uploadImage());
 
         btnBack.setOnClickListener(view -> {
-            Intent intent = new Intent(UploadProfileImage.this, Profile_user.class);
-            startActivity(intent);
             finish();
         });
     }
