@@ -4,6 +4,8 @@ import static android.view.View.GONE;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -104,8 +106,9 @@ public class EventPostFragment extends Fragment {
 
             BtnAddReminderNDelete.setText("Delete");
             BtnAddReminderNDelete.setCompoundDrawablesWithIntrinsicBounds(R.drawable.delete_icon,0,0,0);
+            BtnAddReminderNDelete.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#E58C8C")));
             BtnAddReminderNDelete.setTextColor(android.graphics.Color.parseColor("#E58C8C"));
-            BtnAddReminderNDelete.setBackgroundColor(android.graphics.Color.parseColor("#E58C8C"));
+            BtnAddReminderNDelete.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#E58C8C")));
         }
 
         IVEventPostPoster = root.findViewById(R.id.IVEventPostPoster);
@@ -117,7 +120,7 @@ public class EventPostFragment extends Fragment {
         TVEventTime = root.findViewById(R.id.TVEventTime);
         PBLoadPost = root.findViewById(R.id.PBLoadPost);
 
-        Bundle args = getArguments();
+        args = getArguments();
         if(args != null) {
             eventID = args.getString("eventID");
         }
@@ -317,6 +320,7 @@ public class EventPostFragment extends Fragment {
                     FragmentTransaction transaction = manager.beginTransaction();
 
                     uploadFragmentReminder ufr = new uploadFragmentReminder();
+                    args.putBoolean("fromPost", true);
                     ufr.setArguments(args);
 
                     transaction.replace(R.id.main_fragment, ufr);

@@ -74,7 +74,7 @@ public class uploadFragmentReminder extends Fragment {
         addTaskButton=rootView.findViewById(R.id.AddTask);
 
         Bundle bundle = getArguments();
-        if(bundle != null) {
+        if(bundle != null && bundle.containsKey("fromPost")) {
             String eventID = bundle.getString("eventID");
             Log.d(TAG, "Reminder Event Check: " + eventID);
 
