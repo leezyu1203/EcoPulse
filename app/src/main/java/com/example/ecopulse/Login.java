@@ -8,6 +8,7 @@ import androidx.core.splashscreen.SplashScreen;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,7 @@ public class Login extends AppCompatActivity {
         ConnectivityManager connManager = (ConnectivityManager) Login.this.getSystemService(CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             NetworkCapabilities networkCapabilities =  connManager.getNetworkCapabilities(connManager.getActiveNetwork());
+
             if (networkCapabilities == null) {
                 Toast.makeText(this, "You are offline now", Toast.LENGTH_SHORT).show();
                 Intent offlineView = new Intent(Login.this, OfflineView.class);
