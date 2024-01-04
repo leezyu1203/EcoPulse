@@ -32,7 +32,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "reminder")
-                .setSmallIcon(R.drawable.baseline_recycling_24)
+                .setSmallIcon(R.drawable.ecopulse_icon_foreground)
                 .setContentTitle(title).setContentText(desc)
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
