@@ -26,5 +26,14 @@
         <!-- Other customizations -->
     </style>
 
+    <style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/light_green</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ecopulse_icon_foreground</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.AppCompat.DayNight.NoActionBar</item>
+
+    </style>
+
+
 
 </resources>

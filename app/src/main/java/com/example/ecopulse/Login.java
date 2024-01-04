@@ -3,6 +3,7 @@ package com.example.ecopulse;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.splashscreen.SplashScreen;
 
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -63,6 +65,14 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            Thread.sleep(1000);
+
+        } catch (InterruptedException e) {
+            Log.e(Login.this.toString(), e.getMessage());
+        }
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
