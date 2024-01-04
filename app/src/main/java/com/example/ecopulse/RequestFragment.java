@@ -41,6 +41,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -59,7 +61,10 @@ public class RequestFragment extends Fragment {
     private View requestLocation = null;
     private AppCompatButton acceptedCatBtn = null;
     private AppCompatButton pendingCatBtn = null;
-    private AppCompatButton rejectedCatBtn = null;
+    private AppCompatButton canceledCatBtn = null;
+
+    private AppCompatButton doneCatBtn = null;
+    private static ListenerRegistration listener = null;
 
     private ArrayList<RequestListItem> selectedItems = new ArrayList<>();
     private ArrayList<RequestListItem> allItems = new ArrayList<>();
@@ -70,7 +75,9 @@ public class RequestFragment extends Fragment {
 
     private String currentStatus, recyclingCenterID;
 
-    private boolean initial = true;
+    public static ListenerRegistration getListener() {
+        return listener;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,17 +85,18 @@ public class RequestFragment extends Fragment {
         currentStatus = "accepted";
         requestLocation = inflater.inflate(R.layout.request_fragment, container, false);
         requestList = requestLocation.findViewById(R.id.request_list);
+        doneCatBtn = requestLocation.findViewById(R.id.done_cat);
         acceptedCatBtn = requestLocation.findViewById(R.id.accepted_cat);
         pendingCatBtn = requestLocation.findViewById(R.id.pending_cat);
-        rejectedCatBtn = requestLocation.findViewById(R.id.rejected_cat);
+        canceledCatBtn = requestLocation.findViewById(R.id.canceled_cat);
         getRecyclingCenterIDAndData();
-        showNoRecordsImage(acceptedCatBtn, pendingCatBtn, rejectedCatBtn);
+        showNoRecordsImage(acceptedCatBtn, pendingCatBtn, canceledCatBtn, doneCatBtn);
 
         acceptedCatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 currentStatus = "accepted";
-                showNoRecordsImage(acceptedCatBtn, rejectedCatBtn, pendingCatBtn);
+                showNoRecordsImage(acceptedCatBtn, canceledCatBtn, pendingCatBtn, doneCatBtn);
                 changeStatus();
             }
         });
@@ -97,19 +105,29 @@ public class RequestFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 currentStatus = "pending";
-                showNoRecordsImage(pendingCatBtn, rejectedCatBtn, acceptedCatBtn);
+                showNoRecordsImage(pendingCatBtn, canceledCatBtn, acceptedCatBtn, doneCatBtn);
                 changeStatus();
             }
         });
 
-        rejectedCatBtn.setOnClickListener(new View.OnClickListener() {
+        canceledCatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentStatus = "rejected";
-                showNoRecordsImage(rejectedCatBtn, pendingCatBtn, acceptedCatBtn);
+                currentStatus = "cancelled";
+                showNoRecordsImage(canceledCatBtn, pendingCatBtn, acceptedCatBtn, doneCatBtn);
                 changeStatus();
             }
         });
+
+        doneCatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentStatus = "done";
+                showNoRecordsImage(doneCatBtn, canceledCatBtn, pendingCatBtn, acceptedCatBtn);
+                changeStatus();
+            }
+        });
+
         return requestLocation;
     }
 
@@ -126,7 +144,7 @@ public class RequestFragment extends Fragment {
         mContext = null;
     }
 
-    public void showNoRecordsImage(AppCompatButton selected, AppCompatButton notSelected1, AppCompatButton notSelected2) {
+    public void showNoRecordsImage(AppCompatButton selected, AppCompatButton notSelected1, AppCompatButton notSelected2, AppCompatButton notSelected3) {
         final int light_green = ContextCompat.getColor(getContext(), R.color.light_green);
         final int black = ContextCompat.getColor(getContext(), R.color.black);
         final int dark_green = ContextCompat.getColor(getContext(), R.color.primary_dark_green);
@@ -138,6 +156,8 @@ public class RequestFragment extends Fragment {
         notSelected1.setTextColor(white);
         notSelected2.setBackgroundColor(dark_green);
         notSelected2.setTextColor(white);
+        notSelected3.setBackgroundColor(dark_green);
+        notSelected3.setTextColor(white);
 
 
     }
@@ -190,10 +210,9 @@ public class RequestFragment extends Fragment {
     public void getData() {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("pick_up_schedule").whereEqualTo("recyclingCenterID", recyclingCenterID).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        listener = db.collection("pick_up_schedule").whereEqualTo("recyclingCenterID", recyclingCenterID).orderBy("update_at", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                int currentLength = allItems.size();
 
                 if (error != null) {
                     Log.w(RequestFragment.this.toString(), "Listen failed.", error);
@@ -201,6 +220,7 @@ public class RequestFragment extends Fragment {
                 }
                 allItems.clear();
                 for (QueryDocumentSnapshot document : value) {
+                    Log.d("What", document.toString());
                     String dayOfWeek = document.get("day") + "";
                     String time = document.get("time") + "";
                     String address = document.get("address") + "";
@@ -214,28 +234,7 @@ public class RequestFragment extends Fragment {
                 int finalLength = allItems.size();
                 changeStatus();
 
-                if (finalLength != currentLength && !initial) {
-                    Intent i = new Intent(mContext, MainActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    i.putExtra("redirect", "location");
-                    PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "reminder")
-                            .setSmallIcon(R.drawable.baseline_recycling_24)
-                            .setContentTitle("You have new pick up request!").setContentText("click to see details")
-                            .setAutoCancel(true)
-                            .setDefaults(NotificationCompat.DEFAULT_ALL)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setContentIntent(pendingIntent);
-
-                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(mContext);
-                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-
-                        return;
-                    }
-                    notificationManagerCompat.notify(123, builder.build());
-                }
-                initial = false;
             }
         });
 

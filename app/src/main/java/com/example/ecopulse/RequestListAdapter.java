@@ -46,8 +46,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
     private Activity activity;
@@ -79,14 +82,29 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
 
         TextView dayOfWeek = convertView.findViewById(R.id.dayOfWeek);
         TextView time = convertView.findViewById(R.id.time);
+
         TextView address = convertView.findViewById(R.id.address);
         TextView contact = convertView.findViewById(R.id.contact);
 
         RequestListItem item = getItem(position);
 
         if (item != null) {
+
             dayOfWeek.setText(item.getDayOfweek());
-            time.setText(item.getTime());
+            if (item.getStatus().equals("done")) {
+                try {
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("HH:mm");
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("h:mm a");
+
+                    Date date = inputFormat.parse(item.getTime());
+                    String formattedTime = outputFormat.format(date);
+                    time.setText(formattedTime);
+                } catch (ParseException e) {
+                    Log.e("PARSE EXCEPTION", e.getMessage());
+                }
+            } else {
+                time.setText(item.getTime());
+            }
             address.setText(item.getAddress());
             contact.setText(item.getContact());
             convertView.setOnClickListener(new View.OnClickListener() {
@@ -128,7 +146,21 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
             AppCompatButton reject = dialog.findViewById(R.id.rejectBtn);
             address.setText(item.getAddress());
             contact.setText(item.getContact());
-            datetime.setText(item.getDayOfweek() + ", " + item.getTime());
+            if (item.getStatus().equals("done")) {
+               try {
+                   SimpleDateFormat inputFormat = new SimpleDateFormat("HH:mm");
+                   SimpleDateFormat outputFormat = new SimpleDateFormat("h:mm a");
+
+                   Date date = inputFormat.parse(item.getTime());
+                   String formattedTime = outputFormat.format(date);
+                   datetime.setText(item.getDayOfweek() + ", " + formattedTime);
+               } catch (ParseException e) {
+                   Log.e("PARSE EXCEPTION", e.getMessage());
+               }
+            } else {
+                datetime.setText(item.getDayOfweek() + ", " + item.getTime());
+            }
+
             note.setText(item.getNote());
 
             if (!item.getStatus().equals("pending")) {
@@ -160,7 +192,7 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
 
     public void setStatusForRequest(RequestListItem item, Dialog dialog, String status) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("pick_up_schedule").document(item.getId()).update("status", status).addOnCompleteListener(new OnCompleteListener<Void>() {
+        db.collection("pick_up_schedule").document(item.getId()).update("status", status, "update_at", new Date().getTime()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
@@ -175,22 +207,38 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
                         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("HH:mm");
                         String time24Hour = time12Hour.format(outputFormatter);
                         LocalTime inputLocalTime = LocalTime.parse(time24Hour, DateTimeFormatter.ofPattern("HH:mm"));
-                        LocalTime currentTime = LocalTime.now();
-
-                        LocalDate today = LocalDate.now();
-                        DayOfWeek targetDayOfWeek = DayOfWeek.valueOf(item.getDayOfweek().toUpperCase());
-                        LocalDate nearestDate = today.with(targetDayOfWeek);
-
-                        if (nearestDate.isBefore(today) || (nearestDate.isEqual(today) && currentTime.isAfter(inputLocalTime))) {
-                            nearestDate = nearestDate.plusWeeks(1);
-                        }
-
-                        LocalDate localDate = LocalDate.parse(nearestDate.toString(), DateTimeFormatter.ISO_LOCAL_DATE);
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-M-yyyy");
-                        String outputDate = localDate.format(formatter);
-
-                        uploadData("Recycling Pick Up Schedule", outputDate, inputLocalTime.toString(), item.getId());
+                        uploadData("Recycling Pick Up Schedule", item.getDayOfweek(), inputLocalTime.toString(), item);
                     }
+
+                    db.collection("pick_up_schedule").document(item.getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                String customerID = task.getResult().get("userID").toString();
+                                String recyclingCenterID = task.getResult().get("recyclingCenterID").toString();
+
+                                db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            String centerName = task.getResult().get("name").toString();
+                                            Map<String, Object> messageObj = new HashMap<>();
+                                            if (status.equals("accepted")) {
+                                                messageObj.put("title", "Your request on " + centerName + " has been accepted!");
+                                                messageObj.put("desc", "Date: " + item.getDayOfweek() + "\nTime: " + item.getTime());
+                                            } else {
+                                                messageObj.put("title", "Your request on " + centerName + " has been rejected!");
+                                                messageObj.put("desc", "Make your new request!");
+                                            }
+                                            messageObj.put("added_at", new Date().getTime());
+                                            db.collection("user").document(customerID).collection("messages").add(messageObj);
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+                    });
 
                     if (items.isEmpty()) {
                         noRecords.setVisibility(View.VISIBLE);
@@ -209,13 +257,13 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
 
     }
 
-    public void uploadData(String title, String date, String time, String id){
+    public void uploadData(String title, String date, String time, RequestListItem item){
 
 
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("pick_up_schedule").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("pick_up_schedule").document(item.getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task2) {
                 if (task2.isSuccessful()) {
@@ -227,24 +275,44 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
                             if (task3.isSuccessful()) {
                                 String recyclingCenterName = task3.getResult().get("name") + "";
-                                String requestCode= DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+                                String recyclingCenterUserId = task3.getResult().get("userID") + "";
+                                String requestCode = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
 
-                                com.example.ecopulse.Model.Task task = new com.example.ecopulse.Model.Task(title, recyclingCenterName, date, time, requestCode);
+                                com.example.ecopulse.Model.Task task = new com.example.ecopulse.Model.Task(title, recyclingCenterName, date, time, requestCode, item.getId());
                                 // Add the task to Firestore
-                                db.collection("user").document(userID).collection("tasks")
-                                        .add(task)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                setAlarm(task);
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                db.collection("user").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> documentSnapshotTask) {
+                                        if (documentSnapshotTask.isSuccessful()) {
+                                            db.collection("user").document(userID).collection("tasks")
+                                                    .add(task)
+                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentReference> documentReferenceTask) {
+                                                            if (documentReferenceTask.isSuccessful()){
+                                                                //setAlarm(task);
+                                                                String customerName = documentSnapshotTask.getResult().get("username").toString();
+                                                                String requestCode2 = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+                                                                String description = String.format("Name: %s,\nContact: %s,\nAddress: %s,\nNote: %s", customerName, item.getContact(), item.getAddress(), item.getNote());
+                                                                com.example.ecopulse.Model.Task collabTask = new com.example.ecopulse.Model.Task("Pick Up Request", description, date, time, requestCode2, item.getId());
+                                                                db.collection("user").document(recyclingCenterUserId).collection("tasks")
+                                                                        .add(collabTask).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<DocumentReference> documentReferenceTask1) {
+                                                                                if (documentReferenceTask1.isSuccessful()) {
+                                                                                    setAlarm(collabTask);
+                                                                                }
+
+                                                                            }
+                                                                        });
+                                                            }
+                                                        }
+
+                                                    });
+                                        }
+                                    }
+                                });
+
                             }
                         }
                     });

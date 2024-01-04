@@ -40,7 +40,6 @@ public abstract class BaseProfile extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         firestore = FirebaseFirestore.getInstance();
@@ -120,6 +119,17 @@ public abstract class BaseProfile extends Fragment {
         logout = view.findViewById(R.id.button);
         logout.setOnClickListener(v -> {
             mAuth.signOut();
+            if (RequestFragment.getListener() != null) {
+                RequestFragment.getListener().remove();
+            }
+
+            if (reminderMainFragment.getListener() != null) {
+                reminderMainFragment.getListener().remove();
+            }
+
+            if (MainActivity.getListener() != null) {
+                MainActivity.getListener().remove();
+            }
             Intent loginIntent = new Intent(getActivity(), Login.class);
             startActivity(loginIntent);
             getActivity().finish();

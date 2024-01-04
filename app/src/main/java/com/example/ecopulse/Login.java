@@ -33,7 +33,13 @@ public class Login extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         if (mAuth.getCurrentUser() != null) {
-            Intent isLoggedin = new Intent(Login.this, MainActivity.class);
+            Intent isLoggedin;
+            if (mAuth.getCurrentUser().getEmail().equals("admin@email.com")) {
+                isLoggedin  = new Intent(Login.this, AdminActivity.class);
+            } else {
+                isLoggedin = new Intent(Login.this, MainActivity.class);
+            }
+
             startActivity(isLoggedin);
             finish();
         }

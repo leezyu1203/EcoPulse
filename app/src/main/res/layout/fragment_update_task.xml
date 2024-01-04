@@ -74,11 +74,14 @@
             android:id="@+id/updateTaskDescription"
             fontPath="fonts/nunito_light.ttf"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:singleLine="false"
+            android:inputType="textMultiLine"
+            android:minLines="1"
+            android:minHeight="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:background="@drawable/btn_border"
             android:padding="10dp"
-            android:singleLine="true"
             android:textSize="14sp"
             tools:ignore="MissingPrefix" />
 

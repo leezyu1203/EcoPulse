@@ -13,8 +13,6 @@ public class Task implements Serializable{
     String requestCode;
     String key;
 
-
-
     String userID;
     @ColumnInfo(name = "taskTitle")
     String taskTitle;
@@ -26,12 +24,20 @@ public class Task implements Serializable{
     String firstAlarmTime;
 
     public Task(String title, String taskDescription, String date, String time,String requestCode) {
-   this.taskTitle=title;
-   this.taskDescription=taskDescription;
-   this.date=date;
-   this.firstAlarmTime=time;
-   this.requestCode=requestCode;
+       this.taskTitle=title;
+       this.taskDescription=taskDescription;
+       this.date=date;
+       this.firstAlarmTime=time;
+       this.requestCode=requestCode;
+    }
 
+    public Task(String title, String taskDescription, String date, String time,String requestCode, String userID) {
+        this.taskTitle=title;
+        this.taskDescription=taskDescription;
+        this.date=date;
+        this.firstAlarmTime=time;
+        this.requestCode=requestCode;
+        this.userID=userID;
     }
 
     public String getUserID() {
@@ -90,7 +96,5 @@ public class Task implements Serializable{
     public void setTaskDescrption(String taskDescrption) {
         this.taskDescription = taskDescrption;
     }
-public Task(){
-
-}
+    public Task(){}
 }

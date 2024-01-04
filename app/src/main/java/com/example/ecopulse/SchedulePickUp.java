@@ -19,13 +19,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,15 +183,49 @@ public class SchedulePickUp extends AppCompatActivity {
                             QueryDocumentSnapshot document1 = task.getResult().iterator().next();
                             String userID = document1.getId();
                             Map<String, Object> pickup_schedule = new HashMap<>();
+                            LocalTime inputLocalTime = LocalTime.parse(selectedTimeslot, DateTimeFormatter.ofPattern("h:mm a"));
+                            LocalTime currentTime = LocalTime.now();
+
+                            LocalDate today = LocalDate.now();
+                            DayOfWeek targetDayOfWeek = DayOfWeek.valueOf(selectedDay.toUpperCase());
+                            LocalDate nearestDate = today.with(targetDayOfWeek);
+
+                            if (nearestDate.isBefore(today) || (nearestDate.isEqual(today) && currentTime.isAfter(inputLocalTime))) {
+                                nearestDate = nearestDate.plusWeeks(1);
+                            }
+
+                            LocalDate localDate = LocalDate.parse(nearestDate.toString(), DateTimeFormatter.ISO_LOCAL_DATE);
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-M-yyyy");
+                            String outputDate = localDate.format(formatter);
                             pickup_schedule.put("address", userAddress);
                             pickup_schedule.put("contact", userContact);
-                            pickup_schedule.put("day", selectedDay);
+                            pickup_schedule.put("day", outputDate);
                             pickup_schedule.put("time", selectedTimeslot);
                             pickup_schedule.put("note", userNote);
                             pickup_schedule.put("status", "pending");
                             pickup_schedule.put("recyclingCenterID", id);
                             pickup_schedule.put("userID", userID);
-                            db.collection("pick_up_schedule").add(pickup_schedule);
+                            pickup_schedule.put("update_at", new Date().getTime());
+                            db.collection("pick_up_schedule").add(pickup_schedule).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                    if (task.isSuccessful()) {
+                                        db.collection("recycling_center_information").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    String collabUserID = task.getResult().get("userID").toString();
+                                                    Map<String, Object> messageObj = new HashMap<>();
+                                                    messageObj.put("title", "You have received a new request!");
+                                                    messageObj.put("desc", "Check your pending request!");
+                                                    messageObj.put("added_at", new Date().getTime());
+                                                    db.collection("user").document(collabUserID).collection("messages").add(messageObj);
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
 
 
                         }

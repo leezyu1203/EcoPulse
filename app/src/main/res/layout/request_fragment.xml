@@ -23,9 +23,10 @@
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/accepted_cat"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:background="@color/light_green"
+                android:textSize="12sp"
                 android:textColor="@color/black"
                 android:text="Accepted" />
             <androidx.cardview.widget.CardView
@@ -35,23 +36,39 @@
                 android:backgroundTint="@color/white" />
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/pending_cat"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:textColor="@color/white"
+                android:textSize="12sp"
                 android:text="Pending" />
             <androidx.cardview.widget.CardView
                 android:layout_width="3dp"
                 android:layout_height="match_parent"
                 app:cardCornerRadius="0dp"
                 android:backgroundTint="@color/white" />
+
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/rejected_cat"
-                android:layout_width="100dp"
+                android:id="@+id/done_cat"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:textColor="@color/white"
-                android:text="Rejected" />
+                android:textSize="12sp"
+                android:text="Done" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="3dp"
+                app:cardCornerRadius="0dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/canceled_cat"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:text="Cancelled" />
         </LinearLayout>
         </androidx.cardview.widget.CardView>
         <ListView

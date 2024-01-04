@@ -80,12 +80,14 @@
             <EditText
                 android:id="@+id/editTextTextAddress"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:minLines="1"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
                 android:hint="Address"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:padding="12dp"
                 android:textColor="#819171"
                 android:textSize="18sp" />
@@ -97,20 +99,24 @@
                 android:layout_marginTop="20dp"
                 android:text="Opening Hours"
                 android:textColor="#000000"
+                android:visibility="gone"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editTextOpening"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:minLines="1"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
                 android:hint="Opening Hours"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:padding="12dp"
                 android:textColor="#819171"
+                android:visibility="gone"
                 android:textSize="18sp" />
 
             <TextView
@@ -120,18 +126,22 @@
                 android:layout_marginTop="20dp"
                 android:text="Recycling Type"
                 android:textColor="#000000"
+                android:visibility="gone"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/editTextType"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
+                android:minLines="1"
+                android:minHeight="50dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/edittext_background"
                 android:ems="10"
+                android:visibility="gone"
                 android:hint="Recycling Type"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:padding="12dp"
                 android:textColor="#819171"
                 android:textSize="18sp" />

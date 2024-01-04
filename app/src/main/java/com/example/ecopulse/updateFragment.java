@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +33,18 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class updateFragment extends Fragment {
@@ -88,18 +94,48 @@ public class updateFragment extends Fragment {
 
         if (getArguments().getString("Title","").equals("Recycling Pick Up Schedule")) {
             updateButton.setVisibility(View.GONE);
-            updateTitle.setInputType(InputType.TYPE_NULL);
-            updateTitle.setTextIsSelectable(false);
-            updateDesc.setInputType(InputType.TYPE_NULL);
-            updateDesc.setTextIsSelectable(false);
+            updateTitle.setEnabled(false);
+            updateDesc.setEnabled(false);
+            updateDate.setEnabled(false);
+            updateTime.setEnabled(false);
             warnText.setVisibility(View.VISIBLE);
+            dltButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updatePickup("cancelled", false);
+                    cancelAlarm(requestCode);
+                }
+            });
+        } else if (getArguments().getString("Title", "").equals("Pick Up Request")) {
+            updateTitle.setEnabled(false);
+            updateDesc.setEnabled(false);
+            updateDate.setEnabled(false);
+            updateTime.setEnabled(false);
+            warnText.setVisibility(View.VISIBLE);
+            updateButton.setText("Done");
+            updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updatePickup("done", true);
+                    cancelAlarm(requestCode);
+                }
+            });
+
+            dltButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updatePickup("cancelled", true);
+                    cancelAlarm(requestCode);
+                }
+            });
         } else {
             updateButton.setVisibility(View.VISIBLE);
-            updateTitle.setInputType(InputType.TYPE_CLASS_TEXT);
-            updateTitle.setTextIsSelectable(true);
-            updateDesc.setInputType(InputType.TYPE_CLASS_TEXT);
-            updateDesc.setTextIsSelectable(true);
+            updateTitle.setEnabled(true);
+            updateDesc.setEnabled(true);
+            updateDate.setEnabled(true);
+            updateTime.setEnabled(true);
             warnText.setVisibility(View.GONE);
+            updateButton.setText("Update");
             updateDate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -113,22 +149,25 @@ public class updateFragment extends Fragment {
                     openTimeDialog();
                 }
             });
-        }
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateData();
-                cancelAlarm(requestCode);
 
-            }
-        });
-        dltButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteTask();
-                cancelAlarm(requestCode);
-            }
-        });
+            updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updateData();
+                    cancelAlarm(requestCode);
+
+                }
+            });
+            dltButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteTask();
+                    cancelAlarm(requestCode);
+                }
+            });
+        }
+
+
         return rootView;
     }
 
@@ -172,6 +211,125 @@ public class updateFragment extends Fragment {
             }
         });
     }
+
+    public void updatePickup(String status, boolean isColab) {
+        date = updateDate.getText().toString().trim();
+        time = updateTime.getText().toString().trim();
+        db.collection("user").document(userID).collection("tasks").document(key).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    String pickUpID = task.getResult().get("userID").toString();
+
+                    db.collection("pick_up_schedule").document(pickUpID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+
+                            if (task.isSuccessful()) {
+                                String customerID = task.getResult().get("userID").toString();
+                                String collabID = task.getResult().get("recyclingCenterID").toString();
+                                db.collection("pick_up_schedule").document(pickUpID).update("status", status, "day", date, "time", time, "update_at", new Date().getTime()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            if (isColab) {
+                                                db.collection("user").document(customerID).collection("tasks").whereEqualTo("userID",  pickUpID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            String taskKey = task.getResult().iterator().next().getId();
+                                                            db.collection("user").document(customerID).collection("tasks").document(taskKey).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                                                                    db.collection("recycling_center_information").document(collabID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+                                                                            if (task.isSuccessful()) {
+                                                                                String collabName = task.getResult().get("name").toString();
+                                                                                Map<String, Object> messageObj = new HashMap<>();
+                                                                                if (status.equals("cancelled")) {
+                                                                                    messageObj.put("title", "Your pick up schedule on " + collabName + " has been cancelled!");
+                                                                                    messageObj.put("desc", "Make your new request!");
+                                                                                } else {
+                                                                                    messageObj.put("title", "Your schedule on " + collabName + " has completed!");
+                                                                                    messageObj.put("desc", "Thank you for using this app!");
+                                                                                }
+                                                                                messageObj.put("added_at", new Date().getTime());
+                                                                                db.collection("user").document(customerID).collection("messages").add(messageObj);
+                                                                                deleteTask();
+                                                                            }
+                                                                        }
+                                                                    });
+
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                db.collection("recycling_center_information").document(collabID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            String recyclingCenterUserID = task.getResult().get("userID").toString();
+
+                                                            db.collection("user").document(recyclingCenterUserID).collection("tasks").whereEqualTo("userID",  pickUpID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> task) {
+                                                                    if (task.isSuccessful()) {
+                                                                        String taskKey = task.getResult().iterator().next().getId();
+
+                                                                        db.collection("user").document(recyclingCenterUserID).collection("tasks").document(taskKey).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
+                                                                                db.collection("recycling_center_information").document(collabID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                    @Override
+                                                                                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+                                                                                        if (task.isSuccessful()) {
+                                                                                            String collabUserID = task.getResult().get("userID"). toString();
+                                                                                            db.collection("user").document(customerID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                                @Override
+                                                                                                public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
+                                                                                                    if (task.isSuccessful()) {
+                                                                                                        String username = task.getResult().get("username").toString();
+                                                                                                        Map<String, Object> messageObj = new HashMap<>();
+                                                                                                        messageObj.put("title", "Pick up schedule has been cancelled by " + username + "!");
+                                                                                                        messageObj.put("desc", "Skip this request!");
+                                                                                                        messageObj.put("added_at", new Date().getTime());
+                                                                                                        db.collection("user").document(collabUserID).collection("messages").add(messageObj);
+                                                                                                        deleteTask();
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+
+                                                                                        }
+                                                                                    }
+                                                                                });
+
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            });
+
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+
+                }
+            }
+        });
+    }
+
+
 
     public void deleteTask() {
 

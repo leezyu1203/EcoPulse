@@ -58,17 +58,22 @@ public class AdminApprovalListAdapter extends ArrayAdapter<AdminApprovalListItem
         type = convertView.findViewById(R.id.type);
 
         name.setText(Item.getName());
-        contact.setText("Contact: " + Item.getContact());
+        contact.setText(Item.getContact());
         address.setText(Item.getAddress());
-        email.setText("Email: " + Item.getEmail());
-        role.setText("Role: " + Item.getRole());
+        email.setText(Item.getEmail());
+        role.setText(Item.getRole());
 
         if (Item.getRole().equals("Recycling Center Collaborator")) {
-            opening.setText("Opening: " + Item.getOpening());
-            type.setText("Type: " + Item.getType());
+            opening.setText(Item.getOpening());
+            type.setText(Item.getType());
         } else {
             opening.setVisibility(View.GONE);
             type.setVisibility(View.GONE);
+        }
+
+        if (Item.getStatus().equals("approved")) {
+            approve.setVisibility(View.GONE);
+            reject.setVisibility(View.GONE);
         }
 
         approve.setOnClickListener(new View.OnClickListener() {
