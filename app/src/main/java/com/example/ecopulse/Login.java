@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -30,19 +33,31 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth = FirebaseAuth.getInstance();
-
-        if (mAuth.getCurrentUser() != null) {
-            Intent isLoggedin;
-            if (mAuth.getCurrentUser().getEmail().equals("admin@email.com")) {
-                isLoggedin  = new Intent(Login.this, AdminActivity.class);
-            } else {
-                isLoggedin = new Intent(Login.this, MainActivity.class);
+        ConnectivityManager connManager = (ConnectivityManager) Login.this.getSystemService(CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            NetworkCapabilities networkCapabilities =  connManager.getNetworkCapabilities(connManager.getActiveNetwork());
+            if (networkCapabilities == null) {
+                Toast.makeText(this, "You are offline now", Toast.LENGTH_SHORT).show();
+                Intent offlineView = new Intent(Login.this, OfflineView.class);
+                startActivity(offlineView);
+                finish();
             }
+        } else {
+            mAuth = FirebaseAuth.getInstance();
 
-            startActivity(isLoggedin);
-            finish();
+            if (mAuth.getCurrentUser() != null) {
+                Intent isLoggedin;
+                if (mAuth.getCurrentUser().getEmail().equals("admin@email.com")) {
+                    isLoggedin  = new Intent(Login.this, AdminActivity.class);
+                } else {
+                    isLoggedin = new Intent(Login.this, MainActivity.class);
+                }
+
+                startActivity(isLoggedin);
+                finish();
+            }
         }
+
     }
 
     @Override
