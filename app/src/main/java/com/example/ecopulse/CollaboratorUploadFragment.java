@@ -127,9 +127,17 @@ public class CollaboratorUploadFragment extends Fragment {
                                 TVSelectedEventDate.setText(loadedEvent.getEventDate());
                                 TVSelectedStartTime.setText(loadedEvent.getEventStartTime());
                                 TVSelectedEndTime.setText(loadedEvent.getEventEndTime());
+                                Picasso.get()
+                                        .load(loadedEvent.getImageUrl())
+                                        .placeholder(R.mipmap.ic_launcher)
+                                        .fit()
+                                        .centerCrop()
+                                        .into(IVUploadedImage);
 
                                 temp.putString("timestamp", loadedEvent.getTimestamp());
                                 temp.putString("userID", loadedEvent.getUserID());
+                                temp.putString("url", loadedEvent.getImageUrl());
+                                temp.putString("eventID", eventID);
                             }
                         }
                     });
@@ -195,7 +203,14 @@ public class CollaboratorUploadFragment extends Fragment {
                 } else if(uploadTask != null && uploadTask.isInProgress()) {
                     Toast.makeText(requireContext(), "Upload in progress", Toast.LENGTH_SHORT).show();
                 } else {
-                    uploadFile();
+                    UploadEvent event = new UploadEvent(
+                            ETInputEventName.getText().toString().trim(),
+                            ETInputEventDesc.getText().toString().trim(),
+                            ETInputEventVenue.getText().toString().trim(),
+                            TVSelectedEventDate.getText().toString().trim(),
+                            TVSelectedStartTime.getText().toString().trim(),
+                            TVSelectedEndTime.getText().toString().trim());
+                    uploadFile(event);
                 }
             }
         });
@@ -240,7 +255,7 @@ public class CollaboratorUploadFragment extends Fragment {
         return TextUtils.isEmpty(textView.getText().toString().trim());
     }
 
-    private void uploadFile(){
+    private void uploadFile(UploadEvent event){
         if(imageUri != null) {
             StorageReference fileRef = storageRef.child(ETInputEventName.getText().toString().trim()
                     + "_" + System.currentTimeMillis() + "." + getFileExtension(imageUri));
@@ -254,24 +269,20 @@ public class CollaboratorUploadFragment extends Fragment {
                                     String imageUrl = uri.toString();
                                     Bundle args = getArguments();
                                     String userID = "";
-                                    if(args != null) {
+                                    if (args != null) {
                                         userID = args.getString("userID");
                                     }
-                                    UploadEvent event = new UploadEvent(
-                                            ETInputEventName.getText().toString().trim(),
-                                            ETInputEventDesc.getText().toString().trim(),
-                                            ETInputEventVenue.getText().toString().trim(),
-                                            TVSelectedEventDate.getText().toString().trim(),
-                                            TVSelectedStartTime.getText().toString().trim(),
-                                            TVSelectedEndTime.getText().toString().trim(),
-                                            imageUrl,
-                                            String.valueOf(System.currentTimeMillis()),
-                                            userID
-                                    );
-
-                                    if(getArguments().containsKey("editPost")){
+                                    event.setImageUrl(imageUrl);
+                                    if (getArguments().containsKey("editPost")) {
                                         event.setTimestamp(temp.getString("timestamp"));
                                         event.setUserID(temp.getString("userID"));
+                                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(temp.getString("url"));
+                                        storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Log.d(TAG, "EventPostFragment: Storage image deleted");
+                                            }
+                                        });
                                         db.collection("events")
                                                 .document(getArguments().getString("eventID"))
                                                 .set(event)
@@ -287,6 +298,8 @@ public class CollaboratorUploadFragment extends Fragment {
                                                     }
                                                 });
                                     } else {
+                                        event.setUserID(userID);
+                                        event.setTimestamp(String.valueOf(System.currentTimeMillis()));
                                         db.collection("events")
                                                 .add(event).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                     @Override
@@ -316,6 +329,29 @@ public class CollaboratorUploadFragment extends Fragment {
             transaction.replace(R.id.main_fragment, new ManagePostsFragment());
             transaction.commit();
 
+        } else if(imageUri == null && getArguments().containsKey("editPost")){
+            event.setImageUrl(temp.getString("url"));
+            event.setTimestamp(temp.getString("timestamp"));
+            event.setUserID(temp.getString("userID"));
+            db.collection("events")
+                    .document(temp.getString("eventID"))
+                    .set(event)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(getContext(), "Event successfully edited", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(), "Edit unsuccessful. Try again later.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+            FragmentManager manager = getActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+
+            transaction.replace(R.id.main_fragment, new ManagePostsFragment());
+            transaction.commit();
         } else {
             Toast.makeText(requireContext(), "Upload an image", Toast.LENGTH_SHORT).show();
         }

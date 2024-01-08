@@ -26,6 +26,15 @@ public class UploadEvent {
         this.userID = userID;
     }
 
+    public UploadEvent(String eventName, String eventDesc, String eventVenue, String eventDate, String eventStartTime, String eventEndTime) {
+        this.eventName = eventName;
+        this.eventDesc = eventDesc;
+        this.eventVenue = eventVenue;
+        this.eventDate = eventDate;
+        this.eventStartTime = eventStartTime;
+        this.eventEndTime = eventEndTime;
+    }
+
     public String getEventName() {
         return eventName;
     }
