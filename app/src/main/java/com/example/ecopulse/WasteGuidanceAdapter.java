@@ -76,6 +76,7 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
 
         if(!wasteInfo[1].trim().isEmpty()) { //search
             holder.wasteDesc.setVisibility(View.GONE);
+            holder.wasteName.setTextColor(ContextCompat.getColor(this.context, R.color.dark_green));
 
 
             if(wasteInfo[1].trim().equals("Recyclable Waste")){
