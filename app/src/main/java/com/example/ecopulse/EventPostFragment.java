@@ -153,7 +153,7 @@ public class EventPostFragment extends Fragment {
                                     .load(current.getImageUrl())
                                     .placeholder(R.mipmap.ic_launcher)
                                     .fit()
-                                    .centerCrop()
+                                    .centerInside()
                                     .into(IVEventPostPoster);
                             PBLoadPost.setVisibility(View.INVISIBLE);
                             PBLoadComments.setVisibility(View.VISIBLE);
