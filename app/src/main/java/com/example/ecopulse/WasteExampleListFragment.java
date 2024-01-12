@@ -1,8 +1,5 @@
 package com.example.ecopulse;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +16,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 
-public class WasteListByTypeFragment extends Fragment {
+public class WasteExampleListFragment extends Fragment {
 
     RecyclerView guidanceRecWasteList;
     ArrayList<String> wasteList;
@@ -29,7 +26,7 @@ public class WasteListByTypeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_waste_list_by_type, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_waste_example_list, container, false);
 
         wasteTypeTitle =rootView.findViewById (R.id.wasteTypeTitle);
 
