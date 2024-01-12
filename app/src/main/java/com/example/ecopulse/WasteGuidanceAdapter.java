@@ -46,23 +46,23 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String wasteItem = wasteList.get(position);
-        String[] wasteInfo = wasteItem.split("_"); // Splitting the waste name and type
+        String[] wasteInfo = wasteItem.split("_"); // Splitting the waste name, type and desc
 
         // Display waste name and type in respective TextViews
         holder.wasteName.setText(wasteInfo[0].trim()); // Assuming name is the first part
         holder.wasteType.setText(wasteInfo[1].trim()); // Assuming type is the second part
 
 
-        if(wasteInfo[2].trim().isEmpty()) // no desc
+        if(wasteInfo[2].trim().isEmpty()) // no desc stored in database
         {
             holder.wasteDesc.setText("N/A");
         }
         else  //got desc
         {
-            holder.wasteDesc.setText(wasteInfo[2].trim()); // Assuming desc is the second part
+            holder.wasteDesc.setText(wasteInfo[2].trim()); // Assuming desc is the third part
         }
 
-        //set desc
+        //set the layout of waste desc
         float textSizeInSp = 16f;
         holder.wasteDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeInSp);
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) holder.wasteDesc.getLayoutParams();
@@ -74,11 +74,11 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
         holder.wasteDesc.setLayoutParams(layoutParams);
 
 
-        if(!wasteInfo[1].trim().isEmpty()) { //search
-            holder.wasteDesc.setVisibility(View.GONE);
-            holder.wasteName.setTextColor(ContextCompat.getColor(this.context, R.color.dark_green));
+        if(!wasteInfo[1].trim().isEmpty()) { //for search functionality (the waste type need to be showed)
+            holder.wasteDesc.setVisibility(View.GONE);// waste desc initially invisible
+            holder.wasteName.setTextColor(ContextCompat.getColor(this.context, R.color.dark_green));// set the default colour for waste name
 
-
+            //change the text colour for different waste type(waste type text view only)
             if(wasteInfo[1].trim().equals("Recyclable Waste")){
                 holder.wasteType.setTextColor(ContextCompat.getColor(this.context, R.color.recyclable));
             }
@@ -100,13 +100,13 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
                 holder.wasteName.setTextColor(ContextCompat.getColor(this.context, R.color.dark_green));
                 holder.wasteType.setTextColor(ContextCompat.getColor(this.context, R.color.dark_green));
             }
-
         }
 
 
 
-        if (wasteInfo[1].trim().isEmpty())//show list
+        if (wasteInfo[1].trim().isEmpty())//waste example list page (no waste type need to be showed as the waste type is showed as page title)
         {
+            //set the layout of waste name
             ViewGroup.MarginLayoutParams layoutParams_wasteName = (ViewGroup.MarginLayoutParams) holder.wasteName.getLayoutParams();
             layoutParams_wasteName.width = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
@@ -119,8 +119,6 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
             holder.gudianceRecCardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white));
             // change stroke width and stroke colour
             holder.gudianceRecCardView.setStrokeWidth(2);
-            // change margin between items
-
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -138,9 +136,6 @@ public class WasteGuidanceAdapter extends RecyclerView.Adapter<WasteGuidanceAdap
                 }
             }
         });
-
-
-
 
     }
 
