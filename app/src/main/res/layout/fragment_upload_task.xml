@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    tools:context="com.example.ecopulse.uploadFragmentReminder">
+    tools:context="com.example.ecopulse.Reminder.uploadFragmentReminder">
 
     <LinearLayout
         android:id="@+id/AddButton"

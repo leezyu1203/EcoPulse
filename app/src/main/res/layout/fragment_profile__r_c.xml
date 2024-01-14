@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Profile_RC"
+    tools:context=".AuthenticationAndProfile.Profile_RC"
     android:id="@+id/fragment_container_RC">
 
     <!-- Profile LinearLayout -->

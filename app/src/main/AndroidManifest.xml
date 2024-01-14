@@ -23,34 +23,34 @@
         android:theme="@style/Theme.EcoPulse"
         tools:targetApi="31">
         <activity
-            android:name=".UploadProfileImage"
+            android:name=".AuthenticationAndProfile.UploadProfileImage"
             android:exported="false" />
 
-        <activity android:name=".Profile_user" />
-        <activity android:name=".OfflineView" />
+        <activity android:name=".AuthenticationAndProfile.Profile_user" />
+        <activity android:name=".Guidance.OfflineView" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_map_api_key" />
 
         <activity
-            android:name=".Register"
+            android:name=".AuthenticationAndProfile.Register"
             android:exported="false">
         </activity>
 
         <activity
-            android:name=".AdminActivity"
+            android:name=".AuthenticationAndProfile.AdminActivity"
             android:exported="false">
         </activity>
 
 
         <activity
-            android:name=".ForgotPassword"
+            android:name=".AuthenticationAndProfile.ForgotPassword"
             android:exported="false">
         </activity>
 
         <activity
-            android:name=".Login"
+            android:name=".AuthenticationAndProfile.Login"
             android:theme="@style/Theme.App.SplashScreen"
             android:exported="true">
             <intent-filter>
@@ -63,18 +63,18 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"></activity>
-        <activity android:name=".reminderMainFragment">
+        <activity android:name=".Reminder.reminderMainFragment">
 
             <!-- Add any necessary intent filters or configuration -->
 
         </activity>
-        <activity android:name=".updateFragment" />
-        <activity android:name=".uploadFragmentReminder" />
-        <activity android:name=".SchedulePickUp">
+        <activity android:name=".Reminder.updateFragment" />
+        <activity android:name=".Reminder.uploadFragmentReminder" />
+        <activity android:name=".Information.SchedulePickUp">
 
             <!-- Intent filters if needed -->
         </activity>
-        <receiver android:name=".AlarmReceiver"
+        <receiver android:name=".Reminder.AlarmReceiver"
             android:enabled="true"
             android:exported="true"/>
     </application>

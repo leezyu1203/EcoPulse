@@ -4,7 +4,7 @@
     android:id="@+id/CommunityFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CommunityFragment">
+    tools:context=".Community.CommunityFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/RVCommunityPosts"

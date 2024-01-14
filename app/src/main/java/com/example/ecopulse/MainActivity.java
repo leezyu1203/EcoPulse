@@ -2,6 +2,7 @@ package com.example.ecopulse;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -18,15 +19,26 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
+import com.example.ecopulse.AuthenticationAndProfile.Profile_Collaborator;
+import com.example.ecopulse.AuthenticationAndProfile.Profile_RC;
+import com.example.ecopulse.AuthenticationAndProfile.Profile_user;
+import com.example.ecopulse.Community.CommunityFragment;
+import com.example.ecopulse.Guidance.guidanceMainFragment;
+import com.example.ecopulse.Information.CollaboratorLocationFragment;
+import com.example.ecopulse.Information.LocationFragment;
+import com.example.ecopulse.Reminder.reminderMainFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -71,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         checkLocationPermission();
-
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             String redirect = getIntent().getExtras().get("redirect").toString();
@@ -91,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         backButton = findViewById(R.id.backButton);
         IBtnReminder = findViewById(R.id.IBtnReminder);
@@ -103,13 +115,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.main_fragment);
-                if (currentFragment instanceof guidanceMainFragment == false && currentFragment instanceof LocationFragment == false && currentFragment instanceof CollaboratorLocationFragment == false && currentFragment instanceof CommunityFragment == false) {
+                if (currentFragment instanceof guidanceMainFragment == false && currentFragment instanceof LocationFragment == false && currentFragment instanceof CollaboratorLocationFragment == false && currentFragment instanceof CommunityFragment == false && currentFragment instanceof Profile_Collaborator == false && currentFragment instanceof Profile_RC == false && currentFragment instanceof Profile_user == false && currentFragment instanceof reminderMainFragment == false) {
                     MainActivity.this.getOnBackPressedDispatcher().onBackPressed();
                 }
-
-
             }
         });
+
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";
