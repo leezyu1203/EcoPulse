@@ -24,25 +24,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
-
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import org.w3c.dom.Text;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -57,11 +47,14 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
     private List<RequestListItem> items;
     private View fragment;
 
+    private FirebaseFirestore db;
+
     public RequestListAdapter(Activity activity, Context context, List<RequestListItem> items, View fragment) {
         super(context, 0, items);
         this.activity=activity;
         this.items = items;
         this.fragment = fragment;
+        db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
@@ -76,22 +69,24 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
     }
 
     private View createCustomView(int position, View convertView, ViewGroup parent) {
+        // Check if the recycled view is null; inflate a new view if needed.
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.request_list_item, parent, false);
         }
 
+        // Retrieve references to TextView elements within the inflated view.
         TextView dayOfWeek = convertView.findViewById(R.id.dayOfWeek);
         TextView time = convertView.findViewById(R.id.time);
-
         TextView address = convertView.findViewById(R.id.address);
         TextView contact = convertView.findViewById(R.id.contact);
 
+        // Get the RequestListItem object associated with the current position.
         RequestListItem item = getItem(position);
 
+        // Populate TextView elements with data.
         if (item != null) {
-
             dayOfWeek.setText(item.getDayOfweek());
-            if (item.getStatus().equals("done")) {
+            if (item.getStatus().equals("done") || item.getStatus().equals("cancelled")) {
                 try {
                     SimpleDateFormat inputFormat = new SimpleDateFormat("HH:mm");
                     SimpleDateFormat outputFormat = new SimpleDateFormat("h:mm a");
@@ -107,19 +102,23 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
             }
             address.setText(item.getAddress());
             contact.setText(item.getContact());
+
+            // Set an OnClickListener to handle item clicks and show a dialog.
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    // The request item details is passed to the dialog to populates the
+                    // TextView elements in dialog with data
                     showDialog(activity, view.getContext(), item);
-
                 }
             });
         }
 
-
-
+        // Return the configured view for rendering in the ListView.
         return convertView;
     }
+
+
 
     private void showDialog(Activity activity, Context context, RequestListItem item) {
         final FrameLayout overlay = new FrameLayout(context);
@@ -171,7 +170,30 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    setStatusForRequest(item, dialog, "accepted");
+                    boolean isAfter = true;
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("d-M-yyyy h:mm a");
+                    String currentDateTimeStr = dateFormat.format(new Date());
+
+                    try {
+                        Date givenDateTime = dateFormat.parse(item.getDayOfweek() + " " + item.getTime());
+                        Date currentDateTime = dateFormat.parse(currentDateTimeStr);
+
+                        if (givenDateTime.after(currentDateTime)) {
+                            isAfter = true;
+                        } else if (givenDateTime.before(currentDateTime)) {
+                            isAfter = false;
+                        } else {
+                            isAfter = false;
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    if (isAfter) {
+                        setStatusForRequest(item, dialog, "accepted");
+                    } else {
+                        Toast.makeText(activity, "Cannot accept a request which is in the past or current!", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
 
@@ -190,140 +212,182 @@ public class RequestListAdapter extends ArrayAdapter<RequestListItem> {
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    public String convertTimeTo24HourFormat(String time) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("h:mm a");
+        LocalTime time12Hour = LocalTime.parse(time, inputFormatter);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String time24Hour = time12Hour.format(outputFormatter);
+        LocalTime inputLocalTime = LocalTime.parse(time24Hour, DateTimeFormatter.ofPattern("HH:mm"));
+        return inputLocalTime.toString();
+    }
+
     public void setStatusForRequest(RequestListItem item, Dialog dialog, String status) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("pick_up_schedule").document(item.getId()).update("status", status, "update_at", new Date().getTime()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        // Access the FireStore collection and update the status and timestamp of the recycling request.
+        db.collection("pick_up_schedule").document(item.getId())
+                .update("status", status, "update_at", new Date().getTime())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    LinearLayout noRecords = fragment.findViewById(R.id.no_records);
-                    ListView requestList = fragment.findViewById(R.id.request_list);
-                    item.setStatus(status);
+                    // Remove RequestListItem from the items list locally.
                     items.remove(item);
-
+                    // If the status is "accepted", create a task for the collaborator.
                     if (status.equals("accepted")) {
-                        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("h:mm a");
-                        LocalTime time12Hour = LocalTime.parse(item.getTime(), inputFormatter);
-                        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("HH:mm");
-                        String time24Hour = time12Hour.format(outputFormatter);
-                        LocalTime inputLocalTime = LocalTime.parse(time24Hour, DateTimeFormatter.ofPattern("HH:mm"));
-                        uploadData("Recycling Pick Up Schedule", item.getDayOfweek(), inputLocalTime.toString(), item);
+                        createTask(item);
                     }
-
-                    db.collection("pick_up_schedule").document(item.getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                String customerID = task.getResult().get("userID").toString();
-                                String recyclingCenterID = task.getResult().get("recyclingCenterID").toString();
-
-                                db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            String centerName = task.getResult().get("name").toString();
-                                            Map<String, Object> messageObj = new HashMap<>();
-                                            if (status.equals("accepted")) {
-                                                messageObj.put("title", "Your request on " + centerName + " has been accepted!");
-                                                messageObj.put("desc", "Date: " + item.getDayOfweek() + "\nTime: " + item.getTime());
-                                            } else {
-                                                messageObj.put("title", "Your request on " + centerName + " has been rejected!");
-                                                messageObj.put("desc", "Make your new request!");
-                                            }
-                                            messageObj.put("added_at", new Date().getTime());
-                                            db.collection("user").document(customerID).collection("messages").add(messageObj);
-                                        }
-                                    }
-                                });
-
-                            }
-                        }
-                    });
-
-                    if (items.isEmpty()) {
-                        noRecords.setVisibility(View.VISIBLE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1.0f));
-                    } else {
-                        noRecords.setVisibility(View.GONE);
-                        requestList.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
-                        noRecords.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
-                    }
-                    notifyDataSetChanged();
+                    // Notify the user about the updated status of the recycling request.
+                    notifyUserAboutRequestStatus(item, status);
+                    // Update the ListView
+                    updateView();
+                    // Dismiss the dialog
                     dialog.dismiss();
                 }
             }
         });
-
     }
 
-    public void uploadData(String title, String date, String time, RequestListItem item){
+    public void updateView() {
+        LinearLayout noRecords = fragment.findViewById(R.id.no_records);
+        ListView requestList = fragment.findViewById(R.id.request_list);
+        if (items.isEmpty()) {
+            noRecords.setVisibility(View.VISIBLE);
+            requestList.setLayoutParams(new LinearLayout.LayoutParams(0, 0, 0.0f));
+            noRecords.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1.0f));
+        } else {
+            noRecords.setVisibility(View.GONE);
+            requestList.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+            noRecords.setLayoutParams(new LinearLayout.LayoutParams(0,0,0.0f));
+        }
+        notifyDataSetChanged();
+    }
 
+    public void notifyUserAboutRequestStatus(RequestListItem item, String status) {
+        db.collection("pick_up_schedule").document(item.getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    String customerID = task.getResult().get("userID").toString();
+                    String recyclingCenterID = task.getResult().get("recyclingCenterID").toString();
 
+                    db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                String centerName = task.getResult().get("name").toString();
+                                Map<String, Object> messageObj = new HashMap<>();
+                                if (status.equals("accepted")) {
+                                    messageObj.put("title", "Your request on " + centerName + " has been accepted!");
+                                    messageObj.put("desc", "Date: " + item.getDayOfweek() + "\nTime: " + item.getTime());
+                                } else {
+                                    messageObj.put("title", "Your request on " + centerName + " has been rejected!");
+                                    messageObj.put("desc", "Make your new request!");
+                                }
+                                messageObj.put("added_at", new Date().getTime());
+                                db.collection("user").document(customerID).collection("messages").add(messageObj);
+                            }
+                        }
+                    });
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                }
+            }
+        });
+    }
 
+    public void createTask(RequestListItem item){
         db.collection("pick_up_schedule").document(item.getId()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task2) {
                 if (task2.isSuccessful()) {
                     String userID = task2.getResult().get("userID") + "";
                     String recyclingCenterID = task2.getResult().get("recyclingCenterID") + "";
-
-                    db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
-                            if (task3.isSuccessful()) {
-                                String recyclingCenterName = task3.getResult().get("name") + "";
-                                String recyclingCenterUserId = task3.getResult().get("userID") + "";
-                                String requestCode = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-
-                                com.example.ecopulse.Model.Task task = new com.example.ecopulse.Model.Task(title, recyclingCenterName, date, time, requestCode, item.getId());
-                                // Add the task to Firestore
-                                db.collection("user").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> documentSnapshotTask) {
-                                        if (documentSnapshotTask.isSuccessful()) {
-                                            db.collection("user").document(userID).collection("tasks")
-                                                    .add(task)
-                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentReference> documentReferenceTask) {
-                                                            if (documentReferenceTask.isSuccessful()){
-                                                                //setAlarm(task);
-                                                                String customerName = documentSnapshotTask.getResult().get("username").toString();
-                                                                String requestCode2 = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-                                                                String description = String.format("Name: %s,\nContact: %s,\nAddress: %s,\nNote: %s", customerName, item.getContact(), item.getAddress(), item.getNote());
-                                                                com.example.ecopulse.Model.Task collabTask = new com.example.ecopulse.Model.Task("Pick Up Request", description, date, time, requestCode2, item.getId());
-                                                                db.collection("user").document(recyclingCenterUserId).collection("tasks")
-                                                                        .add(collabTask).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<DocumentReference> documentReferenceTask1) {
-                                                                                if (documentReferenceTask1.isSuccessful()) {
-                                                                                    setAlarm(collabTask);
-                                                                                }
-
-                                                                            }
-                                                                        });
-                                                            }
-                                                        }
-
-                                                    });
-                                        }
-                                    }
-                                });
-
-                            }
-                        }
-                    });
-
-
-
+                    getRecyclingCenterName(recyclingCenterID, item, userID);
                 }
             }
         });
 
 
+    }
+
+    public void getRecyclingCenterName(String recyclingCenterID, RequestListItem item, String userID) {
+        db.collection("recycling_center_information").document(recyclingCenterID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
+                if (task3.isSuccessful()) {
+                    String recyclingCenterName = task3.getResult().get("name") + "";
+                    String recyclingCenterUserId = task3.getResult().get("userID") + "";
+                    getCustomerName(userID, recyclingCenterUserId, item, recyclingCenterName);
+                }
+            }
+        });
+    }
+
+    private void getCustomerName(String userID, String recyclingCenterUserId, RequestListItem item, String recyclingCenterName) {
+
+        db.collection("user").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> documentSnapshotTask) {
+                if (documentSnapshotTask.isSuccessful()) {
+                    String customerName = documentSnapshotTask.getResult().get("username").toString();
+                    addCustomerTask(userID, item, recyclingCenterName);
+                    addCollaboratorTask(customerName, recyclingCenterUserId, item);
+                }
+            }
+        });
+    }
+
+    public void addCustomerTask(String userID, RequestListItem item, String recyclingCenterName) {
+        // Create a unique requestCode for Alarm setting purpose
+        String requestCode = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+        // Get the information of the request
+        String time = convertTimeTo24HourFormat(item.getTime());
+        String date = item.getDayOfweek();
+        String id = item.getId();
+
+        // Create a Task object with the request list item information
+        com.example.ecopulse.Model.Task task =
+                new com.example.ecopulse.Model.Task("Recycling Pick Up Schedule", recyclingCenterName, date, time, requestCode, id);
+
+        // Create a task record for the user (customer who make the request) in FireStore
+        db.collection("user").document(userID).collection("tasks")
+                .add(task).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(activity, "Fail to create task for customer!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void addCollaboratorTask(String customerName, String recyclingCenterUserId, RequestListItem item) {
+        // Create a unique requestCode for Alarm setting purpose
+        String requestCode = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+        // Get the information of the request
+        String time = convertTimeTo24HourFormat(item.getTime());
+        String contact = item.getContact();
+        String address = item.getAddress();
+        String note = item.getNote();
+        String date = item.getDayOfweek();
+        String id = item.getId();
+        String description =
+                String.format("Name: %s,\nContact: %s,\nAddress: %s,\nNote: %s", customerName, contact, address, note);
+
+        // Create a Task object with the request list item information
+        com.example.ecopulse.Model.Task collabTask =
+                new com.example.ecopulse.Model.Task("Pick Up Request", description, date, time, requestCode, id);
+
+        // Create a task record for the collaborator (customer who make the request) in FireStore
+        db.collection("user").document(recyclingCenterUserId).collection("tasks")
+                .add(collabTask).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> documentReferenceTask1) {
+                        if (documentReferenceTask1.isSuccessful()) {
+                            // Set alarm for collaborator for the task
+                            setAlarm(collabTask);
+                        } else {
+                            Toast.makeText(activity, "Fail to create task!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void setAlarm(com.example.ecopulse.Model.Task task){
