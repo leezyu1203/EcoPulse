@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         communityNav = findViewById(R.id.community_nav);
         profileNav = findViewById(R.id.profile_nav);
         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -46,20 +46,20 @@ public class Login extends AppCompatActivity {
                 Intent offlineView = new Intent(Login.this, OfflineView.class);
                 startActivity(offlineView);
                 finish();
-            }
-        } else {
-            // Check if the user is already logged in
-            mAuth = FirebaseAuth.getInstance();
-            if (mAuth.getCurrentUser() != null) {
-                Intent isLoggedin;
-                if (mAuth.getCurrentUser().getEmail().equals("admin@email.com")) {
-                    isLoggedin = new Intent(Login.this, AdminActivity.class);
-                } else {
-                    isLoggedin = new Intent(Login.this, MainActivity.class);
-                }
+            } else {
+                // Check if the user is already logged in
+                mAuth = FirebaseAuth.getInstance();
+                if (mAuth.getCurrentUser() != null) {
+                    Intent isLoggedin;
+                    if (mAuth.getCurrentUser().getEmail().equals("admin@email.com")) {
+                        isLoggedin = new Intent(Login.this, AdminActivity.class);
+                    } else {
+                        isLoggedin = new Intent(Login.this, MainActivity.class);
+                    }
 
-                startActivity(isLoggedin);
-                finish();
+                    startActivity(isLoggedin);
+                    finish();
+                }
             }
         }
     }

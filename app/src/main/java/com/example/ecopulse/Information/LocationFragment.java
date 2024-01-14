@@ -80,7 +80,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
     private FirebaseFirestore db;
 
-    public final static int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -172,10 +172,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     public void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mGoogleMap.setMyLocationEnabled(true);
-        } else {
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 
