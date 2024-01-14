@@ -19,13 +19,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -34,9 +27,11 @@ import java.util.Map;
 
 public class Register extends AppCompatActivity {
 
+    // UI elements
     private EditText editTextName, editTextEmail, editTextPassword, editTextRepassword, editTextPhone,editTextAddress, editTextOpening, editTextType;
     private RadioGroup radioGroup;
     private AppCompatButton buttonReg;
+
     private FirebaseFirestore databaseReference;
     private FirebaseAuth mAuth;
 
@@ -48,9 +43,11 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Initialize Firebase components
         databaseReference = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        // Initialize UI elements
         editTextName = findViewById(R.id.editTextTextName);
         editTextEmail = findViewById(R.id.editTextTextEmailAddress);
         editTextPassword = findViewById(R.id.editTextTextPassword);
@@ -63,6 +60,8 @@ public class Register extends AppCompatActivity {
         typeTV = findViewById(R.id.typeTV);
         radioGroup = findViewById(R.id.radioGroup);
         buttonReg = findViewById(R.id.SignUp_btn);
+
+        // Set onClickListener for the registration button
         buttonReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,6 +69,7 @@ public class Register extends AppCompatActivity {
             }
         });
 
+        // Set onClickListener for the login text
         loginText = findViewById(R.id.login_text);
         loginText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,12 +80,15 @@ public class Register extends AppCompatActivity {
             }
         });
 
+
+        // Set listener for radio button changes
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 RadioButton btn = findViewById(radioGroup.getCheckedRadioButtonId());
                 String role = btn.getText().toString();
 
+                // Show or hide additional fields based on the selected role
                 if (role.equals("Recycling Center Collaborator")) {
                     openingTV.setVisibility(View.VISIBLE);
                     editTextOpening.setVisibility(View.VISIBLE);
@@ -101,6 +104,7 @@ public class Register extends AppCompatActivity {
         });
     }
 
+    // Method to handle user registration
     private void register(){
         String name,email, password, rePassword,phone, address, opening, type;
         name = String.valueOf(editTextName.getText());
@@ -116,8 +120,7 @@ public class Register extends AppCompatActivity {
         RadioButton radioButton = findViewById(selectedId);
         String role = radioButton.getText().toString();
 
-        // Inside the register() method
-
+        // Validate input fields
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(address) || (role.equals("Recycling Center Collaborator") && (TextUtils.isEmpty(opening) ||TextUtils.isEmpty(type) ))) {
             Toast.makeText(Register.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -128,16 +131,18 @@ public class Register extends AppCompatActivity {
             Toast.makeText(Register.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         } else {
+            // Check if the email already exists
             databaseReference.collection("user").whereEqualTo("email",email)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()){
-
+                                // Check whether the email exists before
                                 if (!task.getResult().isEmpty()){
                                     Toast.makeText(getApplicationContext(),"Email already exists. Please choose a different email.",Toast.LENGTH_LONG).show();
                                 } else {
+                                    // Create user with email and password
                                     mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -160,6 +165,7 @@ public class Register extends AppCompatActivity {
                                                 }
 
                                                 // Create a new document with the user's UID
+                                                // Keep the information into the database
                                                 databaseReference.collection("user")
                                                         .document(userId)
                                                         .set(user)

@@ -23,26 +23,34 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class AdminActivity extends AppCompatActivity {
 
+    // UI elements
     private ListView adminApprovalList;
     private ScrollView scrollView;
     private LinearLayout loading, noRecords;
+    private AppCompatButton acceptedBtn, pendingBtn;
+    private ImageButton logoutBtn;
 
+    // Data structures for handling user items
     private ArrayList<AdminApprovalListItem> allItems = new ArrayList<>();
     private ArrayList<AdminApprovalListItem> selectedItems = new ArrayList<>();
     private FirebaseFirestore firestoreRef;
 
-    private AppCompatButton acceptedBtn, pendingBtn;
-    private ImageButton logoutBtn;
+    // Current status of user items (pending or approved)
     private String currentStatus = "pending";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_approval);
+
+        // Initialize Firestore reference
         firestoreRef = FirebaseFirestore.getInstance();
+
+        // Initialize UI elements
         adminApprovalList = findViewById(R.id.admin_approval_list);
         noRecords = findViewById(R.id.no_records);
         scrollView = findViewById(R.id.scrollView);
@@ -51,12 +59,18 @@ public class AdminActivity extends AppCompatActivity {
         loading.setVisibility(View.VISIBLE);
         acceptedBtn = findViewById(R.id.acceptedCat);
         pendingBtn = findViewById(R.id.pendingCat);
-        firestoreRef.collection("user").where(Filter.and(Filter.or(Filter.equalTo("verified", "pending"), Filter.equalTo("verified", "approved")), Filter.or(Filter.equalTo("role", "Recycling Center Collaborator"), Filter.equalTo("role", "Event Collaborator")))).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+        // Fetch user data from Firestore based on certain criteria
+        firestoreRef.collection("user").where(Filter.and(Filter.or(Filter.equalTo("verified", "pending"),
+                Filter.equalTo("verified", "approved")), Filter.or(Filter.equalTo("role", "Recycling Center Collaborator"),
+                Filter.equalTo("role", "Event Collaborator")))).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    // Populate allItems list with user details
                     allItems.clear();
                     for (DocumentSnapshot document : task.getResult()) {
+                        // Extract user details from Firestore
                         String email = String.valueOf(document.get("email"));
                         String name = String.valueOf(document.get("username"));
                         String contact = String.valueOf(document.get("phone"));
@@ -72,13 +86,14 @@ public class AdminActivity extends AppCompatActivity {
                         } else {
                             allItems.add(new AdminApprovalListItem(name, address, contact, email, status, role, id));
                         }
-
                     }
+                    // Update the UI based on the currentStatus
                     changeStatus(currentStatus);
                 }
             }
         });
 
+        // Initialize logout button and set its onClickListener
         logoutBtn = findViewById(R.id.logout);
         logoutBtn.setOnClickListener(v -> {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -88,9 +103,11 @@ public class AdminActivity extends AppCompatActivity {
             finish();
         });
 
+        // Set onClickListeners for the status change buttons
         pendingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Update UI and change status to "pending"
                 final int light_green = ContextCompat.getColor(AdminActivity.this, R.color.light_green);
                 final int black = ContextCompat.getColor(AdminActivity.this, R.color.black);
                 final int dark_green = ContextCompat.getColor(AdminActivity.this, R.color.primary_dark_green);
@@ -107,6 +124,7 @@ public class AdminActivity extends AppCompatActivity {
         acceptedBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Update UI and change status to "approved"
                 final int light_green = ContextCompat.getColor(AdminActivity.this, R.color.light_green);
                 final int black = ContextCompat.getColor(AdminActivity.this, R.color.black);
                 final int dark_green = ContextCompat.getColor(AdminActivity.this, R.color.primary_dark_green);
@@ -122,16 +140,19 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
+    // Method to update UI based on the selected status
     public void changeStatus(String status) {
         currentStatus = status;
         selectedItems.clear();
+
+        // Filter items based on the selected status
         allItems.stream().forEach(e -> {
             if (e.getStatus().equals(currentStatus)) {
                 selectedItems.add(e);
             }
         });
 
-
+        // Update UI visibility and set adapter for the ListView
         if (selectedItems.isEmpty()) {
             noRecords.setVisibility(View.VISIBLE);
             scrollView.setVisibility(View.GONE);
@@ -146,6 +167,4 @@ public class AdminActivity extends AppCompatActivity {
             }
         }
     }
-
-
 }
