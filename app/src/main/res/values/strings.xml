@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">EcoPulse</string>
-    <string name="google_map_api_key">AIzaSyCIxoaj1b4iEcaus-sSBcLw26kSosND1Xw</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_login">Login</string>
