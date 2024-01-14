@@ -84,8 +84,7 @@ public class guidanceMainFragment extends Fragment {
                 return false;
             }
 
-            //when there is a result, hide the image buttons and show the result (vice versa)
-            //
+            //when inputting, hide the image buttons and show the result (vice versa)
             @Override
             public boolean onQueryTextChange(String newText) {
 
@@ -142,7 +141,6 @@ public class guidanceMainFragment extends Fragment {
                             }
                         }
                     }
-
                     // Check if no match was found and add the message accordingly
                     if (!foundMatch) {
                         wasteList.add("No matching results found _ Try another keyword _ "+"");

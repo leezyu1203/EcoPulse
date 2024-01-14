@@ -49,7 +49,6 @@ public class WasteIntroductionFragment extends Fragment {
             fetchWasteIntroductionData("recyclable_waste");
             setPageToNavigate(0);
         }
-
         else if (pageNumber == 1) { //hazardous waste introduction page
             fetchWasteIntroductionData("hazardous_waste");
             introTitle.setText("Hazardous Waste");
@@ -57,14 +56,12 @@ public class WasteIntroductionFragment extends Fragment {
 
             setPageToNavigate(1);
         }
-
         else if (pageNumber == 2) { //household food waste introduction page
             fetchWasteIntroductionData("householdFood_waste");
             introTitle.setText("Household Food Waste");
             introWasteTypeImage.setImageResource(R.drawable.household_food_waste_2_widget);
             setPageToNavigate(2);
         }
-
         else if (pageNumber == 3) {  //residual waste introduction page
             fetchWasteIntroductionData("residual_waste");
             introTitle.setText("Residual Waste");
@@ -83,7 +80,7 @@ public class WasteIntroductionFragment extends Fragment {
                 String wasteExample = documentSnapshot.getString("waste_example");
                 String wasteTips = documentSnapshot.getString("waste_tips");
 
-                //special case for description, need to split the lines
+                //special case for tips, need to split the lines
                 wasteTips = wasteTips.replaceAll("\\\\n", "\n");
                 introWasteTypeDesc.setText(wasteDescription);
                 introWasteTypeExample.setText(wasteExample);
