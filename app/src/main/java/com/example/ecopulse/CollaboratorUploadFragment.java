@@ -131,7 +131,6 @@ public class CollaboratorUploadFragment extends Fragment {
                                         .load(loadedEvent.getImageUrl())
                                         .placeholder(R.mipmap.ic_launcher)
                                         .fit()
-                                        .centerCrop()
                                         .into(IVUploadedImage);
 
                                 temp.putString("timestamp", loadedEvent.getTimestamp());
@@ -242,7 +241,6 @@ public class CollaboratorUploadFragment extends Fragment {
 
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null){
             imageUri = data.getData();
-            IVUploadedImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             IVUploadedImage.setImageURI(imageUri);
         }
     }
