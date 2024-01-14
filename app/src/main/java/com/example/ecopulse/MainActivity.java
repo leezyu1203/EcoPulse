@@ -49,9 +49,12 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatButton profileNav;
     private ImageButton backButton;
 
-    private boolean initial = true;
+    private boolean isInitial = true;
     private ImageButton IBtnReminder;
     private static ListenerRegistration listener;
+    private FirebaseFirestore db;
+
+    private FirebaseUser user;
 
 
     public static ListenerRegistration getListener() {
@@ -67,12 +70,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
+        checkLocationPermission();
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             String redirect = getIntent().getExtras().get("redirect").toString();
-            System.out.println(redirect);
+
             if (redirect.equals("reminder")) {
                 replaceFragment(new reminderMainFragment());
             } else if(redirect.equals("location")) {
@@ -108,54 +111,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmail = "";
         if (user != null) {
             userEmail = user.getEmail();
         }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        db = FirebaseFirestore.getInstance();
 
-        listener = db.collection("user").document(user.getUid()).collection("messages").orderBy("added_at", Query.Direction.DESCENDING).limit(1).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null) {
-                    Log.e(TAG, "CollaboratorUploadFragment: Listen exist doc error", error);
-                }
-
-                if(value != null && !initial && MainActivity.this != null){
-                    String title = value.getDocuments().iterator().next().get("title").toString();
-                    String desc = value.getDocuments().iterator().next().get("desc").toString();
-
-                    Intent i = new Intent(MainActivity.this, MainActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    if (title.equals("You have received a new request!")) {
-                        i.putExtra("redirect", "location");
-                    } else {
-                        i.putExtra("redirect", "reminder");
-                    }
-                    PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, "reminder")
-                            .setSmallIcon(R.drawable.baseline_recycling_24)
-                            .setContentTitle(title).setContentText(desc)
-                            .setAutoCancel(true)
-                            .setDefaults(NotificationCompat.DEFAULT_ALL)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setContentIntent(pendingIntent);
-
-                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(MainActivity.this);
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    notificationManagerCompat.notify(123, builder.build());
-                }
-
-                initial = false;
-            }
-        });
+        listenForNotification();
         db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -220,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
                             guidanceNav.setBackgroundColor(transparent);
                             IBtnReminder.setBackgroundColor(transparent);
 
-                            if (currentUser != null) {
-                                String uid = currentUser.getUid();
+                            if (user != null) {
+                                String uid = user.getUid();
                                 DocumentReference userDocRef = db.collection("user").document(uid);
                                 userDocRef.get().addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
@@ -268,11 +231,79 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(new guidanceMainFragment());
     }
 
+    public void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return;
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }
+    }
+
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.main_fragment, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void listenForNotification() {
+        // Extracts information from the latest document in the collection
+        listener = db.collection("user").document(user.getUid()).collection("messages")
+                .orderBy("added_at", Query.Direction.DESCENDING).limit(1).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                // Handles potential errors during the event and logs them if present
+                if(error != null) {
+                    Log.e(TAG, "CollaboratorUploadFragment: Listen exist doc error", error);
+                }
+
+                // Processes the data only if there is a change and it is not an initial setup
+                if(value != null && !isInitial && MainActivity.this != null){
+                    // Get the title and description of the notification
+                    String title = value.getDocuments().iterator().next().get("title").toString();
+                    String desc = value.getDocuments().iterator().next().get("desc").toString();
+
+                    // Creates an intent to launch the main activity when the notification is tapped
+                    Intent i = new Intent(MainActivity.this, MainActivity.class);
+
+                    // Start a new activity and clear all existing activities in the task stack.
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    // Adds an extra parameter indicating where to redirect the user within the app ("location" or "reminder")
+                    if (title.equals("You have received a new request!")) {
+                        i.putExtra("redirect", "location");
+                    } else {
+                        i.putExtra("redirect", "reminder");
+                    }
+
+                    // Configures a PendingIntent to encapsulate the intent for the notification
+                    int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                    PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, i, flags);
+
+                    // Builds a NotificationCompat.Builder to configure the appearance and behavior of the notification
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, "reminder")
+                            .setSmallIcon(R.drawable.baseline_recycling_24)
+                            .setContentTitle(title).setContentText(desc)
+                            .setAutoCancel(true)
+                            .setDefaults(NotificationCompat.DEFAULT_ALL)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setContentIntent(pendingIntent);
+
+                    // Retrieves the NotificationManagerCompat and issues the notification with a unique identifier (123)
+                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(MainActivity.this);
+                    // Checks for the required notification permission before issuing the notification
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    notificationManagerCompat.notify(123, builder.build());
+                }
+
+                // Updates the isInitial flag to false after the first setup
+                isInitial = false;
+            }
+        });
     }
 
 

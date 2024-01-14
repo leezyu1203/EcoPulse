@@ -58,6 +58,7 @@ public class TimeslotFragment extends Fragment {
 
     private ArrayList<String> timeslot = new ArrayList<>();
     private int selectedDayIndex;
+    FirebaseFirestore db;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -84,7 +85,7 @@ public class TimeslotFragment extends Fragment {
         if (user != null) {
             userEmail = user.getEmail();
         }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         showLoadingBar(true);
         db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -148,18 +149,7 @@ public class TimeslotFragment extends Fragment {
                                 addTimeslot.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        selectedDay = dayList.get(selectedDayIndex);
-                                        String timeslotString = getTimeslot();
-                                        if (dayTimeSlot.get(selectedDay).contains(timeslotString)) {
-                                            Toast.makeText(getContext(),"Timeslot already exist!", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            db.collection("recycling_center_information").document(documentID).update("timeslot", FieldValue.arrayUnion(selectedDay + ", " + timeslotString));
-                                            dayTimeSlot.get(selectedDay).add(timeslotString);
-                                            timeslot.clear();
-                                            timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
-                                            ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), timeslot, selectedDay);
-                                            timeslotlist.setAdapter(adapter);
-                                        }
+                                        addTimeslot(documentID);
                                     }
                                 });
                             }
@@ -169,6 +159,33 @@ public class TimeslotFragment extends Fragment {
             }
         });
         return timeslotLocation;
+    }
+
+    private void addTimeslot(String documentID) {
+        // Retrieve the currently selected day based on the index.
+        selectedDay = dayList.get(selectedDayIndex);
+
+        // Format the selected time from the TimePicker into a readable string.
+        String timeslotString = getTimeslot();
+
+        // Check if the timeslot for the selected day already exists.
+        if (dayTimeSlot.get(selectedDay).contains(timeslotString)) {
+            // Display a toast message indicating that the timeslot already exists.
+            Toast.makeText(getContext(),"Timeslot already exist!", Toast.LENGTH_SHORT).show();
+        } else {
+            // Update the Firestore document with the new timeslot for the selected day.
+            db.collection("recycling_center_information")
+                    .document(documentID).update("timeslot", FieldValue.arrayUnion(selectedDay + ", " + timeslotString));
+
+            // Add the new timeslot to the local data structure.
+            dayTimeSlot.get(selectedDay).add(timeslotString);
+
+            // Refresh the UI by updating the timeslot list.
+            timeslot.clear();
+            timeslot.addAll(dayTimeSlot.get(dayList.get(selectedDayIndex)));
+            ArrayAdapter<String> adapter = new TimeslotAdapter(getContext(), timeslot, selectedDay);
+            timeslotlist.setAdapter(adapter);
+        }
     }
 
     private String getTimeslot() {
@@ -182,6 +199,9 @@ public class TimeslotFragment extends Fragment {
                 hour -= 12;
             }
         } else {
+            if (hour == 0) {
+                hour = 12;
+            }
             meridiem = "AM";
         }
 

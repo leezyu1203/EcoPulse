@@ -56,9 +56,6 @@ public class reminderMainFragment extends Fragment {
 
     private static ListenerRegistration listener;
 
-    boolean initial = true;
-
-
     public static ListenerRegistration getListener() {
         return listener;
     }

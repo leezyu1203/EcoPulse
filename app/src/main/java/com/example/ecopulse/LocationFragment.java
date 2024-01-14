@@ -24,6 +24,7 @@ import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -55,7 +56,7 @@ import java.util.Locale;
 import java.util.Map;
 
 
-public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener{
+public class LocationFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener {
     private GoogleMap mGoogleMap = null;
     private TextView recycleCenterName = null;
     private TextView recycleCenterAddress = null;
@@ -75,13 +76,18 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     private ImageButton backButton = null;
     protected View locationFragmentView;
     private static final ArrayList<searchItem> SEARCH = new ArrayList<>();
+
+    private FirebaseFirestore db;
+
+    public final static int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        locationFragmentView =  inflater.inflate(R.layout.fragment_location, container, false);
+        locationFragmentView = inflater.inflate(R.layout.fragment_location, container, false);
         title = (TextView) getActivity().findViewById(R.id.current_title);
-
+        db = FirebaseFirestore.getInstance();
         backButton = getActivity().findViewById(R.id.backButton);
         backButton.setVisibility(View.INVISIBLE);
 
@@ -112,7 +118,7 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
             title.setText("Recycling Center Location");
         }
 
-        final SupportMapFragment mapFragment =(SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
+        final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this::onMapReady);
 
         searchButton = locationFragmentView.findViewById(R.id.search_btn);
@@ -126,18 +132,19 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                     return;
                 }
 
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            boolean searchSuccess = false;
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> recyclingCenterData = document.getData();
                                 String name = (recyclingCenterData.get("name") + "").toLowerCase();
                                 String address = (recyclingCenterData.get("address") + "").toLowerCase();
 
-
                                 if (name.contains(search_text) || address.contains(search_text)) {
+                                    searchSuccess = true;
                                     Double lat = Double.parseDouble(recyclingCenterData.get("lat") + "");
                                     Double lng = Double.parseDouble(recyclingCenterData.get("lng") + "");
                                     LatLng position = new LatLng(lat, lng);
@@ -146,8 +153,12 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
                                 }
                             }
 
+                            if (!searchSuccess) {
+                                Toast.makeText(getContext(), "No result!", Toast.LENGTH_SHORT).show();
+                            }
+
                         } else {
-                            Log.d("TAG", "Error getting documents: ", task.getException());
+                            Toast.makeText(getContext(), "Search fail!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -157,74 +168,78 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
         return locationFragmentView;
     }
 
+    public void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mGoogleMap.setMyLocationEnabled(true);
+        } else {
+            ActivityCompat.requestPermissions(this.getActivity(),
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        // Check the permission
+        checkLocationPermission();
 
-        if (mGoogleMap != null) {
-            if (ContextCompat.checkSelfPermission(this.getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mGoogleMap.setMyLocationEnabled(true);
+        // Retrieve recycling center information from FireStore
+        db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Geocoder gcd;
+                    if (getActivity() != null && getActivity().getBaseContext() != null) {
+                        gcd = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
 
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
 
-                db.collection("recycling_center_information").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Geocoder gcd;
-                            if (getActivity() != null && getActivity().getBaseContext() != null) {
-                                gcd = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
-                                if (SEARCH.isEmpty()) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
-
-                                        try {
-                                            if (document.getData().get("lat").equals("")) {
-                                                List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
-                                                updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                                LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                                addRecyclingCenterMarker(latLng);
-                                            } else {
-                                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                                addRecyclingCenterMarker(latLng);
-                                            }
-                                        } catch (IOException e) {
-                                            Log.e("GET LOCATION ERROR", "Fail to get location latitude and longitude");
-                                        }
-//
-                                    }
-                                } else {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        try {
-                                            if (document.getData().get("lat").equals("")) {
-                                                List<Address> addresses = gcd.getFromLocationName(document.getData().get("address") + "", 1);
-                                                updateLatLng(document.getId(), Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                                LatLng latLng = new LatLng(Double.parseDouble(addresses.get(0).getLatitude() + ""), Double.parseDouble(addresses.get(0).getLongitude() + ""));
-                                                addRecyclingCenterMarker(latLng);
-                                            } else {
-                                                LatLng latLng = new LatLng(Double.parseDouble(document.getData().get("lat") + ""), Double.parseDouble(document.getData().get("lng") + ""));
-                                                addRecyclingCenterMarker(latLng);
-                                            }
-                                        } catch (IOException e) {
-                                            Log.e("GETLOCATIONERROR", "Fail to get location latitude and longitude");
-                                        }
-
-                                    }
-                                }
+                            // Add the record to SEARCH list
+                            if (SEARCH.size() != task.getResult().size()) {
+                                SEARCH.add(new searchItem(document.getData().get("name") + "", document.getData().get("address") + ""));
                             }
 
-                        } else {
-                            Log.d("TAG", "Error getting documents: ", task.getException());
+                            String fsLat = document.getData().get("lat") + "";
+                            String fsLng = document.getData().get("lng") + "";
+
+                            try {
+                                LatLng latLng;
+                                if (fsLat.equals("")) {
+                                    // If Lat is not set, get the address and use Geocoder to
+                                    // find the Lat and Lng and update the Lat and Lng in FireStore
+                                    String fsAdd = document.getData().get("address") + "";
+                                    List<Address> addresses = gcd.getFromLocationName(fsAdd, 1);
+                                    double lat = addresses.get(0).getLatitude();
+                                    double lng = addresses.get(0).getLongitude();
+                                    updateLatLng(document.getId(), lat, lng);
+                                    latLng = new LatLng(lat, lng);
+                                } else {
+                                    // If Lat is set, get the lat and lng from the FireStore
+                                    latLng = new LatLng(Double.parseDouble(fsLat), Double.parseDouble(fsLng));
+                                }
+                                // Add the recycling center marker on the map with its lat and lng
+                                addRecyclingCenterMarker(latLng);
+                            } catch (IOException e) {
+                                Log.e("GET LOCATION ERROR", e.getStackTrace().toString());
+                                Toast.makeText(getActivity().getBaseContext(),
+                                        "Fail to ge the location's latitude and longitude",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
-                });
-
-                mGoogleMap.setOnMyLocationChangeListener(this);
-                mGoogleMap.setOnMarkerClickListener(this);
-            } else {
-                ActivityCompat.requestPermissions(this.getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                } else {
+                    Toast.makeText(getActivity().getBaseContext(),
+                            "Fail to ge the location's latitude and longitude",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
-        }
+        });
+
+        // Enable location change listener and marker click listner
+        mGoogleMap.setOnMyLocationChangeListener(this);
+        mGoogleMap.setOnMarkerClickListener(this);
+
     }
 
     private void addRecyclingCenterMarker(LatLng position) {
@@ -279,7 +294,10 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
     }
 
     public void setRecyclingCenterDetails(Dialog dialog, Marker marker) {
-        String[] info = new String[6];
+        // Create a length 1 array to store recycling centre ID
+        String[] recyclingCenterID = new String[1] ;
+
+        // Get all the textView reference in the dialog
         recycleCenterName = dialog.findViewById(R.id.recycling_center_name);
         recycleCenterAddress = dialog.findViewById(R.id.recycling_center_address);
         recycleCenterContact = dialog.findViewById(R.id.recycling_center_contact_number);
@@ -287,58 +305,66 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
         recycleCenterOpening = dialog.findViewById(R.id.recycling_center_opening);
         recycleCenterDistance = dialog.findViewById(R.id.distance);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("recycling_center_information").where(Filter.and(Filter.equalTo("lat", marker.getPosition().latitude), Filter.equalTo("lng", marker.getPosition().longitude))).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        // Query FireStore to get the record where the latitude and longitude same as the marker.
+        Filter equalLat = Filter.equalTo("lat", marker.getPosition().latitude);
+        Filter equalLng = Filter.equalTo("lng", marker.getPosition().longitude);
+        Filter equalLatAndLng = Filter.and(equalLat, equalLng);
+
+        db.collection("recycling_center_information")
+                .where(equalLatAndLng).limit(1).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     if (!task.getResult().getDocuments().isEmpty()) {
                         DocumentSnapshot recyclingCenterData = task.getResult().getDocuments().get(0);
-                        info[0] = recyclingCenterData.get("name") + "";
-                        info[1] = recyclingCenterData.get("address") + "";
-                        info[2] = recyclingCenterData.get("contact") + "";
-                        info[3] = recyclingCenterData.get("type") + "";
-                        info[4] = recyclingCenterData.get("opening") + "";
-                        info[5] = recyclingCenterData.getId();
+                        // Set the recycling center id
+                        recyclingCenterID[0] = recyclingCenterData.getId();
+
+                        // set the recycling center information to the TextViews in the dialog
                         recycleCenterName.setText(recyclingCenterData.get("name") + "");
                         recycleCenterAddress.setText(recyclingCenterData.get("address") + "");
                         recycleCenterContact.setText(recyclingCenterData.get("contact") + "");
                         recycleCenterRecyclingType.setText(recyclingCenterData.get("type") + "");
                         recycleCenterOpening.setText(recyclingCenterData.get("opening") + "");
                     }
-
                 } else {
-                    Log.d("TAG", "Error getting documents: ", task.getException());
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Error getting recycling center information", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
-
-            if (myLocation != null) {
-                float[] result = new float[1];
-                Location.distanceBetween(myLocation.latitude, myLocation.longitude, marker.getPosition().latitude, marker.getPosition().longitude,result);
-
-                recycleCenterDistance.setText(result[0] >= 1000 ? String.format("%.2f", result[0]/1000)  + " km" : String.format("%.2f", result[0]) + " m");
-            }
-
-            schedulePickUpButton = dialog.findViewById(R.id.schedule_button);
-
-
-            schedulePickUpButton.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(getActivity(), SchedulePickUp.class);
-                            Log.d("Log out info", info[0]);
-                            intent.putExtra("name", info[0]);
-                            intent.putExtra("address", info[1]);
-                            intent.putExtra("contact", info[2]);
-                            intent.putExtra("id", info[5]);
-                            startActivity(intent);
-                        }
-                    }
-            );
+        // If user's location is not null (location permission granted),
+        // calculate the distance between user and recycling center and
+        // set the the TextView in dialog, else set "No Permission"
+        if (myLocation != null) {
+            float[] result = new float[1];
+            Location.distanceBetween(myLocation.latitude, myLocation.longitude, marker.getPosition().latitude, marker.getPosition().longitude,result);
+            recycleCenterDistance.setText(result[0] >= 1000 ? String.format("%.2f", result[0]/1000)  + " km" : String.format("%.2f", result[0]) + " m");
+        } else {
+            recycleCenterDistance.setText("No Permission");
         }
+
+        // Get the schedule pick up button from dialog
+        schedulePickUpButton = dialog.findViewById(R.id.schedule_button);
+
+        // Set onClick listener on the schedule pick up button,
+        // go to a new activity with some details (name, address, contact)
+        schedulePickUpButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), SchedulePickUp.class);
+                        intent.putExtra("name", recycleCenterName.getText().toString());
+                        intent.putExtra("address", recycleCenterAddress.getText().toString());
+                        intent.putExtra("contact", recycleCenterContact.getText().toString());
+                        intent.putExtra("id", recyclingCenterID[0]);
+                        startActivity(intent);
+                    }
+                }
+        );
+    }
 
         public void updateLatLng(String id, Double lat, Double lng) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();

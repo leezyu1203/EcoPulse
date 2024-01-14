@@ -78,6 +78,7 @@ public class RequestFragment extends Fragment {
     public static ListenerRegistration getListener() {
         return listener;
     }
+    FirebaseFirestore db;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,6 +90,7 @@ public class RequestFragment extends Fragment {
         acceptedCatBtn = requestLocation.findViewById(R.id.accepted_cat);
         pendingCatBtn = requestLocation.findViewById(R.id.pending_cat);
         canceledCatBtn = requestLocation.findViewById(R.id.canceled_cat);
+        db = FirebaseFirestore.getInstance();
         getRecyclingCenterIDAndData();
         showNoRecordsImage(acceptedCatBtn, pendingCatBtn, canceledCatBtn, doneCatBtn);
 
@@ -97,7 +99,7 @@ public class RequestFragment extends Fragment {
             public void onClick(View view) {
                 currentStatus = "accepted";
                 showNoRecordsImage(acceptedCatBtn, canceledCatBtn, pendingCatBtn, doneCatBtn);
-                changeStatus();
+                displayRequestsBasedOnStatus();
             }
         });
 
@@ -106,7 +108,7 @@ public class RequestFragment extends Fragment {
             public void onClick(View view) {
                 currentStatus = "pending";
                 showNoRecordsImage(pendingCatBtn, canceledCatBtn, acceptedCatBtn, doneCatBtn);
-                changeStatus();
+                displayRequestsBasedOnStatus();
             }
         });
 
@@ -115,7 +117,7 @@ public class RequestFragment extends Fragment {
             public void onClick(View view) {
                 currentStatus = "cancelled";
                 showNoRecordsImage(canceledCatBtn, pendingCatBtn, acceptedCatBtn, doneCatBtn);
-                changeStatus();
+                displayRequestsBasedOnStatus();
             }
         });
 
@@ -124,7 +126,7 @@ public class RequestFragment extends Fragment {
             public void onClick(View view) {
                 currentStatus = "done";
                 showNoRecordsImage(doneCatBtn, canceledCatBtn, pendingCatBtn, acceptedCatBtn);
-                changeStatus();
+                displayRequestsBasedOnStatus();
             }
         });
 
@@ -177,50 +179,42 @@ public class RequestFragment extends Fragment {
     }
 
     private void getRecyclingCenterIDAndData() {
+        // Show the circular loading progress before fetching the data from Firestore
         showLoadingBar(true);
+
+        // Get current user's UID
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userEmail = "";
-        if (user != null) {
-            userEmail = user.getEmail();
-        }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("user").whereEqualTo("email", userEmail).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document1 = task.getResult().getDocuments().iterator().next();
-                    String userID = document1.getId();
+        String userID = user.getUid();
 
-                    db.collection("recycling_center_information").whereEqualTo("userID", userID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document2 = task.getResult().getDocuments().iterator().next();
-                                recyclingCenterID = document2.getId();
-                                getData();
-                                }
+        // Get the recycling center id related to this collaborator account
+        db.collection("recycling_center_information").whereEqualTo("userID", userID).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().iterator().next();
+                            recyclingCenterID = document.getId();
+                            // Get the requests data
+                            getData();
                         }
-                    });
-
-                }
-            }
-        });
+                    }
+                });
     }
 
     public void getData() {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        listener = db.collection("pick_up_schedule").whereEqualTo("recyclingCenterID", recyclingCenterID).orderBy("update_at", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        // Create listener to listen to the changes of FireStore collection "pick_up_schedule"
+        listener = db.collection("pick_up_schedule").whereEqualTo("recyclingCenterID", recyclingCenterID)
+                .orderBy("update_at", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-
                 if (error != null) {
                     Log.w(RequestFragment.this.toString(), "Listen failed.", error);
                     return;
                 }
+                // Clear the allItems ArrayList<RequestListItem> and add all the requests item to it again
+                // every time when the data in FireStore collection "pick_up_schedule" changes
                 allItems.clear();
                 for (QueryDocumentSnapshot document : value) {
-                    Log.d("What", document.toString());
                     String dayOfWeek = document.get("day") + "";
                     String time = document.get("time") + "";
                     String address = document.get("address") + "";
@@ -231,16 +225,14 @@ public class RequestFragment extends Fragment {
                     allItems.add(new RequestListItem(dayOfWeek, time, address, contact, note , status, id));
                 }
 
-                int finalLength = allItems.size();
-                changeStatus();
-
-
+                // Display the request based on the active status
+                displayRequestsBasedOnStatus();
             }
         });
 
     }
 
-    public void changeStatus() {
+    public void displayRequestsBasedOnStatus() {
         showLoadingBar(true);
         selectedItems.clear();
         allItems.stream().forEach(
