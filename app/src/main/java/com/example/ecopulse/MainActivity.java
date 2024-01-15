@@ -271,8 +271,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "CollaboratorUploadFragment: Listen exist doc error", error);
                 }
 
+                Log.d(TAG, "Changing!");
+
                 // Processes the data only if there is a change and it is not an initial setup
                 if(value != null && !isInitial && MainActivity.this != null){
+
                     // Get the title and description of the notification
                     String title = value.getDocuments().iterator().next().get("title").toString();
                     String desc = value.getDocuments().iterator().next().get("desc").toString();

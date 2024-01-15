@@ -139,6 +139,7 @@ public class SchedulePickUp extends AppCompatActivity {
                 selectedDay = adapterView.getSelectedItem().toString();
                 items.clear();
                 items.addAll(dayTimeMap.get(selectedDay));
+                selectedTimeslot = items.get(0);
                 adapter.notifyDataSetChanged();
             }
 

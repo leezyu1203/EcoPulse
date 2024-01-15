@@ -174,6 +174,7 @@ public class Register extends AppCompatActivity {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                 if (task.isSuccessful()) {
+                                                                    mAuth.signOut();
                                                                     Intent intent = new Intent(Register.this, Login.class);
                                                                     startActivity(intent);
                                                                     Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();

@@ -80,8 +80,6 @@ public class LocationFragment extends Fragment implements OnMapReadyCallback, Go
 
     private FirebaseFirestore db;
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
